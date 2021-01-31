@@ -15,6 +15,7 @@
     "url": "git@github.com-cronumax:cronumax/Chrono.git"
   },
   "license": "Commercial",
+  "private": true,
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.54",
     "@electron-forge/maker-deb": "^6.0.0-beta.54",
