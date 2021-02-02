@@ -1,0 +1,13 @@
+body {
+  background-color: #000;
+}
+
+h1 {
+  color: #fff;
+}
+
+button {
+  width: 400px;
+  height: 400px;
+  margin: 50px;
+}

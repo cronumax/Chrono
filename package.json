@@ -1,37 +1,74 @@
 {
   "name": "Chrono",
   "version": "1.0.0",
-  "author": "Cronumax",
+  "private": true,
   "description": "Intelligent process recorder",
-  "main": "main.js",
+  "author": "Cronumax <dev@cronumax.com>",
+  "homepage": "http://cronumax.com",
+  "license": "Commercial",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make"
   },
+  "main": "src/main.js",
   "repository": {
     "type": "git",
     "url": "git@github.com-cronumax:cronumax/Chrono.git"
   },
-  "license": "Commercial",
-  "private": true,
+  "bugs": {
+    "url": "https://github.com/cronumax/Chrono/issues"
+  },
+  "build": {
+    "appId": "org.cronumax.chrono",
+    "productName": "Chrono",
+    "asarUnpack": "files/*",
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.developer-tools",
+      "darkModeSupport": true
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    },
+    "fileAssociations": [{
+        "ext": "side",
+        "name": "Chrono 3 project",
+        "role": "Editor"
+      },
+      {
+        "ext": "sideproj",
+        "name": "Chrono project",
+        "role": "Editor"
+      }
+    ]
+  },
+  "dependencies": {
+    "aws-sdk": "^2.834.0",
+    "chromedriver": "^88.0.0",
+    "electron-squirrel-startup": "^1.0.0",
+    "selenium-webdriver": "^4.0.0-alpha.8"
+  },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.54",
     "@electron-forge/maker-deb": "^6.0.0-beta.54",
     "@electron-forge/maker-rpm": "^6.0.0-beta.54",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.54",
     "@electron-forge/maker-zip": "^6.0.0-beta.54",
-    "electron": "^11.2.1"
-  },
-  "dependencies": {
-    "electron-squirrel-startup": "^1.0.0"
+    "bootstrap": "^4.6.0",
+    "electron": "^11.2.1",
+    "jquery": "^3.5.1",
+    "popper.js": "^1.16.1",
+    "spectron": "^13.0.0"
   },
   "config": {
     "forge": {
       "packagerConfig": {},
-      "makers": [
-        {
+      "makers": [{
           "name": "@electron-forge/maker-squirrel",
           "config": {
             "name": "Chrono"
