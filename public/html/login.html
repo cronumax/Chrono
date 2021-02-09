@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+  <meta charset='UTF-8'>
+  <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css" >
+  <link rel="stylesheet" href="../../node_modules/bootstrap-slider/dist/css/bootstrap-slider.min.css">
+  <link rel='stylesheet' href='../styles/login.css' type='text/css'>
+  <title>Chrono</title>
+</head>
+
+<body>
+  <div id="main-holder">
+    <h1 id="login-header">Login</h1>
+
+    <div id="login-error-msg-holder">
+      <p id="login-error-msg">Invalid username <span id="error-msg-second-line">and/or password</span></p>
+    </div>
+
+    <form id="login-form">
+      <input type="text" name="username"  class="login-form-field" placeholder="Username">
+      <input type="password" name="password" class="login-form-field" placeholder="Password">
+      <input type="hidden" name="_csrf" value="">
+      <input type="submit" value="Login" id="login-form-submit">
+    </form>
+
+  </div>
+  <script src='../../node_modules/bootstrap-slider/dist/bootstrap-slider.min.js'></script>
+  <script src='../../node_modules/jquery/dist/jquery.min.js'></script>
+  <script src='../../node_modules/jquery/dist/jquery.slim.min.js'></script>
+  <script src='../../node_modules/popper.js/dist/umd/popper.js'></script>
+  <script src='../../node_modules/bootstrap/dist/js/bootstrap.min.js'></script>
+  <script src='../../src/renderer.js'></script>
+  <script src='../javascript/index.js'></script>
+</body>
+
+</html>

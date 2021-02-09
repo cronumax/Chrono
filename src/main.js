@@ -1,16 +1,24 @@
 const {
   app,
   BrowserWindow,
-  ipcMain
+  ipcMain,
+  net
 } = require('electron')
 const webdriver = require('selenium-webdriver')
 const url = require('url')
 const path = require('path')
+const http = require('./http/http.js')
+let win
 
 app.on('ready', async () => {
   ipcMain.on('custom-message', (event, message) => {
     console.log(message.data);
     record()
+  })
+
+  ipcMain.on('login-message', (event, message) => {
+    console.log(message.data);
+    http.GET()
   })
 
   createWindow()
@@ -32,22 +40,24 @@ app.on('activate', () => {
 
 // Define a function that creates a new browser window
 function createWindow() {
-  let win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
       preload: path.join(__dirname, './preload.js'),
-      contextIsolation: true
+      contextIsolation: true,
+      nodeIntegration: true
     }
   })
 
-  win.loadFile('renderer/index.html')
+  win.loadFile('public/html/login.html')
   win.maximize()
   // win.webContents.openDevTools()
 
   win.on('close', () => {
     win = null
   })
+
 }
 
 async function record() {

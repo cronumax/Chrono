@@ -1,5 +1,5 @@
 const {
-  ipcRenderer
+  ipcRenderer,
 } = require('electron')
 
 process.once('loaded', () => {
@@ -10,5 +10,11 @@ process.once('loaded', () => {
     if (message.myTypeField === 'my-custom-message') {
       ipcRenderer.send('custom-message', message)
     }
+
+    if (message.myTypeField === 'login-message') {
+
+      ipcRenderer.send('login-message', message)
+    }
   })
+
 })
