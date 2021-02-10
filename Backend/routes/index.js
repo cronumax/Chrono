@@ -11,12 +11,18 @@ router.get('/user/profile', isLoggedIn, function (req, res, next) {
 
 router.get('/user/logout', isLoggedIn, function (req, res, next) {
     req.logout();
-    res.send({ hello: 'world' });
+    res.send({ ok: 'bye bye' });
 });
 
 router.get('/', function(req, res, next) {
   console.log("test test")
   res.send("hello world **********");
+
+});
+
+router.get('/error', function(req, res, next) {
+  let messages = req.flash('error');
+  res.status(403).send({ messages: messages, hasErrors: messages.length > 0})
 
 });
 
@@ -34,7 +40,7 @@ router.get('/user/signup', (req, res, next) =>{
 
 
 router.post('/user/signup', passport.authenticate('local.signup', {
-    failureRedirect: '/user/signup',
+    failureRedirect: '/error',
     failureFlash: true
 }), function (req, res, next) {
     if (req.session.oldUrl) {
@@ -42,7 +48,7 @@ router.post('/user/signup', passport.authenticate('local.signup', {
         req.session.oldUrl = null;
         res.send({ hello: 'fail' });
     } else {
-        res.send({ hello: 'world' });
+        res.send({ hello: 'success' });
     }
 });
 
@@ -54,7 +60,7 @@ router.get('/user/signin', (req, res, next) =>{
 
 
 router.post('/user/signin', passport.authenticate('local.signin', {
-    failureRedirect: '/user/signin',
+    failureRedirect: '/error',
     failureFlash: true
 }), function (req, res, next) {
     if (req.session.oldUrl) {
@@ -62,7 +68,7 @@ router.post('/user/signin', passport.authenticate('local.signin', {
         req.session.oldUrl = null;
         res.send({ hello: 'fail' });
     } else {
-        res.send({ hello: 'world' });
+        res.send({ hello: 'success' });
     }
 });
 

@@ -15,6 +15,21 @@ process.once('loaded', () => {
 
       ipcRenderer.send('login-message', message)
     }
+
+    if (message.myTypeField === 'signup-message') {
+
+      ipcRenderer.send('signup-message', message)
+    }
+
+    if (message.myTypeField === 'logout-message') {
+
+      ipcRenderer.send('logout-message', message)
+    }
+
+    if (message.myTypeField === 'switch-message') {
+
+      ipcRenderer.send('switch-message', message)
+    }
   })
 
 })

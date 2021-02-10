@@ -4,21 +4,38 @@ const {
   ipcMain,
   net
 } = require('electron')
-const webdriver = require('selenium-webdriver')
 const url = require('url')
 const path = require('path')
 const http = require('./http/http.js')
+const sel = require('./selenium/recorder.js')
 let win
 
 app.on('ready', async () => {
   ipcMain.on('custom-message', (event, message) => {
     console.log(message.data);
-    record()
+    sel.record()
   })
 
   ipcMain.on('login-message', (event, message) => {
     console.log(message.data);
-    http.GET()
+    http.POST("user/signin", message.data, win)
+  })
+
+  ipcMain.on('signup-message', (event, message) => {
+    console.log(message.data);
+    http.POST("user/signup", message.data, win)
+  })
+
+  ipcMain.on('logout-message', (event, message) => {
+    console.log(message.data);
+    http.LOGOUT("user/logout", win)
+  })
+  ipcMain.on('switch-message', (event, message) => {
+    // console.log(message.data);
+     if(message.data =="signin")
+     win.loadFile('public/html/login.html')
+     else
+      win.loadFile('public/html/signup.html')
   })
 
   createWindow()
@@ -45,12 +62,11 @@ function createWindow() {
     height: 800,
     webPreferences: {
       preload: path.join(__dirname, './preload.js'),
-      contextIsolation: true,
-      nodeIntegration: true
+      contextIsolation: true
     }
   })
 
-  win.loadFile('public/html/login.html')
+  win.loadFile('public/html/signup.html')
   win.maximize()
   // win.webContents.openDevTools()
 
@@ -58,16 +74,7 @@ function createWindow() {
     win = null
   })
 
+  http.GET("/user/signup", win)
+
+
 }
-
-async function record() {
-  let driver = await new webdriver.Builder().forBrowser('chrome').build()
-
-  driver.get('https://google.com')
-  driver.manage().window().maximize()
-  driver.findElement(webdriver.By.name('q')).sendKeys('webdriver', webdriver.Key.RETURN)
-}
-
-async function finish() {}
-
-async function play() {}

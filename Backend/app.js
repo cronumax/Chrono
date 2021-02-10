@@ -15,6 +15,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/test', { useUnifiedTopology: true ,u
 var MongoStore = require('connect-mongo')(session);
 require('./config/passport');
 var app = express();
+const csrf = require('csurf');
 
 // uncomment after placing your favicon in /public
 app.engine('.hbs', expressHbs({defaultLayout: 'layout', extname: '.hbs'}));
@@ -23,7 +24,7 @@ app.set('view engine', '.hbs');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-// app.use(validator());
+app.use(validator());
 app.use(cookieParser());
 app.use(session({
   secret: 'mysupersecret',
