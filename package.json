@@ -35,7 +35,8 @@
     "linux": {
       "target": "AppImage"
     },
-    "fileAssociations": [{
+    "fileAssociations": [
+      {
         "ext": "side",
         "name": "Chrono 3 project",
         "role": "Editor"
@@ -49,6 +50,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.834.0",
+    "bootstrap-slider": "^11.0.2",
     "chromedriver": "^88.0.0",
     "electron-squirrel-startup": "^1.0.0",
     "selenium-webdriver": "^4.0.0-alpha.8"
@@ -68,7 +70,8 @@
   "config": {
     "forge": {
       "packagerConfig": {},
-      "makers": [{
+      "makers": [
+        {
           "name": "@electron-forge/maker-squirrel",
           "config": {
             "name": "Chrono"

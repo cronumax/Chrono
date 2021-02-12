@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+  <meta charset='UTF-8'>
+  <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css" >
+  <link rel="stylesheet" href="../../node_modules/bootstrap-slider/dist/css/bootstrap-slider.min.css">
+  <link rel='stylesheet' href='../styles/signup.css' type='text/css'>
+  <title>Chrono</title>
+</head>
+
+<body>
+  <div id="main-holder">
+    <h1 id="signup-header">Signup</h1>
+
+    <div id="signup-error-msg-holder">
+      <p id="signup-error-msg">Invalid username <span id="error-msg-second-line">and/or password</span></p>
+    </div>
+
+    <form id="signup-form">
+      <input type="text" name="email"  class="signup-form-field" placeholder="Email">
+      <input type="password" name="password" class="signup-form-field" placeholder="Password">
+      <input type="hidden" name="_csrf" value="">
+      <input type="submit" value="Signup" id="signup-form-submit">
+    </form>
+    <button type='button' class="btn btn-info" id='switch-singin'>Login</button>
+
+  </div>
+  <script src='../../node_modules/bootstrap-slider/dist/bootstrap-slider.min.js'></script>
+  <script src='../../node_modules/jquery/dist/jquery.min.js'></script>
+  <script src='../../node_modules/jquery/dist/jquery.slim.min.js'></script>
+  <script src='../../node_modules/popper.js/dist/umd/popper.js'></script>
+  <script src='../../node_modules/bootstrap/dist/js/bootstrap.min.js'></script>
+  <script src='../../src/renderer.js'></script>
+  <script src='../javascript/index.js'></script>
+</body>
+
+</html>
