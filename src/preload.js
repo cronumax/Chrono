@@ -31,5 +31,4 @@ process.once('loaded', () => {
       ipcRenderer.send('switch-message', message)
     }
   })
-
 })
