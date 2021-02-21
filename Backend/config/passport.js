@@ -113,13 +113,13 @@ passport.use('local.recover', new LocalStrategy({
       let transporter = nodemailer.createTransport({
           service: 'gmail',
           auth: {
-              user: 'kaipingwang809@gmail.com',
-              pass: '+A78c10d7e'
+              user: 'xxxxx@gmail.com',
+              pass: 'xxxx'
           }
       });
 
       const mailOptions = {
-            from: 'Kevin <kaipingwang809@gmail.com>',
+            from: 'Kevin <xxxxxx@gmail.com>',
             to: user.email,
             subject: 'Changed Your Password',
             text:  `Hi User \n
@@ -176,13 +176,13 @@ passport.use('local.resetPassword', new LocalStrategy({
             let transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
-                    user: 'kaipingwang809@gmail.com',
-                    pass: '+A78c10d7e'
+                    user: 'xxxxx@gmail.com',
+                    pass: 'xxxxx'
                 }
             });
 
             const mailOptions = {
-                  from: 'Kevin <kaipingwang809@gmail.com>',
+                  from: 'Kevin <xxxxx@gmail.com>',
                   to: user.email,
                   subject: "Your password has been changed",
                   text:  `Hi User \n
