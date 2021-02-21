@@ -41,5 +41,4 @@ process.once('loaded', () => {
       ipcRenderer.send('resetForm-message', message)
     }
   })
-
 })

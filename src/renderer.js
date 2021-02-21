@@ -1,12 +1,9 @@
-
-
 $('#record').click(function() {
   window.postMessage({
     myTypeField: 'my-custom-message',
     data: 'Record btn clicked'
   })
 })
-
 
 $('#login-form-submit').click(function() {
   const loginForm = document.getElementById("login-form");
@@ -18,7 +15,6 @@ $('#login-form-submit').click(function() {
       _csrf: loginForm._csrf.value
     }
   })
-
 })
 
 $('#signup-form-submit').click(function() {
@@ -31,31 +27,29 @@ $('#signup-form-submit').click(function() {
       _csrf: signupForm._csrf.value
     }
   })
-
 })
-
 
 $('#logout').click(function() {
   window.postMessage({
     myTypeField: 'logout-message',
     data: "logout btn pressed"
   })
-
 })
 
 $('#switch-singin').click(function() {
   window.postMessage({
     myTypeField: 'switch-message',
-    data:"signin"
+    data: "signin"
   })
 })
 
 $('#switch-singup').click(function() {
   window.postMessage({
     myTypeField: 'switch-message',
-    data:"signup"
+    data: "signup"
   })
 })
+
 
 $('#resetPassword').click(function() {
   const loginForm = document.getElementById("login-form");
@@ -80,3 +74,18 @@ $('#reset-form-submit').click(function() {
     }
   })
 })
+
+$(document).on('click', 'body *', function(event) {
+  // Deselect btns
+  $('.nav-button.is-selected').removeClass('is-selected')
+
+  // Highlight clicked button and show view
+  event.target.classList.add('is-selected')
+})
+
+$('.js-nav').addClass('is-shown')
+
+$('.js-content').addClass('is-shown')
+
+// Default active menu item
+$('#button-windows').click()

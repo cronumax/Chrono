@@ -30,11 +30,12 @@ app.on('ready', async () => {
     console.log(message.data);
     http.LOGOUT("user/logout", win)
   })
+
   ipcMain.on('switch-message', (event, message) => {
     // console.log(message.data);
-     if(message.data =="signin")
-     win.loadFile('public/html/login.html')
-     else
+    if (message.data == "signin")
+      win.loadFile('public/html/login.html')
+    else
       win.loadFile('public/html/signup.html')
   })
   ipcMain.on('resetPassword-message', (event, message) => {
@@ -79,7 +80,10 @@ function createWindow() {
   })
 
   win.loadFile('public/html/signup.html')
-  win.maximize()
+
+  // Debug
+  // win.loadFile('public/html/index.html')
+  // win.maximize()
   // win.webContents.openDevTools()
 
   win.on('close', () => {

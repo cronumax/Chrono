@@ -1,0 +1,40 @@
+body {
+  background-color: black;
+}
+
+h1 {
+  color: #fff;
+}
+
+button {}
+
+.main-center {
+  text-align: center;
+  padding-top: 10%;
+  padding-left: 10%;
+}
+
+#ex1Slider .slider-handle {
+  background: green;
+}
+
+row.col-sm {
+  display: block;
+}
+
+@media screen and (min-width: 1000px) {
+  .form-padding {
+    padding-left: 20%;
+  }
+}
+
+@media screen and (max-width: 995px) and (min-width: 700px) {
+  .form-padding {
+    padding-left: 2%;
+  }
+}
+
+.flexbox {
+  display: flex;
+  height: inherit;
+}

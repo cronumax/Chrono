@@ -10,9 +10,11 @@ router.get('/user/profile', isLoggedIn, function (req, res, next) {
 
 });
 
-router.get('/user/logout', isLoggedIn, function (req, res, next) {
-    req.logout();
-    res.send({ ok: 'bye bye' });
+router.get('/user/logout', isLoggedIn, function(req, res, next) {
+  req.logout();
+  res.send({
+    ok: 'bye bye'
+  });
 });
 
 router.get('/', function(req, res, next) {
@@ -39,54 +41,73 @@ router.post('/user/recover', passport.authenticate('local.recover', {
 
 router.get('/error', function(req, res, next) {
   let messages = req.flash('error');
-  res.status(403).send({ messages: messages, hasErrors: messages.length > 0})
+  res.status(403).send({
+    messages: messages,
+    hasErrors: messages.length > 0
+  })
 
 });
 
 
-router.use(csrfProtection);
-router.use('/', notLoggedIn, function (req, res, next) {
-    next();
+// router.use(csrfProtection);
+router.use('/', notLoggedIn, function(req, res, next) {
+  next();
 });
 
-router.get('/user/signup', (req, res, next) =>{
+router.get('/user/signup', (req, res, next) => {
   let messages = req.flash('error');
-  res.send({ csrfToken: req.csrfToken(), messages: messages, hasErrors: messages.length > 0})
+  res.send({
+    csrfToken: req.csrfToken(),
+    messages: messages,
+    hasErrors: messages.length > 0
+  })
 });
 
 
 
 router.post('/user/signup', passport.authenticate('local.signup', {
-    failureRedirect: '/error',
-    failureFlash: true
-}), function (req, res, next) {
-    if (req.session.oldUrl) {
-        var oldUrl = req.session.oldUrl;
-        req.session.oldUrl = null;
-        res.send({ signup: 'fail' });
-    } else {
-        res.send({ signup: 'success' });
-    }
+  failureRedirect: '/error',
+  failureFlash: true
+}), function(req, res, next) {
+  if (req.session.oldUrl) {
+    var oldUrl = req.session.oldUrl;
+    req.session.oldUrl = null;
+    res.send({
+      hello: 'fail'
+    });
+  } else {
+    res.send({
+      hello: 'success'
+    });
+  }
 });
 
 
-router.get('/user/signin', (req, res, next) =>{
+router.get('/user/signin', (req, res, next) => {
   let messages = req.flash('error');
-  res.rend( { csrfToken: req.csrfToken(), messages: messages, hasErrors: messages.length > 0})
+  res.rend({
+    csrfToken: req.csrfToken(),
+    messages: messages,
+    hasErrors: messages.length > 0
+  })
 });
 
 
 router.post('/user/signin', passport.authenticate('local.signin', {
-    failureRedirect: '/error',
-    failureFlash: true
-}), function (req, res, next) {
-    if (req.session.oldUrl) {
-        var oldUrl = req.session.oldUrl;
-        req.session.oldUrl = null;
-        res.send({ signin: 'fail' });
-    } else {
-        res.send({ signin: 'success' });
-    }
+  failureRedirect: '/error',
+  failureFlash: true
+}), function(req, res, next) {
+  if (req.session.oldUrl) {
+    var oldUrl = req.session.oldUrl;
+    req.session.oldUrl = null;
+    res.send({
+      signin: 'fail'
+    });
+  } else {
+    res.send({
+      signin: 'success'
+    });
+  }
 });
 
 
@@ -97,24 +118,31 @@ router.get('/user/reset/:token', function(req, res, next){
 
 
 module.exports = router;
+
 function isSignIn(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    res.send("isSignIn");
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.send({
+    isSignIn: 'isSignIn'
+  });
 }
 
 function isLoggedIn(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    req.session.oldUrl = req.url;
-    res.send("isLoggedIn");
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  req.session.oldUrl = req.url;
+  res.send({
+    isLoggedIn: 'isLoggedIn'
+  });
 }
 
 function notLoggedIn(req, res, next) {
-    if (!req.isAuthenticated()) {
-        return next();
-    }
-    res.send("notLoggedIn");
+  if (!req.isAuthenticated()) {
+    return next();
+  }
+  res.send({
+    notLoggedIn: 'notLoggedIn'
+  });
 }

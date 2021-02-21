@@ -13,7 +13,7 @@ async function play() {}
 
 
 module.exports = {
-    record: record,
-    finish: finish,
-    play:play
+  record: record,
+  finish: finish,
+  play: play
 };
