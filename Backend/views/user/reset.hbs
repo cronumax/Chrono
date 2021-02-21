@@ -1,0 +1,23 @@
+<head>
+<link rel='stylesheet' href='/stylesheets/reset.css'>
+</head>
+
+<div class="reset-wrap">
+	{{#if hasErrors}}
+				<div class="alert alert-danger">
+						{{# each messages }}
+								<p>{{this}}</p>
+						{{/each}}
+				</div>
+		{{/if}}
+		<div class="login">
+			<div class="avatar">
+			</div>
+			<form id="reset" class="reset-form" action="/user/reset/{{token}}" method="post">
+				<input type="password" name="password" class="pass" placeholder="Password"/><span class="arrow">&rarr;</span>
+      	<input type="password" name="confirmPassword" class="pass" placeholder="confirmPassword"/><span class="arrow">&rarr;</span>
+				<input type="hidden" name="_csrf" value="{{ csrfToken }}">
+				<button type="submit" class="btn btn-primary pass">Submit</button>
+			</form>
+		</div>
+	</div>

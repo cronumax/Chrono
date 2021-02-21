@@ -12,7 +12,7 @@ const hostname='127.0.0.1',
 
 let csrfToken =''
 
-function GET(url, win){
+function GETCSRF(url, win){
   const request = net.request({
       method: 'GET',
       protocol: protocol,
@@ -46,6 +46,36 @@ function GET(url, win){
     request.end()
 }
 
+function GET(url, win){
+  const request = net.request({
+      method: 'GET',
+      protocol: protocol,
+      hostname: hostname,
+      port: port,
+      path: url,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+     })
+      request.on('response', (response) => {
+      // console.log(`STATUS: ${response.statusCode}`)
+      // console.log(`HEADERS: ${JSON.stringify(response.headers)}`)
+      response.on('data', (chunk) => {
+        let status = `${response.statusCode}`
+        if(status == 200){
+
+            const obj =JSON.parse(`${chunk}`)
+
+        }
+      })
+
+      response.on('end', () => {
+        //console.log('No more data in response.')
+      })
+    })
+    request.end()
+}
+
 function POST(url, body, win){
     csrfToken = (body._csrf.length <= 0) ? csrfToken: body._csrf
     console.log(csrfToken)
@@ -64,7 +94,7 @@ function POST(url, body, win){
 
       response.on('data', (chunk) => {
         let status = `${response.statusCode}`
-        let res = "BODY:" + `${chunk}`
+        let res =  `${chunk}`
         if(status == 200){
           console.log(res)
           win.loadFile('public/html/index.html')
@@ -75,6 +105,38 @@ function POST(url, body, win){
     request.write(JSON.stringify(body))
     request.end()
 }
+
+function POSTRESET(url, body, win){
+    csrfToken = (body._csrf.length <= 0) ? csrfToken: body._csrf
+    console.log(csrfToken)
+    const request = net.request({
+            method: 'POST',
+            protocol: protocol,
+            hostname: hostname,
+            port: port,
+            path: url,
+            headers: {
+              'Content-Type': 'application/json',
+              'csrf-token': csrfToken
+            }
+           })
+      request.on('response', (response) => {
+
+      response.on('data', (chunk) => {
+        let status = `${response.statusCode}`
+        let res = `${chunk}`
+        if(status == 200){
+          console.log(res)
+          win.loadFile('public/html/login.html')
+        }
+      })
+
+    })
+    request.write(JSON.stringify(body))
+    request.end()
+}
+
+
 
 function LogoutGET(url, win){
   const request = net.request({
@@ -108,5 +170,7 @@ function LogoutGET(url, win){
 module.exports = {
     GET: GET,
     POST: POST,
-    LOGOUT:LogoutGET
+    LOGOUT:LogoutGET,
+    GETCSRF:GETCSRF,
+    POSTRESET:POSTRESET
 };

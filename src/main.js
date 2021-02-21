@@ -37,7 +37,19 @@ app.on('ready', async () => {
      else
       win.loadFile('public/html/signup.html')
   })
+  ipcMain.on('resetPassword-message', (event, message) => {
+    console.log(message.data);
+    win.loadFile('public/html/reset.html')
+    //http.POST("user/recover", message.data, win)
 
+  })
+
+  ipcMain.on('resetForm-message', (event, message) => {
+    console.log(message.data);
+
+    http.POSTRESET("user/recover", message.data, win)
+
+  })
   createWindow()
 })
 
@@ -74,7 +86,7 @@ function createWindow() {
     win = null
   })
 
-  http.GET("/user/signup", win)
+  http.GETCSRF("/user/signup", win)
 
 
 }

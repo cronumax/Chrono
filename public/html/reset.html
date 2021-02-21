@@ -5,26 +5,26 @@
   <meta charset='UTF-8'>
   <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css" >
   <link rel="stylesheet" href="../../node_modules/bootstrap-slider/dist/css/bootstrap-slider.min.css">
-  <link rel='stylesheet' href='../styles/login.css' type='text/css'>
+  <link rel='stylesheet' href='../styles/reset.css' type='text/css'>
   <title>Chrono</title>
 </head>
 
 <body>
   <div id="main-holder">
-    <h1 id="login-header">Login</h1>
+    <h1 id="reset-header">Reset Password</h1>
 
-    <div id="login-error-msg-holder">
-      <p id="login-error-msg">Invalid username <span id="error-msg-second-line">and/or password</span></p>
+    <div id="reset-error-msg-holder">
+      <p id="reset-error-msg">Invalid username <span id="error-msg-second-line">and/or password</span></p>
     </div>
 
-    <form id="login-form">
-      <input type="text" name="email"  class="login-form-field" placeholder="Email">
-      <input type="password" name="password" class="login-form-field" placeholder="Password">
+    <form id="reset-form">
+      <input type="text" name="email"  class="reset-form-field" placeholder="Email">
+      <input type="hidden" name="password" class="reset-form-field" placeholder="Password" value="no">
       <input type="hidden" name="_csrf" value="">
-      <input type="submit" value="Login" id="login-form-submit">
+      <input type="submit" value="send" id="reset-form-submit">
     </form>
-    <button type='button' class="btn btn-info" id='resetPassword'>Forgot Password</button>
-    <button type='button' class="btn btn-info" id='switch-singup'>Signup</button>
+
+    <button type='button' class="btn btn-info" id='switch-singin'>Signin</button>
   </div>
   <script src='../../node_modules/bootstrap-slider/dist/bootstrap-slider.min.js'></script>
   <script src='../../node_modules/jquery/dist/jquery.min.js'></script>

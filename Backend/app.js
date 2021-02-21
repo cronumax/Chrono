@@ -11,7 +11,7 @@ var passport = require('passport');
 var validator = require('express-validator');
 var jade = require('jade');
 var flash = require('connect-flash');
-mongoose.connect('mongodb://127.0.0.1:27017/test', { useUnifiedTopology: true ,useNewUrlParser: true} );
+mongoose.connect('mongodb://127.0.0.1:27017/test', { useUnifiedTopology: true ,useNewUrlParser: true, useFindAndModify: false } );
 var MongoStore = require('connect-mongo')(session);
 require('./config/passport');
 var app = express();
@@ -34,6 +34,7 @@ app.use(session({
   cookie: { maxAge: 180 * 60 * 1000 }
 }));
 app.use(flash());
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use((req, res, next)=> {

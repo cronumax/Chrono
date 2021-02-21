@@ -30,6 +30,16 @@ process.once('loaded', () => {
 
       ipcRenderer.send('switch-message', message)
     }
+
+    if (message.myTypeField === 'resetPassword-message') {
+
+      ipcRenderer.send('resetPassword-message', message)
+    }
+
+    if (message.myTypeField === 'resetForm-message') {
+
+      ipcRenderer.send('resetForm-message', message)
+    }
   })
 
 })

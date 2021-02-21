@@ -56,3 +56,27 @@ $('#switch-singup').click(function() {
     data:"signup"
   })
 })
+
+$('#resetPassword').click(function() {
+  const loginForm = document.getElementById("login-form");
+  window.postMessage({
+    myTypeField: 'resetPassword-message',
+    data:{
+      email: loginForm.email.value,
+      password: loginForm.password.value,
+      _csrf: loginForm._csrf.value
+    }
+  })
+})
+
+$('#reset-form-submit').click(function() {
+  const resetForm = document.getElementById("reset-form");
+  window.postMessage({
+    myTypeField: 'resetForm-message',
+    data:{
+      email: resetForm.email.value,
+      password: resetForm.password.value,
+      _csrf: resetForm._csrf.value
+    }
+  })
+})
