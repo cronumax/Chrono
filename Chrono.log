@@ -1,0 +1,78 @@
+2021-03-28 22:54:58,093 - __main__ - INFO - Record btn is clicked.
+2021-03-28 22:54:58,559 - __main__ - INFO - KeyboardEvent.DOWN - KEY_LEFT_SUPER - 1616943298.5598166
+2021-03-28 22:54:58,871 - __main__ - INFO - KeyboardEvent.DOWN - KEY_PAGE_UP - 1616943298.8712642
+2021-03-28 22:54:58,975 - __main__ - INFO - KeyboardEvent.UP - KEY_PAGE_UP - 1616943298.9755259
+2021-03-28 22:54:59,359 - __main__ - INFO - KeyboardEvent.UP - KEY_LEFT_SUPER - 1616943299.3591757
+2021-03-28 22:54:59,927 - __main__ - INFO - KeyboardEvent.DOWN - KEY_LEFT_CTRL - 1616943299.9274828
+2021-03-28 22:55:00,248 - __main__ - INFO - KeyboardEvent.DOWN - KEY_T - 1616943300.2483716
+2021-03-28 22:55:00,326 - __main__ - INFO - KeyboardEvent.UP - KEY_T - 1616943300.3268595
+2021-03-28 22:55:00,367 - __main__ - INFO - KeyboardEvent.UP - KEY_LEFT_CTRL - 1616943300.3670096
+2021-03-28 22:55:00,768 - __main__ - INFO - KeyboardEvent.DOWN - KEY_C - 1616943300.768377
+2021-03-28 22:55:00,831 - __main__ - INFO - KeyboardEvent.UP - KEY_C - 1616943300.8310688
+2021-03-28 22:55:00,975 - __main__ - INFO - KeyboardEvent.DOWN - KEY_R - 1616943300.97566
+2021-03-28 22:55:01,039 - __main__ - INFO - KeyboardEvent.UP - KEY_R - 1616943301.0390997
+2021-03-28 22:55:01,191 - __main__ - INFO - KeyboardEvent.DOWN - KEY_O - 1616943301.191845
+2021-03-28 22:55:01,327 - __main__ - INFO - KeyboardEvent.DOWN - KEY_N - 1616943301.3279238
+2021-03-28 22:55:01,335 - __main__ - INFO - KeyboardEvent.UP - KEY_O - 1616943301.3354812
+2021-03-28 22:55:01,439 - __main__ - INFO - KeyboardEvent.UP - KEY_N - 1616943301.4390824
+2021-03-28 22:55:01,784 - __main__ - INFO - KeyboardEvent.DOWN - KEY_U - 1616943301.7844248
+2021-03-28 22:55:01,854 - __main__ - INFO - KeyboardEvent.UP - KEY_U - 1616943301.854919
+2021-03-28 22:55:02,031 - __main__ - INFO - KeyboardEvent.DOWN - KEY_M - 1616943302.0310762
+2021-03-28 22:55:02,118 - __main__ - INFO - KeyboardEvent.UP - KEY_M - 1616943302.1189573
+2021-03-28 22:55:02,144 - __main__ - INFO - KeyboardEvent.DOWN - KEY_A - 1616943302.144254
+2021-03-28 22:55:02,208 - __main__ - INFO - KeyboardEvent.DOWN - KEY_X - 1616943302.208784
+2021-03-28 22:55:02,239 - __main__ - INFO - KeyboardEvent.UP - KEY_A - 1616943302.2393582
+2021-03-28 22:55:02,327 - __main__ - INFO - KeyboardEvent.UP - KEY_X - 1616943302.32731
+2021-03-28 22:55:02,543 - __main__ - INFO - KeyboardEvent.DOWN - KEY_PERIOD - 1616943302.5431862
+2021-03-28 22:55:02,631 - __main__ - INFO - KeyboardEvent.UP - KEY_PERIOD - 1616943302.631603
+2021-03-28 22:55:02,800 - __main__ - INFO - KeyboardEvent.DOWN - KEY_C - 1616943302.8002377
+2021-03-28 22:55:02,871 - __main__ - INFO - KeyboardEvent.UP - KEY_C - 1616943302.87098
+2021-03-28 22:55:02,903 - __main__ - INFO - KeyboardEvent.DOWN - KEY_O - 1616943302.9031363
+2021-03-28 22:55:02,999 - __main__ - INFO - KeyboardEvent.DOWN - KEY_M - 1616943302.999309
+2021-03-28 22:55:03,016 - __main__ - INFO - KeyboardEvent.UP - KEY_O - 1616943303.0161748
+2021-03-28 22:55:03,103 - __main__ - INFO - KeyboardEvent.UP - KEY_M - 1616943303.103111
+2021-03-28 22:55:03,352 - __main__ - INFO - KeyboardEvent.DOWN - KEY_RETURN - 1616943303.352254
+2021-03-28 22:55:03,414 - __main__ - INFO - KeyboardEvent.UP - KEY_RETURN - 1616943303.4149745
+2021-03-28 22:55:11,497 - __main__ - INFO - MouseEvent.MOVE - None - None - None - 815 - 438 - 1616943311.4978192
+2021-03-28 22:55:21,165 - __main__ - INFO - MouseEvent.MOVE - None - None - None - 1075 - 703 - 1616943321.1653817
+2021-03-28 22:55:22,014 - __main__ - INFO - KeyboardEvent.DOWN - KEY_ESCAPE - 1616943322.0149312
+2021-03-28 22:55:22,110 - __main__ - INFO - KeyboardEvent.UP - KEY_ESCAPE - 1616943322.1109293
+2021-03-28 22:55:26,221 - __main__ - INFO - Play btn is clicked.
+2021-03-28 22:55:26,221 - __main__ - INFO - {'name': 'kb', 'type': 'DOWN', 'keyboard_key': 'KEY_LEFT_SUPER', 'time': '1616943298.5598166'}
+2021-03-28 22:55:26,323 - __main__ - INFO - {'name': 'kb', 'type': 'DOWN', 'keyboard_key': 'KEY_PAGE_UP', 'time': '1616943298.8712642'}
+2021-03-28 22:55:26,737 - __main__ - INFO - {'name': 'kb', 'type': 'UP', 'keyboard_key': 'KEY_PAGE_UP', 'time': '1616943298.9755259'}
+2021-03-28 22:55:26,943 - __main__ - INFO - {'name': 'kb', 'type': 'UP', 'keyboard_key': 'KEY_LEFT_SUPER', 'time': '1616943299.3591757'}
+2021-03-28 22:55:27,430 - __main__ - INFO - {'name': 'kb', 'type': 'DOWN', 'keyboard_key': 'KEY_LEFT_CTRL', 'time': '1616943299.9274828'}
+2021-03-28 22:55:28,103 - __main__ - INFO - {'name': 'kb', 'type': 'DOWN', 'keyboard_key': 'KEY_T', 'time': '1616943300.2483716'}
+2021-03-28 22:55:28,525 - __main__ - INFO - {'name': 'kb', 'type': 'UP', 'keyboard_key': 'KEY_T', 'time': '1616943300.3268595'}
+2021-03-28 22:55:28,705 - __main__ - INFO - {'name': 'kb', 'type': 'UP', 'keyboard_key': 'KEY_LEFT_CTRL', 'time': '1616943300.3670096'}
+2021-03-28 22:55:28,846 - __main__ - INFO - {'name': 'kb', 'type': 'DOWN', 'keyboard_key': 'KEY_C', 'time': '1616943300.768377'}
+2021-03-28 22:55:29,349 - __main__ - INFO - {'name': 'kb', 'type': 'UP', 'keyboard_key': 'KEY_C', 'time': '1616943300.8310688'}
+2021-03-28 22:55:29,512 - __main__ - INFO - {'name': 'kb', 'type': 'DOWN', 'keyboard_key': 'KEY_R', 'time': '1616943300.97566'}
+2021-03-28 22:55:29,759 - __main__ - INFO - {'name': 'kb', 'type': 'UP', 'keyboard_key': 'KEY_R', 'time': '1616943301.0390997'}
+2021-03-28 22:55:29,925 - __main__ - INFO - {'name': 'kb', 'type': 'DOWN', 'keyboard_key': 'KEY_O', 'time': '1616943301.191845'}
+2021-03-28 22:55:30,179 - __main__ - INFO - {'name': 'kb', 'type': 'DOWN', 'keyboard_key': 'KEY_N', 'time': '1616943301.3279238'}
+2021-03-28 22:55:30,418 - __main__ - INFO - {'name': 'kb', 'type': 'UP', 'keyboard_key': 'KEY_O', 'time': '1616943301.3354812'}
+2021-03-28 22:55:30,526 - __main__ - INFO - {'name': 'kb', 'type': 'UP', 'keyboard_key': 'KEY_N', 'time': '1616943301.4390824'}
+2021-03-28 22:55:30,732 - __main__ - INFO - {'name': 'kb', 'type': 'DOWN', 'keyboard_key': 'KEY_U', 'time': '1616943301.7844248'}
+2021-03-28 22:55:31,179 - __main__ - INFO - {'name': 'kb', 'type': 'UP', 'keyboard_key': 'KEY_U', 'time': '1616943301.854919'}
+2021-03-28 22:55:31,351 - __main__ - INFO - {'name': 'kb', 'type': 'DOWN', 'keyboard_key': 'KEY_M', 'time': '1616943302.0310762'}
+2021-03-28 22:55:31,629 - __main__ - INFO - {'name': 'kb', 'type': 'UP', 'keyboard_key': 'KEY_M', 'time': '1616943302.1189573'}
+2021-03-28 22:55:31,819 - __main__ - INFO - {'name': 'kb', 'type': 'DOWN', 'keyboard_key': 'KEY_A', 'time': '1616943302.144254'}
+2021-03-28 22:55:31,947 - __main__ - INFO - {'name': 'kb', 'type': 'DOWN', 'keyboard_key': 'KEY_X', 'time': '1616943302.208784'}
+2021-03-28 22:55:32,115 - __main__ - INFO - {'name': 'kb', 'type': 'UP', 'keyboard_key': 'KEY_A', 'time': '1616943302.2393582'}
+2021-03-28 22:55:32,248 - __main__ - INFO - {'name': 'kb', 'type': 'UP', 'keyboard_key': 'KEY_X', 'time': '1616943302.32731'}
+2021-03-28 22:55:32,438 - __main__ - INFO - {'name': 'kb', 'type': 'DOWN', 'keyboard_key': 'KEY_PERIOD', 'time': '1616943302.5431862'}
+2021-03-28 22:55:32,757 - __main__ - INFO - {'name': 'kb', 'type': 'UP', 'keyboard_key': 'KEY_PERIOD', 'time': '1616943302.631603'}
+2021-03-28 22:55:32,947 - __main__ - INFO - {'name': 'kb', 'type': 'DOWN', 'keyboard_key': 'KEY_C', 'time': '1616943302.8002377'}
+2021-03-28 22:55:33,217 - __main__ - INFO - {'name': 'kb', 'type': 'UP', 'keyboard_key': 'KEY_C', 'time': '1616943302.87098'}
+2021-03-28 22:55:33,389 - __main__ - INFO - {'name': 'kb', 'type': 'DOWN', 'keyboard_key': 'KEY_O', 'time': '1616943302.9031363'}
+2021-03-28 22:55:33,522 - __main__ - INFO - {'name': 'kb', 'type': 'DOWN', 'keyboard_key': 'KEY_M', 'time': '1616943302.999309'}
+2021-03-28 22:55:33,719 - __main__ - INFO - {'name': 'kb', 'type': 'UP', 'keyboard_key': 'KEY_O', 'time': '1616943303.0161748'}
+2021-03-28 22:55:33,837 - __main__ - INFO - {'name': 'kb', 'type': 'UP', 'keyboard_key': 'KEY_M', 'time': '1616943303.103111'}
+2021-03-28 22:55:34,024 - __main__ - INFO - {'name': 'kb', 'type': 'DOWN', 'keyboard_key': 'KEY_RETURN', 'time': '1616943303.352254'}
+2021-03-28 22:55:34,375 - __main__ - INFO - {'name': 'kb', 'type': 'UP', 'keyboard_key': 'KEY_RETURN', 'time': '1616943303.4149745'}
+2021-03-28 22:55:34,538 - __main__ - INFO - {'name': 'mouse', 'type': 'MOVE', 'button': 'None', 'direction': 'None', 'velocity': 'None', 'x': '815', 'y': '438', 'time': '1616943311.4978192'}
+2021-03-28 22:55:42,738 - __main__ - INFO - {'name': 'mouse', 'type': 'MOVE', 'button': 'None', 'direction': 'None', 'velocity': 'None', 'x': '1075', 'y': '703', 'time': '1616943321.1653817'}
+2021-03-28 22:55:52,521 - __main__ - INFO - {'name': 'kb', 'type': 'DOWN', 'keyboard_key': 'KEY_ESCAPE', 'time': '1616943322.0149312'}
+2021-03-28 22:55:53,473 - __main__ - INFO - {'name': 'kb', 'type': 'UP', 'keyboard_key': 'KEY_ESCAPE', 'time': '1616943322.1109293'}
