@@ -1,11 +1,10 @@
 import webview
 import logging
-from sneakysnek.recorder import Recorder
-from sneakysnek.keyboard_event import KeyboardEvent
-from sneakysnek.keyboard_keys import KeyboardKey
+import keyboard as kb
+import mouse as m
 import time
 import json
-import pyautogui
+import pyautogui as pag
 
 
 logging.basicConfig(filename='Chrono.log', level=logging.DEBUG,
@@ -15,92 +14,102 @@ logger = logging.getLogger(__name__)
 
 class Api:
     def __init__(self):
-        self.is_recording = False
-        self.touch_mode = True  # To do: let user choose between touch/ mouse mode
+        self.escape_key = 'esc'  # To do: let user select
 
     def record(self, msg):
         logger.info(msg)
 
-        self.event_strs = []
+        self.kb_events = []
+        self.mouse_events = []
 
-        if not self.is_recording:
-            recorder = Recorder.record(self.event_handler)
-            self.is_recording = True
+        kb.start_recording()
+        m.hook(self.mouse_event_handler)
+        kb.wait(self.escape_key)
+        raw_kb_events = kb.stop_recording()
+        m.unhook(self.mouse_event_handler)
+        self.kb_event_handler(raw_kb_events)
 
-            while self.is_recording:
-                time.sleep(0.5)
+        self.save()
 
-            recorder.stop()
+        logger.info('Record finished.')
 
-    def play(self, msg):
-        logger.info(msg)
+    def play(self, msg, god_speed=False):
+        try:
+            logger.info(msg)
 
-        event_strs = self.load()
+            events = self.load()
+            state = kb.stash_state()
 
-        last_time = None
-        for event_str in event_strs:
-            tmp_list = event_str.split('.', 1)[1].split(' - ')
-            event = {}
+            # Hot fix for missing 1st event
+            kb.unhook(kb.hook(set().add))
 
-            # Parse event_str into event
-            if 'MouseEvent' in event_str:
-                event['name'] = 'mouse'
-                event['type'] = tmp_list[0]
-                event['button'] = tmp_list[1]
-                event['direction'] = tmp_list[2]
-                event['velocity'] = tmp_list[3]
-                event['x'] = tmp_list[4]
-                event['y'] = tmp_list[5]
-                event['time'] = tmp_list[6]
-            else:
-                event['name'] = 'kb'
-                event['type'] = tmp_list[0]
-                event['keyboard_key'] = tmp_list[1]
-                event['time'] = tmp_list[2]
+            last_time = None
+            for event in events:
+                logger.info(event)
 
-            logger.info(event)
-
-            # Action
-            if last_time:
-                time.sleep(float(event['time']) - last_time)
-            last_time = float(event['time'])
-            if event['name'] == 'mouse':
-                if self.touch_mode:
-                    pyautogui.click(int(event['x']), int(event['y']))
+                if last_time and not god_speed:
+                    time.sleep(event['time'] - last_time)
                 else:
-                    '''
-                    To do
-                    mouse mode
-                    '''
-            else:
-                with open('keymap.json') as f:
-                    keymap = json.load(f)
-                key = keymap[event['keyboard_key']]
-                if event['type'] == 'DOWN':
-                    pyautogui.keyDown(key)
+                    time.sleep(0.05)
+                last_time = event['time']
+
+                # Action
+                if event['event_name'] == 'ButtonEvent':
+                    pag.click(
+                        button=event['button'], x=event['position'][0], y=event['position'][1])
                 else:
-                    pyautogui.keyUp(key)
+                    key = event['scan_code'] or event['name']
+                    if event['event_type'] == 'up':
+                        kb.release(key)
+                    else:
+                        kb.press(key)
 
-    def event_handler(self, event):
-        event_str = event.__str__()
-        logger.info(event_str)
+            kb.restore_modifiers(state)
 
-        self.event_strs.append(event_str)
-        if isinstance(event, KeyboardEvent) and event.keyboard_key == KeyboardKey.KEY_ESCAPE:
-            self.is_recording = False
-            self.save()
+            logger.info('Replay finished.')
+        except Exception as e:
+            logger.info(str(e))
+
+    def kb_event_handler(self, raw_kb_events):
+        for e in raw_kb_events:
+            kb_event_dict = {}
+            kb_event_dict['event_name'] = 'KeyboardEvent'
+            kb_event_dict.update(json.loads(e.to_json()))
+            self.kb_events.append(kb_event_dict)
+
+    def mouse_event_handler(self, raw_mouse_event):
+        if isinstance(raw_mouse_event, m.ButtonEvent) and raw_mouse_event.button in ['?', 'left', 'middle', 'right']:
+            mouse_event_dict = {}
+            mouse_event_dict['event_name'] = 'ButtonEvent'
+            mouse_event_dict['event_type'] = raw_mouse_event.event_type
+            mouse_event_dict['button'] = 'left' if raw_mouse_event.button == '?' else raw_mouse_event.button
+            mouse_event_dict['position'] = m.get_position()
+            mouse_event_dict['time'] = raw_mouse_event.time
+            self.mouse_events.append(mouse_event_dict)
 
     def save(self):
+        events = sorted(self.kb_events + self.mouse_events,
+                        key=lambda i: i['time'])
+
+        # Fix escape_key pressing issue
+        events.append({
+            'event_name': 'KeyboardEvent',
+            'event_type': 'up',
+            'scan_code': events[-1]['scan_code'],
+            'name': events[-1]['name'],
+            'time': events[-1]['time'] + 0.1
+        })
+
         with open('events.json', 'w') as f:
-            json.dump(self.event_strs, f)
+            json.dump(events, f)
 
     def load(self):
         with open('events.json') as f:
-            event_strs = json.load(f)
-        return event_strs
+            events = json.load(f)
+        return events
 
 
 if __name__ == '__main__':
     api = Api()
     window = webview.create_window('Chrono', 'index.html', js_api=api)
-    webview.start(debug=True)
+    webview.start()
