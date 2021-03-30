@@ -55,8 +55,12 @@ class Api:
 
                 # Action
                 if event['event_name'] == 'ButtonEvent':
-                    pag.click(
-                        button=event['button'], x=event['position'][0], y=event['position'][1])
+                    if event['event_type'] == 'up':
+                        pag.mouseUp(
+                            button=event['button'], x=event['position'][0], y=event['position'][1])
+                    else:
+                        pag.mouseDown(
+                            button=event['button'], x=event['position'][0], y=event['position'][1])
                 else:
                     key = event['scan_code'] or event['name']
                     if event['event_type'] == 'up':
