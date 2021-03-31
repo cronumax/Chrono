@@ -1,3 +1,8 @@
 venv/
 Chrono.log
 events.json
+__pycache__/
+build/
+dist/
+*.spec
+processes/
