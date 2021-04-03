@@ -1,0 +1,8 @@
+-r common_requirements.txt
+PyQt5==5.15.4
+PyQt5-Qt5==5.15.2
+PyQt5-sip==12.8.1
+PyQtWebEngine==5.15.4
+PyQtWebEngine-Qt5==5.15.2
+python-xlib==0.29
+python3-xlib==0.15
