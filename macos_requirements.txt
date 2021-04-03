@@ -129,3 +129,4 @@ pyobjc-framework-VideoToolbox==7.1
 pyobjc-framework-Virtualization==7.1
 pyobjc-framework-Vision==7.1
 pyobjc-framework-WebKit==7.1
+rubicon-objc==0.4.0
