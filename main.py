@@ -58,7 +58,7 @@ class Api:
                     pag.mouseDown(
                         button=event['button'], x=event['position'][0], y=event['position'][1])
             else:
-                key = event['scan_code'] or event['name']
+                key = event['name']
                 if event['event_type'] == 'up':
                     kb.release(key)
                 else:
