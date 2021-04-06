@@ -32,7 +32,7 @@ class Api:
 
         self.save()
 
-        logger.info('Record finished.')
+        logger.info('Record finished')
 
     def play(self, msg, god_speed=False):
         logger.info(msg)
@@ -58,6 +58,13 @@ class Api:
                 else:
                     pag.mouseDown(
                         button=event['button'], x=event['position'][0], y=event['position'][1])
+            elif event['event_name'] == 'WheelEvent':
+                if event['event_type'] == 'up':
+                    pag.scroll(1, x=event['position'][0],
+                               y=event['position'][1])
+                else:
+                    pag.scroll(-1, x=event['position']
+                               [0], y=event['position'][1])
             else:
                 if platform.system() == 'Windows':
                     key = event['name']
@@ -71,7 +78,7 @@ class Api:
 
         kb.restore_modifiers(state)
 
-        logger.info('Replay finished.')
+        logger.info('Replay finished')
 
     def kb_event_handler(self, raw_kb_events):
         for e in raw_kb_events:
@@ -81,11 +88,17 @@ class Api:
             self.kb_events.append(kb_event_dict)
 
     def m_event_handler(self, raw_m_event):
+        m_event_dict = {}
+
         if isinstance(raw_m_event, m.ButtonEvent) and raw_m_event.button in ['?', 'left', 'middle', 'right']:
-            m_event_dict = {}
             m_event_dict['event_name'] = 'ButtonEvent'
             m_event_dict['event_type'] = raw_m_event.event_type
             m_event_dict['button'] = 'left' if raw_m_event.button == '?' else raw_m_event.button
+        elif isinstance(raw_m_event, m.WheelEvent):
+            m_event_dict['event_name'] = 'WheelEvent'
+            m_event_dict['event_type'] = 'up' if raw_m_event.delta > 0 else 'down'
+
+        if 'event_name' in m_event_dict:
             m_event_dict['position'] = m.get_position()
             m_event_dict['time'] = raw_m_event.time
             self.m_events.append(m_event_dict)
