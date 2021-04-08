@@ -3,6 +3,7 @@ import logging
 import time
 import json
 import platform
+import pync
 import subprocess as s
 from pynput.keyboard import Key, Controller as kb_ctrler, Listener as kb_lstner
 from pynput.mouse import Button, Controller as m_ctrler, Listener as m_lstner
@@ -37,15 +38,15 @@ class Api:
                 self.kl.join()
                 self.ml.join()
 
-            # logger.info(self.kb_events)
-            # logger.info(self.m_events)
-            try:
-                self.save()
-            except Exception as e:
-                logger.error(str(e))
+            self.save()
 
             logger.info('Record finished')
-            s.call(['notify-send', 'Chrono', 'Record finished.'])
+            if platform.system() == 'Linux':
+                s.call(['notify-send', 'Chrono', 'Record finished.'])
+            elif platform.system() == 'Darwin':
+                pync.notify('Record finished.', title='Chrono')
+            else:
+                pass
             self.is_recording = False
 
     def play(self, msg):
@@ -103,7 +104,12 @@ class Api:
                             mc.scroll(0, -1)
 
             logger.info('Replay finished')
-            s.call(['notify-send', 'Chrono', 'Replay finished.'])
+            if platform.system() == 'Linux':
+                s.call(['notify-send', 'Chrono', 'Replay finished.'])
+            elif platform.system() == 'Darwin':
+                pync.notify('Record finished.', title='Chrono')
+            else:
+                pass
             self.is_playing = False
 
     def on_press(self, key):
