@@ -23,10 +23,13 @@ class Api:
         self.is_recording = False
         self.is_playing = False
         '''
-        To do: let user change these settings
+        To do: let user change these settings when we hv a gd error handling. Don't want dummy user action to backfire Cronumax/ Chrono's reputation.
         '''
         self.escape_key = Key.esc
-        self.touch_mode = True
+        if platform.system() == 'Darwin':
+            self.touch_mode = False
+        else:
+            self.touch_mode = True
         self.god_speed = False
 
     def record(self, msg):
@@ -37,9 +40,8 @@ class Api:
             self.kb_events = []
             self.m_events = []
 
-            with kb_lstner(on_press=self.on_press, on_release=self.on_release) as self.kl, m_lstner(on_move=self.on_touch, on_click=self.on_click, on_scroll=self.on_scroll) as self.ml:
-                self.kl.join()
-                self.ml.join()
+            while self.is_recording:
+                time.sleep(1)
 
             self.save()
 
@@ -50,7 +52,6 @@ class Api:
                 pync.notify('Record finished.', title='Chrono')
             else:
                 pass
-            self.is_recording = False
 
     def play(self, msg):
         logger.info(msg)
@@ -116,43 +117,46 @@ class Api:
             self.is_playing = False
 
     def on_press(self, key):
-        logger.info('Pressed {0}'.format(key))
+        if self.is_recording:
+            logger.info('Pressed {0}'.format(key))
 
-        self.kb_event_handler(key, 'down', time.time())
+            self.kb_event_handler(key, 'down', time.time())
 
     def on_release(self, key):
-        logger.info('Released {0}'.format(key))
+        if self.is_recording:
+            logger.info('Released {0}'.format(key))
 
-        self.kb_event_handler(key, 'up', time.time())
-        if key == self.escape_key:
-            self.kl.stop()
-            self.ml.stop()
+            self.kb_event_handler(key, 'up', time.time())
+            if key == self.escape_key:
+                self.is_recording = False
 
     def on_touch(self, x, y):
-        if self.touch_mode:
+        if self.touch_mode and self.is_recording:
             logger.info('Touched at {0}'.format((x, y)))
 
             self.m_event_handler('down', (x, y), time.time())
             self.m_event_handler('up', (x, y), time.time())
 
     def on_click(self, x, y, button, pressed):
-        logger.info('{0} {1} at {2}'.format(
-            'Pressed' if pressed else 'Released', button, (x, y)))
+        if self.is_recording:
+            logger.info('{0} {1} at {2}'.format(
+                'Pressed' if pressed else 'Released', button, (x, y)))
 
-        if self.touch_mode:
-            self.touch_mode = False
+            if self.touch_mode:
+                self.touch_mode = False
 
-        event_type = 'down' if pressed else 'up'
-        self.m_event_handler(event_type, (x, y), time.time(), button)
+            event_type = 'down' if pressed else 'up'
+            self.m_event_handler(event_type, (x, y), time.time(), button)
 
     def on_scroll(self, x, y, dx, dy):
-        event_type = 'down' if dy < 0 else 'up'
-        logger.info('Scrolled {0} at {1}'.format(event_type, (x, y)))
+        if self.is_recording:
+            event_type = 'down' if dy < 0 else 'up'
+            logger.info('Scrolled {0} at {1}'.format(event_type, (x, y)))
 
-        if self.touch_mode:
-            self.touch_mode = False
+            if self.touch_mode:
+                self.touch_mode = False
 
-        self.m_event_handler(event_type, (x, y), time.time())
+            self.m_event_handler(event_type, (x, y), time.time())
 
     def kb_event_handler(self, key, event_type, time):
         kb_event_dict = {}
@@ -200,8 +204,13 @@ class Api:
 
         return events
 
+    def thread_handler(self):
+        with kb_lstner(on_press=self.on_press, on_release=self.on_release) as self.kl, m_lstner(on_move=self.on_touch, on_click=self.on_click, on_scroll=self.on_scroll) as self.ml:
+            self.kl.join()
+            self.ml.join()
+
 
 if __name__ == '__main__':
     api = Api()
     window = webview.create_window('Chrono', 'assets/index.html', js_api=api)
-    webview.start()
+    webview.start(api.thread_handler)
