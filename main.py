@@ -3,11 +3,14 @@ import logging
 import time
 import json
 import platform
-import pync
-import subprocess as s
-from pynput.keyboard import Key, Controller as kb_ctrler, Listener as kb_lstner
+from pynput.keyboard import Key, KeyCode, Controller as kb_ctrler, Listener as kb_lstner
 from pynput.mouse import Button, Controller as m_ctrler, Listener as m_lstner
-from pynput.keyboard._xorg import KeyCode as LinuxKeyCode
+if platform.system() == 'Linux':
+    import subprocess as s
+elif platform.system() == 'Darwin':
+    import pync
+else:
+    pass
 
 
 logging.basicConfig(filename='Chrono.log', level=logging.DEBUG,
@@ -74,7 +77,7 @@ class Api:
                         key = event['key']['char']
                     else:
                         if platform.system() == 'Linux':
-                            key = Key(LinuxKeyCode._from_symbol(
+                            key = Key(KeyCode._from_symbol(
                                 event['key']['_symbol']))
                         elif platform.system() == 'Darwin':
                             # To do
