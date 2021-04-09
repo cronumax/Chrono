@@ -8,7 +8,7 @@ from pynput.mouse import Button, Controller as m_ctrler, Listener as m_lstner
 if platform.system() == 'Linux':
     import subprocess as s
 elif platform.system() == 'Darwin':
-    import pync
+    import os
     import AppKit
 else:
     pass
@@ -52,7 +52,12 @@ class Api:
                 if platform.system() == 'Linux':
                     s.call(['notify-send', 'Chrono', 'Record finished.'])
                 elif platform.system() == 'Darwin':
-                    pync.notify('Record finished.', title='Chrono')
+                    title = 'Chrono'
+                    message = 'Record finished.'
+                    command = f'''
+                    osascript -e 'display notification "{message}" with title "{title}"'
+                    '''
+                    os.system(command)
                 else:
                     # To do
                     pass
@@ -105,7 +110,12 @@ class Api:
                 if platform.system() == 'Linux':
                     s.call(['notify-send', 'Chrono', 'Replay finished.'])
                 elif platform.system() == 'Darwin':
-                    pync.notify('Replay finished.', title='Chrono')
+                    title = 'Chrono'
+                    message = 'Replay finished.'
+                    command = f'''
+                    osascript -e 'display notification "{message}" with title "{title}"'
+                    '''
+                    os.system(command)
                 else:
                     # To do
                     pass
