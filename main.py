@@ -5,14 +5,12 @@ import json
 import platform
 from pynput.keyboard import Key, KeyCode, Controller as kb_ctrler, Listener as kb_lstner
 from pynput.mouse import Button, Controller as m_ctrler, Listener as m_lstner
-if platform.system() == 'Linux':
-    import subprocess as s
-elif platform.system() == 'Darwin':
+from plyer import notification
+if platform.system() == 'Darwin':
     import os
     import AppKit
-else:
+elif platform.system() == 'Windows':
     from curses.ascii import unctrl, isctrl
-    from plyer import notification
 import pyautogui as pag
 
 
@@ -50,9 +48,7 @@ class Api:
                 self.save()
 
                 logger.info('Record finished')
-                if platform.system() == 'Linux':
-                    s.call(['notify-send', 'Chrono', 'Record finished.'])
-                elif platform.system() == 'Darwin':
+                if platform.system() == 'Darwin':
                     title = 'Chrono'
                     message = 'Record finished.'
                     command = f'''
@@ -108,9 +104,7 @@ class Api:
                                            [0], y=event['position'][1])
 
                 logger.info('Replay finished')
-                if platform.system() == 'Linux':
-                    s.call(['notify-send', 'Chrono', 'Replay finished.'])
-                elif platform.system() == 'Darwin':
+                if platform.system() == 'Darwin':
                     title = 'Chrono'
                     message = 'Replay finished.'
                     command = f'''
