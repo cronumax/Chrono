@@ -9,6 +9,8 @@ if platform.system() == 'Linux':
     import subprocess as s
 elif platform.system() == 'Darwin':
     import pync
+    import AppKit
+    import pyautogui as pag
 else:
     pass
 
@@ -51,6 +53,7 @@ class Api:
             elif platform.system() == 'Darwin':
                 pync.notify('Record finished.', title='Chrono')
             else:
+                # To do
                 pass
 
     def play(self, msg):
@@ -78,11 +81,9 @@ class Api:
                         key = event['key']['char']
                     else:
                         if platform.system() == 'Linux':
-                            key = Key(KeyCode._from_symbol(
-                                event['key']['_symbol']))
+                            key = Key(KeyCode._from_symbol(event['key']['_symbol']))
                         elif platform.system() == 'Darwin':
-                            # To do
-                            pass
+                            key = Key(KeyCode.from_vk(event['key']['vk']))
                         else:
                             # To do
                             pass
@@ -111,8 +112,9 @@ class Api:
             if platform.system() == 'Linux':
                 s.call(['notify-send', 'Chrono', 'Replay finished.'])
             elif platform.system() == 'Darwin':
-                pync.notify('Record finished.', title='Chrono')
+                pync.notify('Replay finished.', title='Chrono')
             else:
+                # To do
                 pass
             self.is_playing = False
 
@@ -177,8 +179,18 @@ class Api:
         else:
             if button:
                 m_event_dict['event_name'] = 'ClickEvent'
+
                 btn = vars(button)
                 btn.pop('__objclass__', None)
+
+                if platform.system() == 'Darwin':
+                    if btn['_value_'][1] == 0:
+                        btn['_value_'] = 1
+                    elif btn['_value_'][1] == 2:
+                        btn['_value_'] = 2
+                    elif btn['_value_'][1] == 1:
+                        btn['_value_'] = 3
+
                 m_event_dict['button'] = btn
             else:
                 m_event_dict['event_name'] = 'WheelEvent'
@@ -205,9 +217,10 @@ class Api:
         return events
 
     def thread_handler(self):
-        with kb_lstner(on_press=self.on_press, on_release=self.on_release) as self.kl, m_lstner(on_move=self.on_touch, on_click=self.on_click, on_scroll=self.on_scroll) as self.ml:
-            self.kl.join()
-            self.ml.join()
+        self.kl = kb_lstner(on_press=self.on_press, on_release=self.on_release)
+        self.ml = m_lstner(on_move=self.on_touch, on_click=self.on_click, on_scroll=self.on_scroll)
+        self.kl.start()
+        self.ml.start()
 
 
 if __name__ == '__main__':
