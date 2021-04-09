@@ -39,7 +39,7 @@ pip install -r windows_requirements.txt
 ### Linux
 
 ```bash
-pyinstaller --onefile --windowed --add-data 'assets:assets' main.py
+pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import plyer.platforms.linux.notification main.py
 ```
 
 ### macOS
