@@ -3,16 +3,16 @@ import logging
 import time
 import json
 import platform
-import AppKit
-import pyautogui as pag
 from pynput.keyboard import Key, KeyCode, Controller as kb_ctrler, Listener as kb_lstner
 from pynput.mouse import Button, Controller as m_ctrler, Listener as m_lstner
 if platform.system() == 'Linux':
     import subprocess as s
 elif platform.system() == 'Darwin':
     import pync
+    import AppKit
 else:
     pass
+import pyautogui as pag
 
 
 logging.basicConfig(filename='Chrono.log', level=logging.DEBUG,
@@ -95,9 +95,11 @@ class Api:
                                     button=btn, x=event['position'][0], y=event['position'][1])
                         elif event['event_name'] == 'WheelEvent':
                             if event['event_type'] == 'up':
-                                pag.scroll(1, x=event['position'][0], y=event['position'][1])
+                                pag.scroll(
+                                    1, x=event['position'][0], y=event['position'][1])
                             else:
-                                pag.scroll(-1, x=event['position'][0], y=event['position'][1])
+                                pag.scroll(-1, x=event['position']
+                                           [0], y=event['position'][1])
 
                 logger.info('Replay finished')
                 if platform.system() == 'Linux':
