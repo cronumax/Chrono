@@ -11,7 +11,8 @@ elif platform.system() == 'Darwin':
     import os
     import AppKit
 else:
-    pass
+    from curses.ascii import unctrl, isctrl
+    from plyer import notification
 import pyautogui as pag
 
 
@@ -59,8 +60,8 @@ class Api:
                     '''
                     os.system(command)
                 else:
-                    # To do
-                    pass
+                    notification.notify(
+                        title='Chrono', message='Record finished.')
         except Exception as e:
             logger.error('record() exception: {0}'.format(str(e)))
 
@@ -117,8 +118,8 @@ class Api:
                     '''
                     os.system(command)
                 else:
-                    # To do
-                    pass
+                    notification.notify(
+                        title='Chrono', message='Replay finished.')
                 self.is_playing = False
         except Exception as e:
             logger.error('play() exception: {0}'.format(str(e)))
@@ -169,16 +170,24 @@ class Api:
         try:
             try:
                 key = key.char
+                if isctrl(key):
+                    key = unctrl(key).strip('^').lower()
             except:
                 key = key.name
 
             # pynput's keys -> pyautogui's keys conversion
             if key == 'cmd':
                 key = 'command'
+            elif key == 'alt_l':
+                key = 'altleft'
             elif key == 'alt_r':
                 key = 'altright'
+            elif key == 'shift_l':
+                key = 'shiftleft'
             elif key == 'shift_r':
                 key = 'shiftright'
+            elif key == 'ctrl_l':
+                key = 'ctrlleft'
             elif key == 'ctrl_r':
                 key = 'ctrlright'
             elif key == 'caps_lock':
