@@ -3,14 +3,14 @@ import logging
 import time
 import json
 import platform
+import AppKit
+import pyautogui as pag
 from pynput.keyboard import Key, KeyCode, Controller as kb_ctrler, Listener as kb_lstner
 from pynput.mouse import Button, Controller as m_ctrler, Listener as m_lstner
 if platform.system() == 'Linux':
     import subprocess as s
 elif platform.system() == 'Darwin':
     import pync
-    import AppKit
-    import pyautogui as pag
 else:
     pass
 
@@ -35,88 +35,81 @@ class Api:
         self.god_speed = False
 
     def record(self, msg):
-        logger.info(msg)
+        try:
+            logger.info(msg)
 
-        if not self.is_recording:
-            self.is_recording = True
-            self.kb_events = []
-            self.m_events = []
+            if not self.is_recording:
+                self.is_recording = True
+                self.kb_events = []
+                self.m_events = []
 
-            while self.is_recording:
-                time.sleep(1)
+                while self.is_recording:
+                    time.sleep(1)
 
-            self.save()
+                self.save()
 
-            logger.info('Record finished')
-            if platform.system() == 'Linux':
-                s.call(['notify-send', 'Chrono', 'Record finished.'])
-            elif platform.system() == 'Darwin':
-                pync.notify('Record finished.', title='Chrono')
-            else:
-                # To do
-                pass
+                logger.info('Record finished')
+                if platform.system() == 'Linux':
+                    s.call(['notify-send', 'Chrono', 'Record finished.'])
+                elif platform.system() == 'Darwin':
+                    pync.notify('Record finished.', title='Chrono')
+                else:
+                    # To do
+                    pass
+        except Exception as e:
+            logger.error('record() exception: {0}'.format(str(e)))
 
     def play(self, msg):
-        logger.info(msg)
+        try:
+            logger.info(msg)
 
-        if not self.is_playing:
-            self.is_playing = True
-            events = self.load()
-            kc = kb_ctrler()
-            mc = m_ctrler()
+            if not self.is_playing:
+                self.is_playing = True
+                events = self.load()
 
-            last_time = None
-            for event in events:
-                logger.info(event)
+                last_time = None
+                for event in events:
+                    logger.info(event)
 
-                if last_time and not self.god_speed:
-                    time.sleep(event['time'] - last_time)
-                else:
-                    time.sleep(0.05)
-                last_time = event['time']
-
-                # Action
-                if event['event_name'] == 'KeyboardEvent':
-                    if event['key']['char']:
-                        key = event['key']['char']
+                    if last_time and not self.god_speed:
+                        time.sleep(event['time'] - last_time)
                     else:
-                        if platform.system() == 'Linux':
-                            key = Key(KeyCode._from_symbol(event['key']['_symbol']))
-                        elif platform.system() == 'Darwin':
-                            key = Key(KeyCode.from_vk(event['key']['vk']))
-                        else:
-                            # To do
-                            pass
+                        time.sleep(0.05)
+                    last_time = event['time']
 
-                    if event['event_type'] == 'up':
-                        kc.release(key)
+                    # Action
+                    if event['event_name'] == 'KeyboardEvent':
+                        if event['event_type'] == 'up':
+                            pag.keyUp(event['key'])
+                        else:
+                            pag.keyDown(event['key'])
                     else:
-                        kc.press(key)
+                        if event['event_name'] in ['TouchEvent', 'ClickEvent']:
+                            btn = event['button'] if 'button' in event else 'left'
+
+                            if event['event_type'] == 'up':
+                                pag.mouseUp(
+                                    button=btn, x=event['position'][0], y=event['position'][1])
+                            else:
+                                pag.mouseDown(
+                                    button=btn, x=event['position'][0], y=event['position'][1])
+                        elif event['event_name'] == 'WheelEvent':
+                            if event['event_type'] == 'up':
+                                pag.scroll(1, x=event['position'][0], y=event['position'][1])
+                            else:
+                                pag.scroll(-1, x=event['position'][0], y=event['position'][1])
+
+                logger.info('Replay finished')
+                if platform.system() == 'Linux':
+                    s.call(['notify-send', 'Chrono', 'Replay finished.'])
+                elif platform.system() == 'Darwin':
+                    pync.notify('Replay finished.', title='Chrono')
                 else:
-                    mc.position = event['position']
-                    if event['event_name'] in ['TouchEvent', 'ClickEvent']:
-                        btn = Button(event['button']['_value_']
-                                     ) if 'button' in event else Button.left
-
-                        if event['event_type'] == 'up':
-                            mc.release(btn)
-                        else:
-                            mc.press(btn)
-                    elif event['event_name'] == 'WheelEvent':
-                        if event['event_type'] == 'up':
-                            mc.scroll(0, 1)
-                        else:
-                            mc.scroll(0, -1)
-
-            logger.info('Replay finished')
-            if platform.system() == 'Linux':
-                s.call(['notify-send', 'Chrono', 'Replay finished.'])
-            elif platform.system() == 'Darwin':
-                pync.notify('Replay finished.', title='Chrono')
-            else:
-                # To do
-                pass
-            self.is_playing = False
+                    # To do
+                    pass
+                self.is_playing = False
+        except Exception as e:
+            logger.error('play() exception: {0}'.format(str(e)))
 
     def on_press(self, key):
         if self.is_recording:
@@ -160,16 +153,61 @@ class Api:
 
             self.m_event_handler(event_type, (x, y), time.time())
 
+    def special_key_handler(self, key):
+        try:
+            try:
+                key = key.char
+            except:
+                key = key.name
+
+            # pynput's keys -> pyautogui's keys conversion
+            if key == 'cmd':
+                key = 'command'
+            elif key == 'alt_r':
+                key = 'altright'
+            elif key == 'shift_r':
+                key = 'shiftright'
+            elif key == 'ctrl_r':
+                key = 'ctrlright'
+            elif key == 'caps_lock':
+                key = 'capslock'
+            elif key == 'page_down':
+                key = 'pgdn'
+            elif key == 'page_up':
+                key = 'pgup'
+            elif key == 'media_play_pause':
+                key = 'playpause'
+            elif key == 'media_volume_mute':
+                key = 'volumemute'
+            elif key == 'media_volume_down':
+                key = 'volumedown'
+            elif key == 'media_volume_up':
+                key = 'volumeup'
+            elif key == 'media_previous':
+                key = 'prevtrack'
+            elif key == 'media_next':
+                key = 'nexttrack'
+            elif key == 'num_lock':
+                key = 'numlock'
+            elif key == 'print_screen':
+                key = 'printscreen'
+            elif key == 'scroll_lock':
+                key = 'scrolllock'
+
+            return key
+        except Exception as e:
+            logger.error('special_key_handler() exception: {0}'.format(str(e)))
+
     def kb_event_handler(self, key, event_type, time):
         kb_event_dict = {}
 
         kb_event_dict['event_name'] = 'KeyboardEvent'
         kb_event_dict['event_type'] = event_type
-        kb_event_dict['key'] = vars(
-            vars(key)['_value_']) if '_value_' in vars(key) else vars(key)
+        kb_event_dict['key'] = self.special_key_handler(key)
         kb_event_dict['time'] = time
 
-        self.kb_events.append(kb_event_dict)
+        if kb_event_dict['key']:
+            self.kb_events.append(kb_event_dict)
 
     def m_event_handler(self, event_type, position, time, button=None):
         m_event_dict = {}
@@ -179,11 +217,7 @@ class Api:
         else:
             if button:
                 m_event_dict['event_name'] = 'ClickEvent'
-
-                btn = vars(button)
-                btn.pop('__objclass__', None)
-
-                m_event_dict['button'] = btn
+                m_event_dict['button'] = button.name
             else:
                 m_event_dict['event_name'] = 'WheelEvent'
 
@@ -209,10 +243,13 @@ class Api:
         return events
 
     def thread_handler(self):
-        self.kl = kb_lstner(on_press=self.on_press, on_release=self.on_release)
-        self.ml = m_lstner(on_move=self.on_touch, on_click=self.on_click, on_scroll=self.on_scroll)
-        self.kl.start()
-        self.ml.start()
+        try:
+            pag.keyUp('esc')  # Hot fix for macOS thread issue
+            with kb_lstner(on_press=self.on_press, on_release=self.on_release) as self.kl, m_lstner(on_move=self.on_touch, on_click=self.on_click, on_scroll=self.on_scroll) as self.ml:
+                self.kl.join()
+                self.ml.join()
+        except Exception as e:
+            logger.error('thread_handler() exception: {0}'.format(str(e)))
 
 
 if __name__ == '__main__':
