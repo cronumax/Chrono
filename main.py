@@ -183,14 +183,6 @@ class Api:
                 btn = vars(button)
                 btn.pop('__objclass__', None)
 
-                if platform.system() == 'Darwin':
-                    if btn['_value_'][1] == 0:
-                        btn['_value_'] = 1
-                    elif btn['_value_'][1] == 2:
-                        btn['_value_'] = 2
-                    elif btn['_value_'][1] == 1:
-                        btn['_value_'] = 3
-
                 m_event_dict['button'] = btn
             else:
                 m_event_dict['event_name'] = 'WheelEvent'
