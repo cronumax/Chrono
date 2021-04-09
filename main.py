@@ -10,8 +10,6 @@ if platform.system() == 'Darwin':
     import AppKit
 else:
     from plyer import notification
-if platform.system() == 'Windows':
-    from curses.ascii import unctrl, isctrl
 import pyautogui as pag
 
 
@@ -163,11 +161,9 @@ class Api:
 
     def special_key_handler(self, key):
         try:
+            key = self.kl.canonical(key)
             if hasattr(key, 'char'):
                 key = key.char
-                if platform.system() == 'Windows':
-                    if isctrl(key):
-                        key = unctrl(key).strip('^').lower()
             else:
                 key = key.name
 
