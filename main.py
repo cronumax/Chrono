@@ -5,11 +5,12 @@ import json
 import platform
 from pynput.keyboard import Key, KeyCode, Controller as kb_ctrler, Listener as kb_lstner
 from pynput.mouse import Button, Controller as m_ctrler, Listener as m_lstner
-from plyer import notification
 if platform.system() == 'Darwin':
     import os
     import AppKit
-elif platform.system() == 'Windows':
+else:
+    from plyer import notification
+if platform.system() == 'Windows':
     from curses.ascii import unctrl, isctrl
 import pyautogui as pag
 
@@ -164,9 +165,11 @@ class Api:
         try:
             try:
                 key = key.char
-                if isctrl(key):
-                    key = unctrl(key).strip('^').lower()
-            except:
+                if platform.system() == 'Windows':
+                    if isctrl(key):
+                        key = unctrl(key).strip('^').lower()
+            except Exception as e:
+                logger.error('special_key_handler() inner try-catch exception: {0}'.format(str(e)))
                 key = key.name
 
             # pynput's keys -> pyautogui's keys conversion
