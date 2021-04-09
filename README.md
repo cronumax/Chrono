@@ -25,8 +25,6 @@ xhost +
 ```bash
 source venv/bin/activate
 pip install -r macos_requirements.txt
-pip uninstall mouse
-pip install git+https://github.com/boppreh/mouse.git
 ```
 
 ### Windows
