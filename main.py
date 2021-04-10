@@ -70,6 +70,9 @@ class Api:
 
                 last_time = None
                 for event in events:
+                    if not self.is_playing:
+                        break
+
                     logger.info(event)
 
                     if last_time and not self.god_speed:
@@ -130,6 +133,9 @@ class Api:
             self.kb_event_handler(key, 'up', time.time())
             if key == self.escape_key:
                 self.is_recording = False
+        if self.is_playing:
+            if key == self.escape_key:
+                self.is_playing = False
 
     def on_touch(self, x, y):
         if self.touch_mode and self.is_recording:
