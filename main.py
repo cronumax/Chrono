@@ -169,12 +169,16 @@ class Api:
                     if isctrl(key):
                         key = unctrl(key).strip('^').lower()
             except Exception as e:
-                logger.error('special_key_handler() inner try-catch exception: {0}'.format(str(e)))
+                logger.error(
+                    'special_key_handler() inner try-catch exception: {0}'.format(str(e)))
                 key = key.name
 
             # pynput's keys -> pyautogui's keys conversion
             if key == 'cmd':
-                key = 'command'
+                if platform.system() == 'Darwin':
+                    key = 'command'
+                else:
+                    key = 'winleft'
             elif key == 'alt_l':
                 key = 'altleft'
             elif key == 'alt_r':
