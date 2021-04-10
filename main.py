@@ -163,14 +163,12 @@ class Api:
 
     def special_key_handler(self, key):
         try:
-            try:
+            if hasattr(key, 'char'):
                 key = key.char
                 if platform.system() == 'Windows':
                     if isctrl(key):
                         key = unctrl(key).strip('^').lower()
-            except Exception as e:
-                logger.error(
-                    'special_key_handler() inner try-catch exception: {0}'.format(str(e)))
+            else:
                 key = key.name
 
             # pynput's keys -> pyautogui's keys conversion
