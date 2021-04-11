@@ -264,6 +264,9 @@ class Api:
 
         return events
 
+    def prompt_handler(self, process_name):
+        logger.info(process_name)
+
     def thread_handler(self):
         try:
             pag.keyUp('esc')  # Hot fix for macOS thread issue
@@ -277,4 +280,4 @@ class Api:
 if __name__ == '__main__':
     api = Api()
     window = webview.create_window('Chrono', 'assets/index.html', js_api=api)
-    webview.start(api.thread_handler)
+    webview.start(api.thread_handler, debug=True)

@@ -1,4 +1,5 @@
 altgraph==0.17
+dbus-python==1.2.16
 evdev==1.4.0
 gobject==0.1.0
 macholib==1.14
