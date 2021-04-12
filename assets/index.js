@@ -49,6 +49,16 @@ $(window).on('pywebviewready', function() {
     var msg = 'Play btn clicked'
     $.when(window.pywebview.api.play(msg)).done(function() {})
   })
-})
 
-$("document").ready(function() {})
+  $.when(window.pywebview.api.load_process_list()).then(processList => {
+    $.each(processList, function(i, process) {
+      var row = "<tr class='table-dark'>"
+      $.each(process, function(j, data) {
+        row += '<td>' + data + '</td>'
+      })
+      row += '<td>To do: actions</td>'
+      row += '</tr>'
+      $('#processList tbody').append(row)
+    })
+  })
+})

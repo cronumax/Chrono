@@ -2,6 +2,7 @@ import os
 import webview
 import logging
 import time
+from datetime import datetime
 import json
 import platform
 import pathlib
@@ -57,7 +58,7 @@ class Api:
                     notification.notify(
                         title='Chrono', message='Record finished.')
         except Exception as e:
-            logger.error('record() exception: {0}'.format(str(e)))
+            logger.error('record() error: {0}'.format(str(e)))
 
     def play(self, msg):
         try:
@@ -117,7 +118,7 @@ class Api:
                         title='Chrono', message='Replay finished.')
                 self.is_playing = False
         except Exception as e:
-            logger.error('play() exception: {0}'.format(str(e)))
+            logger.error('play() error: {0}'.format(str(e)))
 
     def on_press(self, key):
         if self.is_recording:
@@ -217,7 +218,7 @@ class Api:
 
             return key
         except Exception as e:
-            logger.error('special_key_handler() exception: {0}'.format(str(e)))
+            logger.error('special_key_handler() error: {0}'.format(str(e)))
 
     def kb_event_handler(self, key, event_type, time):
         kb_event_dict = {}
@@ -254,25 +255,25 @@ class Api:
                             key=lambda i: i['time'])
 
             # To do: check file path consistency across OSes
-            if os.path.isfile(str(pathlib.Path(__file__).parent.absolute()) + '/processes/{0}.json'.format(process_name)):
+            if pathlib.Path('processes/{0}.json'.format(process_name)).exists():
                 saved = False
-                res_txt = 'Process with the same name already exists.'
+                txt = 'Process with the same name already exists.'
             else:
                 with open('processes/{0}.json'.format(process_name), 'w') as f:
                     json.dump(events, f)
 
                 saved = True
-                res_txt = 'Process saved.'
+                txt = 'Process saved.'
 
-            logger.info(res_txt)
+            logger.info(txt)
 
-            return {'saved': saved, 'txt': res_txt}
+            return {'saved': saved, 'txt': txt}
         except Exception as e:
-            logger.error('save() exception: {0}'.format(str(e)))
+            logger.error('save() error: {0}'.format(str(e)))
 
     def load(self):
         # To do: dynamic file name
-        with open('events.json') as f:
+        with open('processes/events.json') as f:
             events = json.load(f)
 
         return events
@@ -285,7 +286,39 @@ class Api:
                 logger.info('User proposed process name: ' + answer)
                 return self.save(answer)
         except Exception as e:
-            logger.error('prompt_handler() exception: {0}'.format(str(e)))
+            logger.error('prompt_handler() error: {0}'.format(str(e)))
+
+    def load_process_list(self):
+        try:
+            process_list = []
+            _, _, filenames = next(os.walk('processes/'))
+            process_names = [n[:-5] for n in filenames]
+            raw_modified_times = [datetime.fromtimestamp(pathlib.Path(
+                'processes/' + n).stat().st_mtime) for n in filenames]
+
+            present = datetime.now()
+            modified_times = []
+            for t in raw_modified_times:
+                if t.year != present.year:
+                    modified_times.append(t.strftime('%d %b %Y'))
+                elif t.month != present.month or (t.month == present.month and present.day - t.day >= 7):
+                    modified_times.append(t.strftime('%d %b'))
+                elif 0 < present.day - t.day < 7:
+                    if present.day - t.day == 1:
+                        modified_times.append('Yesterday')
+                    else:
+                        modified_times.append(t.strftime('%a'))
+                else:
+                    modified_times.append(t.strftime('%H:%M'))
+
+            for i in range(len(process_names)):
+                process_list.append([process_names[i], modified_times[i]])
+
+            logger.info(process_list)
+
+            return process_list
+        except Exception as e:
+            logger.error('process_list() error: {0}'.format(str(e)))
 
     def thread_handler(self):
         try:
@@ -294,7 +327,7 @@ class Api:
                 self.kl.join()
                 self.ml.join()
         except Exception as e:
-            logger.error('thread_handler() exception: {0}'.format(str(e)))
+            logger.error('thread_handler() error: {0}'.format(str(e)))
 
 
 if __name__ == '__main__':

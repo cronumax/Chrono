@@ -1,14 +1,7 @@
-body {
-  background-color: #222;
+.btn {
+  background-color: #DF2176;
 }
 
-h1 {
-  color: #fff;
-}
-
-#recordBtn, #playBtn {
-  background-color: #fff;
-  height: 200px;
-  width: 200px;
-  border-radius: 50%;
+.btn:active, .btn:focus {
+  background-color: #590d2f;
 }
