@@ -1,12 +1,13 @@
+import os
 import webview
 import logging
 import time
 import json
 import platform
+import pathlib
 from pynput.keyboard import Key, KeyCode, Controller as kb_ctrler, Listener as kb_lstner
 from pynput.mouse import Button, Controller as m_ctrler, Listener as m_lstner
 if platform.system() == 'Darwin':
-    import os
     import AppKit
 else:
     from plyer import notification
@@ -43,8 +44,6 @@ class Api:
 
                 while self.is_recording:
                     time.sleep(1)
-
-                self.save()
 
                 logger.info('Record finished')
                 if platform.system() == 'Darwin':
@@ -249,13 +248,27 @@ class Api:
 
         self.m_events.append(m_event_dict)
 
-    def save(self):
-        events = sorted(self.kb_events + self.m_events,
-                        key=lambda i: i['time'])
+    def save(self, process_name):
+        try:
+            events = sorted(self.kb_events + self.m_events,
+                            key=lambda i: i['time'])
 
-        # To do: dynamic file name
-        with open('events.json', 'w') as f:
-            json.dump(events, f)
+            # To do: check file path consistency across OSes
+            if os.path.isfile(str(pathlib.Path(__file__).parent.absolute()) + '/processes/{0}.json'.format(process_name)):
+                saved = False
+                res_txt = 'Process with the same name already exists.'
+            else:
+                with open('processes/{0}.json'.format(process_name), 'w') as f:
+                    json.dump(events, f)
+
+                saved = True
+                res_txt = 'Process saved.'
+
+            logger.info(res_txt)
+
+            return {'saved': saved, 'txt': res_txt}
+        except Exception as e:
+            logger.error('save() exception: {0}'.format(str(e)))
 
     def load(self):
         # To do: dynamic file name
@@ -264,8 +277,15 @@ class Api:
 
         return events
 
-    def prompt_handler(self, process_name):
-        logger.info(process_name)
+    def prompt_handler(self, type, answer):
+        try:
+            logger.info('Called prompt_handler()')
+
+            if type == 'processName':
+                logger.info('User proposed process name: ' + answer)
+                return self.save(answer)
+        except Exception as e:
+            logger.error('prompt_handler() exception: {0}'.format(str(e)))
 
     def thread_handler(self):
         try:

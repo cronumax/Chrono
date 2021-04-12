@@ -12,15 +12,34 @@ $(window).on('pywebviewready', function() {
         confirmButtonText: 'Confirm',
         allowOutsideClick: () => !Swal.isLoading()
       }).then(result => {
-        if (/[^a-zA-Z0-9\-]/.test(result.value)) {
-          Swal.fire({
-            title: 'Error',
-            text: 'Process name can only contain alphanumeric (a-z, A-Z, 0-9) or hyphen (-)',
-            icon: 'error',
-            confirmButtonText: 'Understood'
-          })
-        } else if (result.isConfirmed) {
-          window.pywebview.api.prompt_handler(result.value)
+        // Frontend validation
+        if (!result.value) {
+          var errorTxt = 'Process name cannot be empty'
+        } else if (/[^a-zA-Z0-9\-]/.test(result.value)) {
+          var errorTxt = 'Process name can only contain alphanumeric (a-z, A-Z, 0-9) or hyphen (-)'
+        }
+
+        if (result.isConfirmed) {
+          if (errorTxt) {
+            Swal.fire({
+              title: 'Error',
+              text: errorTxt,
+              icon: 'error',
+              confirmButtonText: 'Ok'
+            })
+          } else {
+            window.pywebview.api.prompt_handler('processName', result.value).then(res => {
+              // Backend validation
+              if (!res.saved) {
+                Swal.fire({
+                  title: 'Error',
+                  text: res.txt,
+                  icon: 'error',
+                  confirmButtonText: 'Ok'
+                })
+              }
+            })
+          }
         }
       })
     })
