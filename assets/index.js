@@ -16,9 +16,9 @@ $(window).on('pywebviewready', function() {
       }).then(result => {
         // Frontend validation
         if (!result.value) {
-          var errorTxt = 'Process name cannot be empty'
+          var errorTxt = 'Process name cannot be empty.'
         } else if (/[^a-zA-Z0-9\-]/.test(result.value)) {
-          var errorTxt = 'Process name can only contain alphanumeric (a-z, A-Z, 0-9) or hyphen (-)'
+          var errorTxt = 'Process name can only contain alphanumeric (a-z, A-Z, 0-9) or hyphen (-).'
         }
 
         if (result.isConfirmed) {
@@ -51,7 +51,21 @@ $(window).on('pywebviewready', function() {
 
   $('#playBtn').click(function() {
     var msg = 'Play btn clicked'
-    $.when(window.pywebview.api.play(msg)).done(function() {})
+    var processName = $('#processList tr.selected td:first').html()
+    if (processName) {
+      $.when(window.pywebview.api.play(msg, processName)).done(function() {})
+    } else {
+      Swal.fire({
+        title: 'Error',
+        text: 'Please select a process.',
+        icon: 'error',
+        confirmButtonText: 'Ok'
+      })
+    }
+  })
+
+  $('#processList tbody').on('click', 'tr', function() {
+    $(this).addClass('selected').siblings().removeClass('selected')
   })
 })
 
@@ -69,3 +83,12 @@ function refresh_process_list() {
     })
   })
 }
+
+$(document).ready(function() {
+  $(document).on('click', function(event) {
+    var selectedRow = $('#processList tr.selected')
+    if (selectedRow.length && !selectedRow.is(event.target) && !selectedRow.has(event.target).length) {
+      selectedRow.removeClass('selected')
+    }
+  })
+})

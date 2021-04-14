@@ -5,3 +5,7 @@
 .btn:active, .btn:focus {
   background-color: #590d2f;
 }
+
+.selected, .selected>td {
+  background-color: #232323;
+}

@@ -60,13 +60,14 @@ class Api:
         except Exception as e:
             logger.error('record() error: {0}'.format(str(e)))
 
-    def play(self, msg):
+    def play(self, msg, process_name):
         try:
             logger.info(msg)
+            logger.info('User selected process: ' + process_name)
 
             if not self.is_playing:
                 self.is_playing = True
-                events = self.load()
+                events = self.load(process_name)
 
                 last_time = None
                 for event in events:
@@ -273,9 +274,8 @@ class Api:
         except Exception as e:
             logger.error('save() error: {0}'.format(str(e)))
 
-    def load(self):
-        # To do: dynamic file name
-        with open('processes/events.json') as f:
+    def load(self, process_name):
+        with open('processes/{0}.json'.format(process_name)) as f:
             events = json.load(f)
 
         return events
