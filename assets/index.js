@@ -1,4 +1,6 @@
 $(window).on('pywebviewready', function() {
+  refresh_process_list()
+
   $('#recordBtn').click(function() {
     var msg = 'Record btn clicked'
     $.when(window.pywebview.api.record(msg)).done(function() {
@@ -28,7 +30,7 @@ $(window).on('pywebviewready', function() {
               confirmButtonText: 'Ok'
             })
           } else {
-            window.pywebview.api.prompt_handler('processName', result.value).then(res => {
+            window.pywebview.api.save(result.value).then(res => {
               // Backend validation
               if (!res.saved) {
                 Swal.fire({
@@ -37,6 +39,8 @@ $(window).on('pywebviewready', function() {
                   icon: 'error',
                   confirmButtonText: 'Ok'
                 })
+              } else {
+                refresh_process_list()
               }
             })
           }
@@ -49,8 +53,11 @@ $(window).on('pywebviewready', function() {
     var msg = 'Play btn clicked'
     $.when(window.pywebview.api.play(msg)).done(function() {})
   })
+})
 
+function refresh_process_list() {
   $.when(window.pywebview.api.load_process_list()).then(processList => {
+    $('#processList tbody').empty()
     $.each(processList, function(i, process) {
       var row = "<tr class='table-dark'>"
       $.each(process, function(j, data) {
@@ -61,4 +68,4 @@ $(window).on('pywebviewready', function() {
       $('#processList tbody').append(row)
     })
   })
-})
+}

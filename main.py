@@ -251,6 +251,8 @@ class Api:
 
     def save(self, process_name):
         try:
+            logger.info('User proposed process name: ' + process_name)
+
             events = sorted(self.kb_events + self.m_events,
                             key=lambda i: i['time'])
 
@@ -278,16 +280,6 @@ class Api:
 
         return events
 
-    def prompt_handler(self, type, answer):
-        try:
-            logger.info('Called prompt_handler()')
-
-            if type == 'processName':
-                logger.info('User proposed process name: ' + answer)
-                return self.save(answer)
-        except Exception as e:
-            logger.error('prompt_handler() error: {0}'.format(str(e)))
-
     def load_process_list(self):
         try:
             process_list = []
@@ -296,8 +288,8 @@ class Api:
             raw_modified_times = [datetime.fromtimestamp(pathlib.Path(
                 'processes/' + n).stat().st_mtime) for n in filenames]
 
-            present = datetime.now()
             modified_times = []
+            present = datetime.now()
             for t in raw_modified_times:
                 if t.year != present.year:
                     modified_times.append(t.strftime('%d %b %Y'))
@@ -318,7 +310,7 @@ class Api:
 
             return process_list
         except Exception as e:
-            logger.error('process_list() error: {0}'.format(str(e)))
+            logger.error('load_process_list() error: {0}'.format(str(e)))
 
     def thread_handler(self):
         try:
