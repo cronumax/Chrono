@@ -1,11 +1,55 @@
+html {
+  min-width: 800px;
+}
+
 .btn {
-  background-color: #DF2176;
+  margin-right: 9px;
 }
 
 .btn:active, .btn:focus {
-  background-color: #590d2f;
+  background-color: #DF2176;
+}
+
+#recordBtn, #playBtn {
+  position: absolute;
+  margin-top: 14px;
+  border-color: #666;
+}
+
+#recordBtn {
+  right: 69px;
+}
+
+#playBtn {
+  right: 10px;
 }
 
 .selected, .selected>td {
   background-color: #232323;
+}
+
+#ctrlPanel {
+  display: flex;
+  position: relative;
+}
+
+h1 {
+  margin-left: 9px;
+}
+
+#processList {
+  width: 100%;
+  table-layout: fixed;
+}
+
+#nameCol {
+  width: 45%;
+}
+
+#modifiedCol {
+  width: 30%;
+}
+
+#actionCol {
+  width: 25%;
 }

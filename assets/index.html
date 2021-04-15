@@ -4,6 +4,7 @@
 <head>
   <link rel="stylesheet" href="bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@3/dark.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="index.css">
 </head>
 
@@ -24,12 +25,19 @@
   </ul>
   <div id="tabs" class="tab-content">
     <div class="tab-pane fade active show" id="dashboard">
-      <h1>Dashboard</h1>
+      <div id="ctrlPanel">
+        <h1>Dashboard</h1>
 
-      <button id='recordBtn' class='btn'>Record</button>
-      <button id='playBtn' class='btn'>Play</button>
+        <button id='recordBtn' class='btn'><i class='fa fa-plus'></i></button>
+        <button id='playBtn' class='btn'><i class='fa fa-play'></i></button>
+      </div>
 
       <table id='processList' class="table table-hover sortable">
+        <colgroup>
+          <col id="nameCol">
+          <col id="modifiedCol">
+          <col id="actionCol">
+        </colgroup>
         <thead>
           <tr>
             <th scope="col">Name</th>

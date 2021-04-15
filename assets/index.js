@@ -77,7 +77,7 @@ function refresh_process_list() {
       $.each(process, function(j, data) {
         row += '<td>' + data + '</td>'
       })
-      row += '<td>To do: actions</td>'
+      row += "<td><button id='renameBtn' class='btn'><i class='fa fa-edit'></i></button><button id='delBtn' class='btn'><i class='fa fa-trash'></i></button></td>"
       row += '</tr>'
       $('#processList tbody').append(row)
     })
