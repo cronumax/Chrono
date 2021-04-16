@@ -250,35 +250,81 @@ class Api:
 
         self.m_events.append(m_event_dict)
 
-    def save(self, process_name):
+    def save(self, process):
         try:
-            logger.info('User proposed process name: ' + process_name)
+            logger.info('User proposed process name: ' + process)
 
             events = sorted(self.kb_events + self.m_events,
                             key=lambda i: i['time'])
 
             # To do: check file path consistency across OSes
-            if pathlib.Path('processes/{0}.json'.format(process_name)).exists():
-                saved = False
-                txt = 'Process with the same name already exists.'
+            if pathlib.Path('processes/{0}.json'.format(process)).exists():
+                status = False
+                txt = 'Process {0} already exists.'.format(process)
             else:
-                with open('processes/{0}.json'.format(process_name), 'w') as f:
+                with open('processes/{0}.json'.format(process), 'w') as f:
                     json.dump(events, f)
 
-                saved = True
-                txt = 'Process saved.'
+                status = True
+                txt = 'Process {0} saved.'.format(process)
 
             logger.info(txt)
 
-            return {'saved': saved, 'txt': txt}
+            return {'status': status, 'txt': txt}
         except Exception as e:
             logger.error('save() error: {0}'.format(str(e)))
 
-    def load(self, process_name):
-        with open('processes/{0}.json'.format(process_name)) as f:
-            events = json.load(f)
+    def load(self, process):
+        try:
+            with open('processes/{0}.json'.format(process)) as f:
+                events = json.load(f)
 
-        return events
+            logger.info('Process {0} loaded'.format(process))
+
+            return events
+        except Exception as e:
+            logger.error('load() error: {0}'.format(str(e)))
+
+    def rename_process(self, old_name, new_name):
+        try:
+            logger.info('User proposed new name {1} for process {0}'.format(
+                old_name, new_name))
+
+            # To do: check file path consistency across OSes
+            new_path = 'processes/{0}.json'.format(new_name)
+            if pathlib.Path(new_path).exists():
+                status = False
+                txt = 'Process {0} already exists.'.format(new_name)
+            else:
+                os.rename('processes/{0}.json'.format(old_name), new_path)
+
+                status = True
+                txt = 'Process {0} renamed to {1}.'.format(old_name, new_name)
+
+            logger.info(txt)
+
+            return {'status': status, 'txt': txt}
+        except Exception as e:
+            logger.error('rename_process() error: {0}'.format(str(e)))
+
+    def del_process(self, process):
+        try:
+            # To do: check file path consistency across OSes
+            path = 'processes/{0}.json'.format(process)
+            if pathlib.Path(path).exists():
+                os.remove(path)
+
+                status = True
+                txt = 'Process {0} removed.'.format(process)
+            else:
+                status = False
+                txt = 'Process {0} does not exist.'.format(process)
+
+            logger.info(txt)
+
+            return {'status': status, 'txt': txt}
+        except Exception as e:
+            logger.error('del_process() error: {0}'.format(str(e)))
 
     def load_process_list(self):
         try:
