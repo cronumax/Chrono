@@ -6,22 +6,43 @@ html {
   margin-right: 9px;
 }
 
-.btn:active, .btn:focus {
-  background-color: #DF2176;
+.btn:active {
+  color: #df2176;
+}
+
+.btn:focus {
+  box-shadow: unset;
 }
 
 #recordBtn, #playBtn {
   position: absolute;
   margin-top: 14px;
-  border-color: #666;
 }
 
 #recordBtn {
-  right: 69px;
+  right: 45px;
 }
 
 #playBtn {
-  right: 10px;
+  right: 0px;
+}
+
+@keyframes glowing {
+  0% {
+    color: #9c1752;
+  }
+
+  50% {
+    color: #df2176;
+  }
+
+  100% {
+    color: #9c1752;
+  }
+}
+
+.running {
+  animation: glowing 1s infinite;
 }
 
 .selected, .selected>td {

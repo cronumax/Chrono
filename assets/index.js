@@ -3,8 +3,10 @@ $(window).on('pywebviewready', function() {
 
   $('#recordBtn').click(function() {
     var msg = 'Record btn clicked'
+    $(this).addClass('running')
     $.when(window.pywebview.api.record(msg)).done(function() {
       promptForProcessName()
+      $('#recordBtn').removeClass('running')
     })
   })
 
@@ -12,7 +14,10 @@ $(window).on('pywebviewready', function() {
     var msg = 'Play btn clicked'
     var processName = $('#processList tr.selected td:first').html()
     if (processName) {
-      $.when(window.pywebview.api.play(msg, processName)).done(function() {})
+      $(this).addClass('running')
+      $.when(window.pywebview.api.play(msg, processName)).done(function() {
+        $('#playBtn').removeClass('running')
+      })
     } else {
       Swal.fire({
         title: 'Error',
