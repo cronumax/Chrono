@@ -370,5 +370,5 @@ class Api:
 
 if __name__ == '__main__':
     api = Api()
-    window = webview.create_window('Chrono', 'assets/index.html', js_api=api)
+    window = webview.create_window('Chrono', 'assets/login.html', js_api=api)
     webview.start(api.thread_handler, debug=True)

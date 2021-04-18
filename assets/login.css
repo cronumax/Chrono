@@ -1,0 +1,30 @@
+.tab-pane {
+  min-width: 800px;
+  min-height: 600px;
+}
+
+.card {
+  top: 6rem;
+  width: 29rem;
+  margin: auto;
+}
+
+#forgotPwLn, #registerLn {
+  text-align: center;
+}
+
+hr {
+  width: 70%;
+  background-color: #666;
+}
+
+#signInBtn {
+  width: 100%;
+  border: 1px solid #666;
+  border-radius: 18px;
+  background-color: #df2176;
+}
+
+a {
+  color: #aaa;
+}
