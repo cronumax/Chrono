@@ -9,7 +9,7 @@
   margin: auto;
 }
 
-#forgotPwLn, #registerLn {
+#resetPwLn, #registerLn, #resetPwSignInLn, #registerSignInLn {
   text-align: center;
 }
 
@@ -18,13 +18,26 @@ hr {
   background-color: #666;
 }
 
-#signInBtn {
+#signInBtn, #sendEmailBtn, #registerBtn {
   width: 100%;
   border: 1px solid #666;
   border-radius: 18px;
   background-color: #df2176;
 }
 
+#registerBtn {
+  margin-top: 1rem;
+}
+
 a {
   color: #aaa;
+}
+
+a:active, a:hover {
+  color: #df2176;
+}
+
+.form-control, .form-control:focus {
+  color: #eee;
+  background-color: #222;
 }

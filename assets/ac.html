@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@3/dark.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="ac.css">
+</head>
+
+<body>
+  <div id="tabs" class="tab-content">
+    <div class="tab-pane fade active show" id="signIn">
+      <div class="card mb-3">
+        <div class="card-body">
+          <form>
+            <fieldset>
+              <legend>Sign In</legend>
+              <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" class="form-control" id='email'>
+              </div>
+              <div class="form-group">
+                <label>Password</label>
+                <input type="password" class="form-control" id='pw'>
+              </div>
+              <button type="submit" class="btn" id='signInBtn'>SIGN IN</button>
+              <a class='nav-link' data-toggle='tab' href="#resetPw" id="resetPwLn">Forgot password?</a>
+            </fieldset>
+          </form>
+          <hr>
+          <a class='nav-link' data-toggle='tab' href="#register" id="registerLn">REGISTER</a>
+        </div>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="resetPw">
+      <div class="card mb-3">
+        <div class="card-body">
+          <form>
+            <fieldset>
+              <legend>Reset Password</legend>
+              <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" class="form-control" id='resetPwEmail'>
+              </div>
+              <button type="submit" class="btn" id='sendEmailBtn'>SEND</button>
+            </fieldset>
+          </form>
+          <hr>
+          <a class='nav-link' data-toggle='tab' href="#signIn" id='resetPwSignInLn'>SIGN IN</a>
+        </div>
+      </div>
+    </div>
+    <div class="tab-pane fade" id="register">
+      <div class="card mb-3">
+        <div class="card-body">
+          <form>
+            <fieldset>
+              <legend>Create Account</legend>
+              <div class="form-group">
+                <label>First Name</label>
+                <input type="text" class="form-control" id="1stName">
+              </div>
+              <div class="form-group">
+                <label>Last Name</label>
+                <input type="text" class="form-control" id="lastName">
+              </div>
+              <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" class="form-control" id='newEmail'>
+              </div>
+              <div class="form-group">
+                <label>Password</label>
+                <input type="password" class="form-control" id='newPw'>
+              </div>
+              <div class="form-check">
+                <label class='form-check-label'>
+                  <input class='form-check-input' type="checkbox" id="agreePrivacynTerms" required value="1">
+                  <span>By creating a Chrono Account, I understand and agree to Cronumax's<a href="https://cronumax.com/privacy" target="_blank">Privacy Notice</a>and<a href="https://cronumax.com/terms" target="_blank">Terms of Use</a>
+                  </span>
+                </label>
+              </div>
+              <div class="form-check">
+                <label class='form-check-label'>
+                  <input class="form-check-input" id="receiveCronumaxUpdates" type="checkbox" value="1" />
+                  <span>Send me updates from Tesla</span>
+                </label>
+              </div>
+              <button type="submit" class="btn" id='registerBtn'>CREATE ACCOUNT</button>
+            </fieldset>
+          </form>
+          <hr>
+          <a class='nav-link' data-toggle='tab' href="#signIn" id='registerSignInLn'>SIGN IN</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@popperjs/core@2"></script>
+  <script src="bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.0/dist/sweetalert2.min.js"></script>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <script src="ac.js"></script>
+</body>
+
+</html>
