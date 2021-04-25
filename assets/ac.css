@@ -9,7 +9,7 @@
   margin: auto;
 }
 
-#resetPwLn, #registerLn, #resetPwSignInLn, #registerSignInLn {
+#resetPwLn, #registerLn, #resetPwSignInLn, #registerSignInLn, #registerEmailVerifyLn {
   text-align: center;
 }
 
@@ -40,4 +40,68 @@ a:active, a:hover {
 .form-control, .form-control:focus {
   color: #eee;
   background-color: #222;
+}
+
+#newEmailDiv {
+  display: flex;
+}
+
+#newEmail {
+  width: 80%;
+}
+
+#registerEmailVerifyLn {
+  width: 20%;
+  padding: .5rem 0;
+}
+
+#pswd_info ul, #pswd_info li {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+#pswd_info {
+  padding: 1rem;
+  font-size: .9rem;
+  border-radius: 1rem;
+  border: 1px solid #666;
+}
+
+.fa-info-circle {
+  color: #df2176;
+}
+
+.tippy-box {
+  border-radius: 1rem;
+}
+
+.tippy-content {
+  padding: 0;
+}
+
+.invalid {
+  padding-left: 22px;
+  line-height: 24px;
+  color: #ec3f41;
+}
+
+.valid {
+  padding-left: 22px;
+  line-height: 24px;
+  color: #3a7d34;
+}
+
+.invalid::before {
+  font-family: "Font Awesome 5 Free";
+  content: "\f00d\a0";
+}
+
+.valid::before {
+  font-family: "Font Awesome 5 Free";
+  content: "\f00c\a0";
+}
+
+#pswd_info p {
+  margin: 0;
 }

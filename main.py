@@ -1,4 +1,5 @@
 import os
+import requests
 import webview
 import logging
 import time
@@ -22,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 class Api:
     def __init__(self):
+        self.window = None
+        self.api_url = 'http://localhost:8000/'
         self.is_recording = False
         self.is_playing = False
         '''
@@ -33,6 +36,15 @@ class Api:
         else:
             self.touch_mode = True
         self.god_speed = False
+
+    def send_verify_email(self, type, email):
+        return requests.post(self.api_url + 'send-email', {'type': type, 'email': email}).json()
+
+    def register(self, first_name, last_name, email, code, pw, agree_privacy_n_terms, send_update):
+        return requests.post(self.api_url + 'register', {'1st_name': first_name, 'last_name': last_name, 'email': email, 'code': code, 'pw': pw, 'agree_privacy_n_terms': agree_privacy_n_terms, 'send_update': send_update}).json()
+
+    def navigate_to_dashbard(self):
+        self.window.load_url('assets/index.html')
 
     def record(self, msg):
         try:
@@ -370,5 +382,5 @@ class Api:
 
 if __name__ == '__main__':
     api = Api()
-    window = webview.create_window('Chrono', 'assets/ac.html', js_api=api)
+    api.window = webview.create_window('Chrono', 'assets/ac.html', js_api=api)
     webview.start(api.thread_handler, debug=True)

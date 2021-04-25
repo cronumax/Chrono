@@ -13,7 +13,7 @@
     <div class="tab-pane fade active show" id="signIn">
       <div class="card mb-3">
         <div class="card-body">
-          <form>
+          <form id='signInForm'>
             <fieldset>
               <legend>Sign In</legend>
               <div class="form-group">
@@ -36,7 +36,7 @@
     <div class="tab-pane fade" id="resetPw">
       <div class="card mb-3">
         <div class="card-body">
-          <form>
+          <form id='resetPwForm'>
             <fieldset>
               <legend>Reset Password</legend>
               <div class="form-group">
@@ -54,24 +54,31 @@
     <div class="tab-pane fade" id="register">
       <div class="card mb-3">
         <div class="card-body">
-          <form>
+          <form id='registerForm'>
             <fieldset>
               <legend>Create Account</legend>
               <div class="form-group">
                 <label>First Name</label>
-                <input type="text" class="form-control" id="1stName">
+                <input type="text" class="form-control" id="1stName" required>
               </div>
               <div class="form-group">
                 <label>Last Name</label>
-                <input type="text" class="form-control" id="lastName">
+                <input type="text" class="form-control" id="lastName" required>
               </div>
               <div class="form-group">
                 <label>Email Address</label>
-                <input type="email" class="form-control" id='newEmail'>
+                <div id='newEmailDiv'>
+                  <input type="email" class="form-control" id='newEmail' required>
+                  <a class='nav-link' id="registerEmailVerifyLn">Verify</a>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Verification Code</label>
+                <input type="text" class="form-control" id='verifyCode' required>
               </div>
               <div class="form-group">
                 <label>Password</label>
-                <input type="password" class="form-control" id='newPw'>
+                <input type="password" class="form-control" id='newPw' required>
               </div>
               <div class="form-check">
                 <label class='form-check-label'>
@@ -82,7 +89,7 @@
               </div>
               <div class="form-check">
                 <label class='form-check-label'>
-                  <input class="form-check-input" id="receiveCronumaxUpdates" type="checkbox" value="1" />
+                  <input class="form-check-input" id="receiveCronumaxUpdates" type="checkbox">
                   <span>Send me updates from Cronumax</span>
                 </label>
               </div>
@@ -98,9 +105,9 @@
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@popperjs/core@2"></script>
+  <script src="https://unpkg.com/tippy.js@6"></script>
   <script src="bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.0/dist/sweetalert2.min.js"></script>
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <script src="ac.js"></script>
 </body>
 
