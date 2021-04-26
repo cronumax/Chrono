@@ -40,10 +40,13 @@ class Api:
     def send_verify_email(self, type, email):
         return requests.post(self.api_url + 'send-email', {'type': type, 'email': email}).json()
 
+    def login(self, email, pw):
+        return requests.post(self.api_url + 'login', {'email': email, 'pw': pw}).json()
+
     def register(self, first_name, last_name, email, code, pw, agree_privacy_n_terms, send_update):
         return requests.post(self.api_url + 'register', {'1st_name': first_name, 'last_name': last_name, 'email': email, 'code': code, 'pw': pw, 'agree_privacy_n_terms': agree_privacy_n_terms, 'send_update': send_update}).json()
 
-    def navigate_to_dashbard(self):
+    def navigate_to_dashboard(self):
         self.window.load_url('assets/index.html')
 
     def record(self, msg):

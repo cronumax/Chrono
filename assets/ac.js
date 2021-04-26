@@ -52,6 +52,56 @@ $(document).ready(function() {
     $('#registerEmailVerifyLn').html('Verify')
   })
 
+  $('#signInForm').submit(function() {
+    var inputs = $('#signInForm :input')
+    var values = {}
+    inputs.each(function() {
+      values[this.id] = $(this).val()
+    })
+
+    // Form validation
+    if (values['email'].length === 0) {
+      validateMsg = 'Email cannot be empty.'
+    } else if (values['pw'].length === 0) {
+      validateMsg = 'Password cannot be empty.'
+    } else if (!validateEmail(values['email'])) {
+      validateMsg = 'Invalid email.'
+    }
+    if (typeof validateMsg !== 'undefined') {
+      Swal.fire({
+        title: 'Error',
+        text: validateMsg,
+        icon: 'error',
+        confirmButtonText: 'Ok'
+      })
+      delete validateMsg
+      return false
+    }
+
+    window.pywebview.api.login(values['email'], values['pw']).then(res => {
+      if (res['status']) {
+        Swal.fire({
+          title: 'Done',
+          text: res.msg,
+          icon: 'success',
+          confirmButtonText: 'Ok',
+          timer: 3000
+        }).then(() => {
+          window.pywebview.api.navigate_to_dashboard()
+        })
+      } else {
+        Swal.fire({
+          title: 'Error',
+          text: res.msg,
+          icon: 'error',
+          confirmButtonText: 'Ok'
+        })
+      }
+    })
+
+    return false
+  })
+
   $('#registerForm').submit(function() {
     var inputs = $('#registerForm :input')
     var values = {}
@@ -97,7 +147,7 @@ $(document).ready(function() {
           confirmButtonText: 'Ok',
           timer: 3000
         }).then(() => {
-          window.pywebview.api.navigate_to_dashbard()
+          window.pywebview.api.navigate_to_dashboard()
         })
       } else {
         Swal.fire({
