@@ -59,27 +59,32 @@ $(document).ready(function() {
       values[this.id] = (this.type === 'checkbox') ? $(this).is(':checked') : $(this).val()
     })
 
-    // Pw validation
-    if (values['newPw'].length === 0) {
-      pwValidateMsg = 'Password cannot be empty.'
+    // Form validation
+    if (values['1stName'].length === 0) {
+      validateMsg = 'First name cannot be empty.'
+    } else if (values['lastName'].length === 0) {
+      validateMsg = 'Last name cannot be empty.'
+    } else if (values['newPw'].length === 0) {
+      validateMsg = 'Password cannot be empty.'
     } else if (values['newPw'].length < 8) {
-      pwValidateMsg = 'Password too short.'
+      validateMsg = 'Password too short.'
     } else if (!values['newPw'].match(/[A-z]/)) {
-      pwValidateMsg = 'Password does not contain any letter.'
+      validateMsg = 'Password does not contain any letter.'
     } else if (!values['newPw'].match(/[A-Z]/)) {
-      pwValidateMsg = 'Password does not contain any capital letter.'
+      validateMsg = 'Password does not contain any capital letter.'
     } else if (!values['newPw'].match(/\d/)) {
-      pwValidateMsg = 'Password does not contain any digit.'
+      validateMsg = 'Password does not contain any digit.'
+    } else if (!values['agreePrivacynTerms']) {
+      validateMsg = 'Agreement on privacy notice and terms of use needed.'
     }
-    if (typeof pwValidateMsg !== 'undefined') {
+    if (typeof validateMsg !== 'undefined') {
       Swal.fire({
         title: 'Error',
-        text: pwValidateMsg,
+        text: validateMsg,
         icon: 'error',
         confirmButtonText: 'Ok'
       })
-
-      delete pwValidateMsg
+      delete validateMsg
       return false
     }
 
