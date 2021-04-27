@@ -49,6 +49,9 @@ class Api:
     def navigate_to_dashboard(self):
         self.window.load_url('assets/index.html')
 
+    def navigate_to_login(self):
+        self.window.load_url('assets/ac.html')
+
     def record(self, msg):
         try:
             logger.info(msg)

@@ -11,25 +11,26 @@
 <body>
   <ul class="nav nav-tabs">
     <li class="nav-item">
-      <a class="nav-link active" data-toggle="tab" href="#dashboard">Dashboard</a>
+      <a class="nav-link active" data-toggle="tab" href="#dashboard"><i class='fa fa-tachometer-alt fa-lg'></i></a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" data-toggle="tab" href="#support">Support</a>
+      <a class="nav-link" data-toggle="tab" href="#support"><span class='ferrari-red'>C</span><span class='white'>ronumax</span></a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" data-toggle='tab' href="#profile">Profile</a>
+      <a class="nav-link" data-toggle='tab' href="#profile"><i class='fa fa-user-circle fa-lg'></i></a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" data-toggle='tab' href="#settings">Settings</a>
+      <a class="nav-link" data-toggle='tab' href="#settings"><i class='fa fa-tools fa-lg'></i></a>
     </li>
+    <button class='btn' id='logoutBtn'><i class='fa fa-sign-out-alt fa-lg'></i></button>
   </ul>
   <div id="tabs" class="tab-content">
     <div class="tab-pane fade active show" id="dashboard">
       <div id="ctrlPanel">
         <h1>Dashboard</h1>
 
-        <button id='recordBtn' class='btn'><i class='fa fa-video'></i></button>
-        <button id='playBtn' class='btn'><i class='fa fa-play'></i></button>
+        <button id='recordBtn' class='btn'><i class='fa fa-video fa-lg'></i></button>
+        <button id='playBtn' class='btn'><i class='fa fa-play fa-lg'></i></button>
       </div>
 
       <table id='processList' class="table table-hover sortable">

@@ -59,6 +59,10 @@ $(document).ready(function() {
       selectedRow.removeClass('selected')
     }
   })
+
+  $('#logoutBtn').click(function() {
+    window.pywebview.api.navigate_to_login()
+  })
 })
 
 function refreshProcessList() {
@@ -69,7 +73,7 @@ function refreshProcessList() {
       $.each(process, function(j, data) {
         row += '<td>' + data + '</td>'
       })
-      row += "<td><button id='renameBtn' class='btn'><i class='fa fa-edit'></i></button><button id='delBtn' class='btn'><i class='fa fa-trash'></i></button></td>"
+      row += "<td><button id='renameBtn' class='btn'><i class='fa fa-edit fa-lg'></i></button><button id='delBtn' class='btn'><i class='fa fa-trash fa-lg'></i></button></td>"
       row += '</tr>'
       $('#processList tbody').append(row)
     })
