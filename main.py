@@ -37,7 +37,7 @@ class Api:
             self.touch_mode = True
         self.god_speed = False
 
-    def send_verify_email(self, type, email):
+    def send_email(self, type, email):
         return requests.post(self.api_url + 'send-email', {'type': type, 'email': email}).json()
 
     def login(self, email, pw):
@@ -45,6 +45,15 @@ class Api:
 
     def register(self, first_name, last_name, email, code, pw, agree_privacy_n_terms, send_update):
         return requests.post(self.api_url + 'register', {'1st_name': first_name, 'last_name': last_name, 'email': email, 'code': code, 'pw': pw, 'agree_privacy_n_terms': agree_privacy_n_terms, 'send_update': send_update}).json()
+
+    def reset_pw(self, new_pw, old_pw=None, code=None):
+        if old_pw:
+            return requests.post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'old_pw': old_pw}).json()
+        else:
+            return requests.post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'code': code}).json()
+
+    def forgot_pw(self, email):
+        return requests.post(self.api_url + 'forgot-pw', {'email': email}).json()
 
     def navigate_to_dashboard(self):
         self.window.load_url('assets/index.html')

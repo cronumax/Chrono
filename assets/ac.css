@@ -9,7 +9,7 @@
   margin: auto;
 }
 
-#resetPwLn, #registerLn, #resetPwSignInLn, #registerSignInLn, #registerEmailVerifyLn {
+#forgotPwLn, #registerLn, #forgotPwSignInLn, #registerSignInLn, #registerEmailVerifyLn, #resetPwWithTokenSignInLn, #forgotPwResetPwWithTokenLn {
   text-align: center;
 }
 
@@ -18,7 +18,7 @@ hr {
   background-color: #666;
 }
 
-#signInBtn, #sendEmailBtn, #registerBtn {
+#signInBtn, #sendEmailBtn, #registerBtn, #resetPwWithTokenBtn {
   width: 100%;
   border: 1px solid #666;
   border-radius: 18px;

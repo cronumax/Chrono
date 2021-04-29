@@ -11,7 +11,7 @@ $(document).ready(function() {
       if (validateEmail(email)) {
         $('#registerEmailVerifyLn').css('color', '#df2176')
         $('#registerEmailVerifyLn').html("<img src='img/loading.gif'> Sending")
-        window.pywebview.api.send_verify_email('create_ac', email).then(res => {
+        window.pywebview.api.send_email('create_ac', email).then(res => {
           if (res['status']) {
             Swal.fire({
               title: 'Done',
@@ -162,7 +162,140 @@ $(document).ready(function() {
     return false
   })
 
-  var pwTips = tippy(document.querySelector('#newPw'), {
+  $('#forgotPwForm').submit(function() {
+    var inputs = $('#forgotPwForm :input')
+    var values = {}
+    inputs.each(function() {
+      values[this.id] = $(this).val()
+    })
+
+    // Form validation
+    if (values['resetPwEmail'].length === 0) {
+      validateMsg = 'Email cannot be empty.'
+    } else if (!validateEmail(values['resetPwEmail'])) {
+      validateMsg = 'Invalid email.'
+    }
+    if (typeof validateMsg !== 'undefined') {
+      Swal.fire({
+        title: 'Error',
+        text: validateMsg,
+        icon: 'error',
+        confirmButtonText: 'Ok'
+      })
+      delete validateMsg
+      return false
+    } else {
+      $('#sendEmailBtn').html("<img src='img/loading-white.gif'> SENDING")
+    }
+
+    window.pywebview.api.forgot_pw(values['resetPwEmail']).then(res => {
+      if (res['status']) {
+        window.pywebview.api.send_email('forgot_pw', values['resetPwEmail']).then(res => {
+          if (res['status']) {
+            Swal.fire({
+              title: 'Done',
+              text: res.msg,
+              icon: 'success',
+              confirmButtonText: 'Ok',
+              timer: 3000
+            }).then(() => {
+              $('#sendEmailBtn').html("SEND")
+              $('#forgotPwResetPwWithTokenLn').click()
+            })
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: res.msg,
+              icon: 'error',
+              confirmButtonText: 'Ok'
+            })
+          }
+        })
+      } else {
+        Swal.fire({
+          title: 'Error',
+          text: res.msg,
+          icon: 'error',
+          confirmButtonText: 'Ok'
+        })
+      }
+    })
+
+    return false
+  })
+
+  $('#resetPwWithTokenForm').submit(function() {
+    var inputs = $('#resetPwWithTokenForm :input')
+    var values = {}
+    inputs.each(function() {
+      values[this.id] = $(this).val()
+    })
+
+    // Form validation
+    if (values['resetPwWithTokenVerifyCode'].length === 0) {
+      validateMsg = 'Verification code cannot be empty.'
+    } else if (values['resetPwWithTokenNewPw'].length === 0) {
+      validateMsg = 'New password cannot be empty.'
+    } else if (values['resetPwWithTokenNewPw'].length < 8) {
+      validateMsg = 'New password too short.'
+    } else if (!values['resetPwWithTokenNewPw'].match(/[A-z]/)) {
+      validateMsg = 'New password does not contain any letter.'
+    } else if (!values['resetPwWithTokenNewPw'].match(/[A-Z]/)) {
+      validateMsg = 'New password does not contain any capital letter.'
+    } else if (!values['resetPwWithTokenNewPw'].match(/\d/)) {
+      validateMsg = 'New password does not contain any digit.'
+    } else if (values['resetPwWithTokenConfirmPw'].length === 0) {
+      validateMsg = 'Confirm password cannot be empty.'
+    } else if (values['resetPwWithTokenNewPw'] !== values['resetPwWithTokenConfirmPw']) {
+      validateMsg = 'Confirm password does not match.'
+    }
+    if (typeof validateMsg !== 'undefined') {
+      Swal.fire({
+        title: 'Error',
+        text: validateMsg,
+        icon: 'error',
+        confirmButtonText: 'Ok'
+      })
+      delete validateMsg
+      return false
+    }
+
+    window.pywebview.api.reset_pw(values['resetPwWithTokenNewPw'], null, values['resetPwWithTokenVerifyCode']).then(res => {
+      if (res['status']) {
+        Swal.fire({
+          title: 'Done',
+          text: res.msg,
+          icon: 'success',
+          confirmButtonText: 'Ok',
+          timer: 3000
+        }).then(() => {
+          window.pywebview.api.send_email('pw_updated', res.email)
+          window.pywebview.api.navigate_to_dashboard()
+        })
+      } else {
+        Swal.fire({
+          title: 'Error',
+          text: res.msg,
+          icon: 'error',
+          confirmButtonText: 'Ok'
+        })
+      }
+    })
+
+    return false
+  })
+
+  pwTip('#newPw')
+  pwTip('#resetPwWithTokenNewPw')
+})
+
+function validateEmail(email) {
+  const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+  return re.test(email)
+}
+
+function pwTip(id) {
+  var pwTips = tippy(document.querySelector(id), {
     animation: 'fade',
     arrow: false,
     allowHTML: true,
@@ -170,7 +303,7 @@ $(document).ready(function() {
     content: '<div id="pswd_info"><p>Password must meet the following requirements:</p><ul><li id="letter" class="invalid">At least <strong>one letter</strong></li><li id="capital" class="invalid">At least <strong>one capital letter</strong></li><li id="number" class="invalid">At least <strong>one number</strong></li><li id="length" class="invalid">Be at least <strong>8 characters</strong></li></ul></div>'
   })
 
-  $('#newPw').keyup(function() {
+  $(id).keyup(function() {
     var pw = $(this).val();
 
     // Validate the length
@@ -206,10 +339,5 @@ $(document).ready(function() {
     pwTips.show();
   }).blur(function() {
     pwTips.hide();
-  });
-})
-
-function validateEmail(email) {
-  const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-  return re.test(email)
+  })
 }
