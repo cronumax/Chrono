@@ -292,7 +292,25 @@ $(document).ready(function() {
     return false
   })
 
+  $('#forgotPwLn').click(function() {
+    $('#signInForm :input').val('')
+  })
+
   $('#registerLn').click(function() {
+    $('#signInForm :input').val('')
+  })
+
+  $('#forgotPwSignInLn').click(function() {
+    $('#forgotPwForm :input').val('')
+  })
+
+  $('#forgotPwResetPwWithTokenLn').click(function() {
+    $('#forgotPwForm :input').val('')
+  })
+
+  $('#registerSignInLn').click(function() {
+    $('#registerForm :input').val('')
+    $('#registerForm :input[type=checkbox]').prop('checked', false)
     $('#registerEmailVerifyLn').css('color', '#aaa')
     $('#registerEmailVerifyLn').html('Verify')
   })

@@ -137,6 +137,14 @@ $(document).ready(function() {
     return false
   })
 
+  $('#logoutBtn').click(function() {
+    $('#resetPwWithOldPwForm :input').val('')
+  })
+
+  $('.nav-item > .nav-link').click(function() {
+    $('#resetPwWithOldPwForm :input').val('')
+  })
+
   pwTip('#resetPwWithOldPwNewPw')
 })
 
