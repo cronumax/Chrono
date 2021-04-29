@@ -9,6 +9,10 @@
   margin: auto;
 }
 
+#register>.card {
+  top: 1rem;
+}
+
 #forgotPwLn, #registerLn, #forgotPwSignInLn, #registerSignInLn, #registerEmailVerifyLn, #resetPwWithTokenSignInLn, #forgotPwResetPwWithTokenLn {
   text-align: center;
 }

@@ -25,6 +25,7 @@ class Api:
     def __init__(self):
         self.window = None
         self.api_url = 'http://localhost:8000/'
+        self.current_user_email = None
         self.is_recording = False
         self.is_playing = False
         '''
@@ -41,14 +42,21 @@ class Api:
         return requests.post(self.api_url + 'send-email', {'type': type, 'email': email}).json()
 
     def login(self, email, pw):
-        return requests.post(self.api_url + 'login', {'email': email, 'pw': pw}).json()
+        res = requests.post(self.api_url + 'login',
+                            {'email': email, 'pw': pw}).json()
+        if res['status']:
+            self.current_user_email = email
+        return res
+
+    def get_current_user_email(self):
+        return self.current_user_email
 
     def register(self, first_name, last_name, email, code, pw, agree_privacy_n_terms, send_update):
         return requests.post(self.api_url + 'register', {'1st_name': first_name, 'last_name': last_name, 'email': email, 'code': code, 'pw': pw, 'agree_privacy_n_terms': agree_privacy_n_terms, 'send_update': send_update}).json()
 
-    def reset_pw(self, new_pw, old_pw=None, code=None):
+    def reset_pw(self, new_pw, email=None, old_pw=None, code=None):
         if old_pw:
-            return requests.post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'old_pw': old_pw}).json()
+            return requests.post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'old_pw': old_pw, 'email': email}).json()
         else:
             return requests.post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'code': code}).json()
 

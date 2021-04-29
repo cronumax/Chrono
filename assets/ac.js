@@ -58,6 +58,7 @@ $(document).ready(function() {
     inputs.each(function() {
       values[this.id] = $(this).val()
     })
+    $('#signInForm :input').val('')
 
     // Form validation
     if (values['email'].length === 0) {
@@ -108,6 +109,8 @@ $(document).ready(function() {
     inputs.each(function() {
       values[this.id] = (this.type === 'checkbox') ? $(this).is(':checked') : $(this).val()
     })
+    $('#registerForm :input').val('')
+    $('#registerForm :input[type=checkbox]').prop('checked', false)
 
     // Form validation
     if (values['1stName'].length === 0) {
@@ -168,6 +171,7 @@ $(document).ready(function() {
     inputs.each(function() {
       values[this.id] = $(this).val()
     })
+    $('#forgotPwForm :input').val('')
 
     // Form validation
     if (values['resetPwEmail'].length === 0) {
@@ -203,6 +207,7 @@ $(document).ready(function() {
               $('#forgotPwResetPwWithTokenLn').click()
             })
           } else {
+            $('#sendEmailBtn').html("SEND")
             Swal.fire({
               title: 'Error',
               text: res.msg,
@@ -212,6 +217,7 @@ $(document).ready(function() {
           }
         })
       } else {
+        $('#sendEmailBtn').html("SEND")
         Swal.fire({
           title: 'Error',
           text: res.msg,
@@ -230,6 +236,7 @@ $(document).ready(function() {
     inputs.each(function() {
       values[this.id] = $(this).val()
     })
+    $('#resetPwWithTokenForm :input').val('')
 
     // Form validation
     if (values['resetPwWithTokenVerifyCode'].length === 0) {
@@ -260,7 +267,7 @@ $(document).ready(function() {
       return false
     }
 
-    window.pywebview.api.reset_pw(values['resetPwWithTokenNewPw'], null, values['resetPwWithTokenVerifyCode']).then(res => {
+    window.pywebview.api.reset_pw(values['resetPwWithTokenNewPw'], null, null, values['resetPwWithTokenVerifyCode']).then(res => {
       if (res['status']) {
         Swal.fire({
           title: 'Done',
@@ -283,6 +290,11 @@ $(document).ready(function() {
     })
 
     return false
+  })
+
+  $('#registerLn').click(function() {
+    $('#registerEmailVerifyLn').css('color', '#aaa')
+    $('#registerEmailVerifyLn').html('Verify')
   })
 
   pwTip('#newPw')

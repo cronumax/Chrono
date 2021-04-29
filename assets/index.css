@@ -6,7 +6,7 @@ html {
   margin-right: 9px;
 }
 
-.btn:active {
+.btn>i:active {
   color: #df2176;
 }
 
@@ -25,6 +25,13 @@ html {
 
 #playBtn {
   right: 0;
+}
+
+#resetPwWithOldPwBtn {
+  width: 100%;
+  border: 1px solid #666;
+  border-radius: 18px;
+  background-color: #df2176;
 }
 
 @keyframes glowing {
@@ -87,4 +94,74 @@ h1 {
 
 .white {
   color: #fff;
+}
+
+a {
+  color: #aaa;
+}
+
+a:active, a:hover {
+  color: #df2176;
+}
+
+#profileChangePwLn {
+  text-align: center;
+}
+
+.card {
+  top: 1rem;
+  width: 29rem;
+  margin: auto;
+}
+
+#pswd_info p {
+  margin: 0;
+}
+
+#pswd_info ul, #pswd_info li {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+#pswd_info {
+  padding: 1rem;
+  font-size: .9rem;
+  border-radius: 1rem;
+  border: 1px solid #666;
+}
+
+.tippy-box {
+  border-radius: 1rem;
+}
+
+.tippy-content {
+  padding: 0;
+}
+
+.invalid {
+  padding-left: 22px;
+  line-height: 24px;
+  color: #ec3f41;
+}
+
+.valid {
+  padding-left: 22px;
+  line-height: 24px;
+  color: #3a7d34;
+}
+
+.invalid::before {
+  font-family: "Font Awesome 5 Free";
+  content: "\f00d\a0";
+}
+
+.valid::before {
+  font-family: "Font Awesome 5 Free";
+  content: "\f00c\a0";
+}
+
+.form-control, .form-control:focus {
+  color: #eee;
+  background-color: #222;
 }

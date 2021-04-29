@@ -63,6 +63,81 @@ $(document).ready(function() {
   $('#logoutBtn').click(function() {
     window.pywebview.api.navigate_to_login()
   })
+
+  $('#profileNavLn').click(function() {
+    $('#profile').siblings().removeClass('active show')
+    $('#profile').addClass('active show')
+  })
+
+  $('#profileChangePwLn').click(function() {
+    $('#resetPwWithOldPw').siblings().removeClass('active show')
+    $('#resetPwWithOldPw').addClass('active show')
+  })
+
+  $('#resetPwWithOldPwForm').submit(function() {
+    var inputs = $('#resetPwWithOldPwForm :input')
+    var values = {}
+    inputs.each(function() {
+      values[this.id] = $(this).val()
+    })
+    $('#resetPwWithOldPwForm :input').val('')
+
+    // Form validation
+    if (values['oldPw'].length === 0) {
+      validateMsg = 'Old password cannot be empty.'
+    } else if (values['resetPwWithOldPwNewPw'].length === 0) {
+      validateMsg = 'New password cannot be empty.'
+    } else if (values['resetPwWithOldPwNewPw'].length < 8) {
+      validateMsg = 'New password too short.'
+    } else if (!values['resetPwWithOldPwNewPw'].match(/[A-z]/)) {
+      validateMsg = 'New password does not contain any letter.'
+    } else if (!values['resetPwWithOldPwNewPw'].match(/[A-Z]/)) {
+      validateMsg = 'New password does not contain any capital letter.'
+    } else if (!values['resetPwWithOldPwNewPw'].match(/\d/)) {
+      validateMsg = 'New password does not contain any digit.'
+    } else if (values['resetPwWithOldPwConfirmPw'].length === 0) {
+      validateMsg = 'Confirm password cannot be empty.'
+    } else if (values['resetPwWithOldPwNewPw'] !== values['resetPwWithOldPwConfirmPw']) {
+      validateMsg = 'Confirm password does not match.'
+    }
+    if (typeof validateMsg !== 'undefined') {
+      Swal.fire({
+        title: 'Error',
+        text: validateMsg,
+        icon: 'error',
+        confirmButtonText: 'Ok'
+      })
+      delete validateMsg
+      return false
+    }
+
+    window.pywebview.api.get_current_user_email().then(email => {
+      window.pywebview.api.reset_pw(values['resetPwWithOldPwNewPw'], email, values['oldPw']).then(res => {
+        if (res['status']) {
+          Swal.fire({
+            title: 'Done',
+            text: res.msg,
+            icon: 'success',
+            confirmButtonText: 'Ok',
+            timer: 3000
+          }).then(() => {
+            $('.nav-link').first().click()
+          })
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: res.msg,
+            icon: 'error',
+            confirmButtonText: 'Ok'
+          })
+        }
+      })
+    })
+
+    return false
+  })
+
+  pwTip('#resetPwWithOldPwNewPw')
 })
 
 function refreshProcessList() {
@@ -145,5 +220,53 @@ function backendValidation(res) {
 function delProcess(process) {
   window.pywebview.api.del_process(process).then(res => {
     backendValidation(res)
+  })
+}
+
+function pwTip(id) {
+  var pwTips = tippy(document.querySelector(id), {
+    animation: 'fade',
+    arrow: false,
+    allowHTML: true,
+    trigger: 'manual',
+    content: '<div id="pswd_info"><p>Password must meet the following requirements:</p><ul><li id="letter" class="invalid">At least <strong>one letter</strong></li><li id="capital" class="invalid">At least <strong>one capital letter</strong></li><li id="number" class="invalid">At least <strong>one number</strong></li><li id="length" class="invalid">Be at least <strong>8 characters</strong></li></ul></div>'
+  })
+
+  $(id).keyup(function() {
+    var pw = $(this).val();
+
+    // Validate the length
+    if (pw.length >= 8) {
+      $('#length').removeClass('invalid').addClass('valid');
+    } else {
+      $('#length').removeClass('valid').addClass('invalid');
+    }
+
+    // Validate letter
+    if (pw.match(/[A-z]/)) {
+      $('#letter').removeClass('invalid').addClass('valid');
+    } else {
+      $('#letter').removeClass('valid').addClass('invalid');
+    }
+
+    // Validate capital letter
+    if (pw.match(/[A-Z]/)) {
+      $('#capital').removeClass('invalid').addClass('valid');
+    } else {
+      $('#capital').removeClass('valid').addClass('invalid');
+    }
+
+    // Validate number
+    if (pw.match(/\d/)) {
+      $('#number').removeClass('invalid').addClass('valid');
+    } else {
+      $('#number').removeClass('valid').addClass('invalid');
+    }
+  }).focus(function() {
+    pwTips.show();
+  }).click(function() {
+    pwTips.show();
+  }).blur(function() {
+    pwTips.hide();
   })
 }

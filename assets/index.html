@@ -17,7 +17,7 @@
       <a class="nav-link" data-toggle="tab" href="#support"><span class='ferrari-red'>C</span><span class='white'>ronumax</span></a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" data-toggle='tab' href="#profile"><i class='fa fa-user-circle fa-lg'></i></a>
+      <a class="nav-link" data-toggle='tab' id='profileNavLn'><i class='fa fa-user-circle fa-lg'></i></a>
     </li>
     <li class="nav-item">
       <a class="nav-link" data-toggle='tab' href="#settings"><i class='fa fa-tools fa-lg'></i></a>
@@ -146,6 +146,32 @@
     </div>
     <div class="tab-pane fade" id="profile">
       <h1>Profile</h1>
+      <a class='nav-link' data-toggle='tab' href="#changePw" id='profileChangePwLn'>CHANGE PASSWORD</a>
+    </div>
+    <div class="tab-pane fade" id="resetPwWithOldPw">
+      <div class="card mb-3">
+        <div class="card-body">
+          <form id='resetPwWithOldPwForm' novalidate>
+            <fieldset>
+              <legend>Change Password</legend>
+              <div class="form-group">
+                <label>Old Password</label>
+                <input type="password" class="form-control" id='oldPw'>
+              </div>
+              <div class="form-group">
+                <label>New Password</label>
+                <input type="password" class="form-control" id='resetPwWithOldPwNewPw'>
+              </div>
+              <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" class="form-control" id='resetPwWithOldPwConfirmPw'>
+              </div>
+              <button type="submit" class="btn" id='resetPwWithOldPwBtn'>CHANGE PASSWORD</button>
+            </fieldset>
+          </form>
+          <hr>
+        </div>
+      </div>
     </div>
     <div class="tab-pane fade" id="settings">
       <h1>Settings</h1>
@@ -154,6 +180,7 @@
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@popperjs/core@2"></script>
+  <script src="https://unpkg.com/tippy.js@6"></script>
   <script src="bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.0/dist/sweetalert2.min.js"></script>
   <script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
