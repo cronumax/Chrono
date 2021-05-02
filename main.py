@@ -38,6 +38,7 @@ class Api:
         else:
             self.touch_mode = True
         self.god_speed = False
+        self.timezone = 'Hongkong'
 
     def send_email(self, type, email):
         return requests.post(self.api_url + 'send-email', {'type': type, 'email': email}).json()
@@ -307,7 +308,7 @@ class Api:
                 with open('processes/{0}.json'.format(process), 'w') as f:
                     json.dump(events, f)
 
-                date = timezone('Hongkong').localize(datetime.fromtimestamp(pathlib.Path(
+                date = timezone(self.timezone).localize(datetime.fromtimestamp(pathlib.Path(
                     'processes/{0}.json'.format(process)).stat().st_mtime))
                 response = requests.post(self.api_url + 'upload-process-meta-data', {
                                          'email': self.current_user_email, 'name': process, 'date': date.strftime('%Y-%m-%d %H:%M:%S.%f%z')}).json()
@@ -352,7 +353,8 @@ class Api:
                 new_path = 'processes/{0}.json'.format(new_name)
                 if pathlib.Path(new_path).exists():
                     status = False
-                    msg = 'Process {0} already exists.'.format(new_name)
+                    msg = 'Process {0} already exists locally.'.format(
+                        new_name)
 
                     res = requests.post(self.api_url + 'rename-process', {
                         'email': self.current_user_email, 'old_name': old_name, 'new_name': new_name, 'revert': True}).json()
@@ -420,7 +422,7 @@ class Api:
             for p in response:
                 process_names.append(p['name'])
                 raw_modified_times.append(datetime.strptime(
-                    p['date'], '%Y-%m-%d %H:%M:%S.%f%z').astimezone(timezone('Hongkong')))
+                    p['date'], '%Y-%m-%d %H:%M:%S.%f%z').astimezone(timezone(self.timezone)))
 
             # Check against local processes
             _, _, filenames = next(os.walk('processes/'))
@@ -435,13 +437,13 @@ class Api:
                 for i in range(len(process_names)):
                     if not process_names[i] in local_process_names:
                         process_names.pop(i)
-                    elif raw_modified_times[i] != timezone('Hongkong').localize(datetime.fromtimestamp(pathlib.Path(
+                    elif raw_modified_times[i] != timezone(self.timezone).localize(datetime.fromtimestamp(pathlib.Path(
                             'processes/{0}.json'.format(process_names[i])).stat().st_mtime)):
                         logger.error('Process date mismatch')
                         process_names.pop(i)
 
             modified_times = []
-            present = datetime.now(timezone('Hongkong'))
+            present = datetime.now(timezone(self.timezone))
             for t in raw_modified_times:
                 if t.year != present.year:
                     modified_times.append(t.strftime('%d %b %Y'))
