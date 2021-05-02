@@ -61,6 +61,7 @@ $(document).ready(function() {
   })
 
   $('#logoutBtn').click(function() {
+    window.pywebview.api.logout()
     window.pywebview.api.navigate_to_login()
   })
 

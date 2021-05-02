@@ -3,7 +3,8 @@ import requests
 import webview
 import logging
 import time
-from datetime import datetime
+import threading
+from datetime import datetime, timedelta
 import json
 import platform
 import pathlib
@@ -28,7 +29,7 @@ class Api:
         self.api_url = 'http://localhost:8000/'
         self.current_user_email = None
         self.logged_in = False
-        self.api_token = None
+        self.access_token = {}
         self.is_recording = False
         self.is_playing = False
         '''
@@ -41,6 +42,20 @@ class Api:
             self.touch_mode = True
         self.god_speed = False
         self.timezone = 'Hongkong'
+
+    def auto_renew_access_token_when_logged_in(self):
+        while self.logged_in:
+            if datetime.strptime(self.access_token['expiry_date'], '%Y-%m-%d %H:%M:%S.%f%z').astimezone(timezone(self.timezone)) - datetime.now(timezone(self.timezone)) < timedelta(minutes=3) and self.access_token['email'] == self.current_user_email:
+                res = requests.post(self.api_url + 'extend-access-token',
+                                    {'code': self.access_token['code'], 'email': self.current_user_email}).json()
+
+                if res['status']:
+                    self.access_token['expiry_date'] = res['expiry_date']
+                    logger.info(res['msg'])
+                else:
+                    logger.error(res['msg'])
+
+            time.sleep(60)
 
     def send_email(self, type, email):
         return requests.post(self.api_url + 'send-email', {'type': type, 'email': email}).json()
@@ -57,7 +72,12 @@ class Api:
                 self.api_url + 'access-token', {'email': email, 'pw': pw}).json()
 
             if response['status']:
-                self.api_token = response['token']
+                self.access_token['code'] = response['code']
+                self.access_token['expiry_date'] = response['expiry_date']
+                self.access_token['email'] = response['email']
+                thread = threading.Thread(
+                    target=self.auto_renew_access_token_when_logged_in)
+                thread.start()
             else:
                 logger.error(response['msg'])
 
@@ -66,6 +86,9 @@ class Api:
             logger.error(res['msg'])
 
         return res
+
+    def logout(self):
+        self.logged_in = False
 
     def register(self, first_name, last_name, email, code, pw, agree_privacy_n_terms, send_update):
         response = requests.post(self.api_url + 'register', {'1st_name': first_name, 'last_name': last_name, 'email': email,
@@ -79,7 +102,12 @@ class Api:
                 self.api_url + 'access-token', {'email': email, 'pw': pw}).json()
 
             if res['status']:
-                self.api_token = res['token']
+                self.access_token['code'] = res['code']
+                self.access_token['expiry_date'] = response['expiry_date']
+                self.access_token['email'] = response['email']
+                thread = threading.Thread(
+                    target=self.auto_renew_access_token_when_logged_in)
+                thread.start()
             else:
                 logger.error(res['msg'])
 
