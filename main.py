@@ -27,6 +27,8 @@ class Api:
         self.window = None
         self.api_url = 'http://localhost:8000/'
         self.current_user_email = None
+        self.logged_in = False
+        self.api_token = None
         self.is_recording = False
         self.is_playing = False
         '''
@@ -48,7 +50,20 @@ class Api:
                             {'email': email, 'pw': pw}).json()
 
         if res['status']:
+            self.logged_in = True
             self.current_user_email = email
+
+            response = requests.post(
+                self.api_url + 'access-token', {'email': email, 'pw': pw}).json()
+
+            if response['status']:
+                self.api_token = response['token']
+            else:
+                logger.error(response['msg'])
+
+                return response
+        else:
+            logger.error(res['msg'])
 
         return res
 
@@ -57,7 +72,20 @@ class Api:
                                                              'code': code, 'pw': pw, 'agree_privacy_n_terms': agree_privacy_n_terms, 'send_update': send_update}).json()
 
         if response['status']:
+            self.logged_in = True
             self.current_user_email = email
+
+            res = requests.post(
+                self.api_url + 'access-token', {'email': email, 'pw': pw}).json()
+
+            if res['status']:
+                self.api_token = res['token']
+            else:
+                logger.error(res['msg'])
+
+                return res
+        else:
+            logger.error(response['msg'])
 
         return response
 
