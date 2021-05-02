@@ -111,27 +111,25 @@ $(document).ready(function() {
       return false
     }
 
-    window.pywebview.api.get_current_user_email().then(email => {
-      window.pywebview.api.reset_pw(values['resetPwWithOldPwNewPw'], email, values['oldPw']).then(res => {
-        if (res['status']) {
-          Swal.fire({
-            title: 'Done',
-            text: res.msg,
-            icon: 'success',
-            confirmButtonText: 'Ok',
-            timer: 3000
-          }).then(() => {
-            $('.nav-link').first().click()
-          })
-        } else {
-          Swal.fire({
-            title: 'Error',
-            text: res.msg,
-            icon: 'error',
-            confirmButtonText: 'Ok'
-          })
-        }
-      })
+    window.pywebview.api.reset_pw(values['resetPwWithOldPwNewPw'], values['oldPw']).then(res => {
+      if (res['status']) {
+        Swal.fire({
+          title: 'Done',
+          text: res.msg,
+          icon: 'success',
+          confirmButtonText: 'Ok',
+          timer: 3000
+        }).then(() => {
+          $('.nav-link').first().click()
+        })
+      } else {
+        Swal.fire({
+          title: 'Error',
+          text: res.msg,
+          icon: 'error',
+          confirmButtonText: 'Ok'
+        })
+      }
     })
 
     return false
@@ -209,7 +207,7 @@ function backendValidation(res) {
   if (res.status) {
     Swal.fire({
       title: 'Done',
-      text: res.txt,
+      text: res.msg,
       icon: 'success',
       confirmButtonText: 'Ok',
       timer: 3000
@@ -218,7 +216,7 @@ function backendValidation(res) {
   } else {
     Swal.fire({
       title: 'Error',
-      text: res.txt,
+      text: res.msg,
       icon: 'error',
       confirmButtonText: 'Ok'
     })

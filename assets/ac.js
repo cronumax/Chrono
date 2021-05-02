@@ -267,7 +267,7 @@ $(document).ready(function() {
       return false
     }
 
-    window.pywebview.api.reset_pw(values['resetPwWithTokenNewPw'], null, null, values['resetPwWithTokenVerifyCode']).then(res => {
+    window.pywebview.api.reset_pw(values['resetPwWithTokenNewPw'], null, values['resetPwWithTokenVerifyCode']).then(res => {
       if (res['status']) {
         Swal.fire({
           title: 'Done',

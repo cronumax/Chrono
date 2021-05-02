@@ -14,6 +14,7 @@ if platform.system() == 'Darwin':
 else:
     from plyer import notification
 import pyautogui as pag
+from pytz import timezone
 
 
 logging.basicConfig(filename='Chrono.log', level=logging.DEBUG,
@@ -44,19 +45,24 @@ class Api:
     def login(self, email, pw):
         res = requests.post(self.api_url + 'login',
                             {'email': email, 'pw': pw}).json()
+
         if res['status']:
             self.current_user_email = email
+
         return res
 
-    def get_current_user_email(self):
-        return self.current_user_email
-
     def register(self, first_name, last_name, email, code, pw, agree_privacy_n_terms, send_update):
-        return requests.post(self.api_url + 'register', {'1st_name': first_name, 'last_name': last_name, 'email': email, 'code': code, 'pw': pw, 'agree_privacy_n_terms': agree_privacy_n_terms, 'send_update': send_update}).json()
+        response = requests.post(self.api_url + 'register', {'1st_name': first_name, 'last_name': last_name, 'email': email,
+                                                             'code': code, 'pw': pw, 'agree_privacy_n_terms': agree_privacy_n_terms, 'send_update': send_update}).json()
 
-    def reset_pw(self, new_pw, email=None, old_pw=None, code=None):
+        if response['status']:
+            self.current_user_email = email
+
+        return response
+
+    def reset_pw(self, new_pw, old_pw=None, code=None):
         if old_pw:
-            return requests.post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'old_pw': old_pw, 'email': email}).json()
+            return requests.post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'old_pw': old_pw, 'email': self.current_user_email}).json()
         else:
             return requests.post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'code': code}).json()
 
@@ -291,21 +297,32 @@ class Api:
 
             events = sorted(self.kb_events + self.m_events,
                             key=lambda i: i['time'])
+            events.insert(0, {'owner': self.current_user_email})
 
             # To do: check file path consistency across OSes
             if pathlib.Path('processes/{0}.json'.format(process)).exists():
                 status = False
-                txt = 'Process {0} already exists.'.format(process)
+                msg = 'Process {0} already exists locally.'.format(process)
             else:
                 with open('processes/{0}.json'.format(process), 'w') as f:
                     json.dump(events, f)
 
-                status = True
-                txt = 'Process {0} saved.'.format(process)
+                date = timezone('Hongkong').localize(datetime.fromtimestamp(pathlib.Path(
+                    'processes/{0}.json'.format(process)).stat().st_mtime))
+                response = requests.post(self.api_url + 'upload-process-meta-data', {
+                                         'email': self.current_user_email, 'name': process, 'date': date.strftime('%Y-%m-%d %H:%M:%S.%f%z')}).json()
 
-            logger.info(txt)
+                if not response['status']:
+                    logger.info(response['msg'])
 
-            return {'status': status, 'txt': txt}
+                    return response
+                else:
+                    status = True
+                    msg = 'Process {0} saved.'.format(process)
+
+            logger.info(msg)
+
+            return {'status': status, 'msg': msg}
         except Exception as e:
             logger.error('save() error: {0}'.format(str(e)))
 
@@ -314,7 +331,9 @@ class Api:
             with open('processes/{0}.json'.format(process)) as f:
                 events = json.load(f)
 
-            logger.info('Process {0} loaded'.format(process))
+            logger.info('Process {0} for user {1} loaded'.format(
+                process, events[0]['owner']))
+            events.pop(0)
 
             return events
         except Exception as e:
@@ -322,55 +341,107 @@ class Api:
 
     def rename_process(self, old_name, new_name):
         try:
-            logger.info('User proposed new name {1} for process {0}'.format(
-                old_name, new_name))
+            logger.info('User {0} proposed new name {1} for process {2}'.format(
+                self.current_user_email, new_name, old_name))
 
-            # To do: check file path consistency across OSes
-            new_path = 'processes/{0}.json'.format(new_name)
-            if pathlib.Path(new_path).exists():
-                status = False
-                txt = 'Process {0} already exists.'.format(new_name)
+            response = requests.post(self.api_url + 'rename-process', {
+                                     'email': self.current_user_email, 'old_name': old_name, 'new_name': new_name}).json()
+
+            if response['status']:
+                # Update local process name
+                new_path = 'processes/{0}.json'.format(new_name)
+                if pathlib.Path(new_path).exists():
+                    status = False
+                    msg = 'Process {0} already exists.'.format(new_name)
+
+                    res = requests.post(self.api_url + 'rename-process', {
+                        'email': self.current_user_email, 'old_name': old_name, 'new_name': new_name, 'revert': True}).json()
+
+                    if res:
+                        logger.info(res['msg'])
+                    else:
+                        logger.error(res['msg'])
+
+                        return res
+                else:
+                    os.rename('processes/{0}.json'.format(old_name), new_path)
+
+                    status = True
+                    msg = 'Process {0} renamed to {1}.'.format(
+                        old_name, new_name)
+
+                logger.info(msg)
+
+                return {'status': status, 'msg': msg}
             else:
-                os.rename('processes/{0}.json'.format(old_name), new_path)
+                logger.error(response['msg'])
 
-                status = True
-                txt = 'Process {0} renamed to {1}.'.format(old_name, new_name)
-
-            logger.info(txt)
-
-            return {'status': status, 'txt': txt}
+                return response
         except Exception as e:
             logger.error('rename_process() error: {0}'.format(str(e)))
 
+            return {'status': False, 'msg': str(e)}
+
     def del_process(self, process):
         try:
-            # To do: check file path consistency across OSes
-            path = 'processes/{0}.json'.format(process)
-            if pathlib.Path(path).exists():
-                os.remove(path)
+            response = requests.post(
+                self.api_url + 'del-process', {'email': self.current_user_email, 'name': process}).json()
 
-                status = True
-                txt = 'Process {0} removed.'.format(process)
+            if response['status']:
+                # Del local process
+                path = 'processes/{0}.json'.format(process)
+                if pathlib.Path(path).exists():
+                    os.remove(path)
+
+                    status = True
+                    msg = 'Process {0} removed.'.format(process)
+                else:
+                    status = False
+                    msg = 'Process {0} does not exist.'.format(process)
             else:
-                status = False
-                txt = 'Process {0} does not exist.'.format(process)
+                logger.error(response['msg'])
 
-            logger.info(txt)
+                return response
 
-            return {'status': status, 'txt': txt}
+            logger.info(msg)
+
+            return {'status': status, 'msg': msg}
         except Exception as e:
             logger.error('del_process() error: {0}'.format(str(e)))
 
+            return {'status': False, 'msg': str(e)}
+
     def load_process_list(self):
         try:
-            process_list = []
+            process_list, process_names, raw_modified_times = (
+                [] for i in range(3))
+            response = requests.post(
+                self.api_url + 'retrieve-process', {'email': self.current_user_email}).json()
+            for p in response:
+                process_names.append(p['name'])
+                raw_modified_times.append(datetime.strptime(
+                    p['date'], '%Y-%m-%d %H:%M:%S.%f%z').astimezone(timezone('Hongkong')))
+
+            # Check against local processes
             _, _, filenames = next(os.walk('processes/'))
-            process_names = [n[:-5] for n in filenames]
-            raw_modified_times = [datetime.fromtimestamp(pathlib.Path(
-                'processes/' + n).stat().st_mtime) for n in filenames]
+            if filenames:
+                for n in filenames:
+                    with open('processes/{0}'.format(n)) as f:
+                        events = json.load(f)
+                    if events[0]['owner'] != self.current_user_email:
+                        filenames.remove(n)
+                local_process_names = [n[:-5] for n in filenames]
+
+                for i in range(len(process_names)):
+                    if not process_names[i] in local_process_names:
+                        process_names.pop(i)
+                    elif raw_modified_times[i] != timezone('Hongkong').localize(datetime.fromtimestamp(pathlib.Path(
+                            'processes/{0}.json'.format(process_names[i])).stat().st_mtime)):
+                        logger.error('Process date mismatch')
+                        process_names.pop(i)
 
             modified_times = []
-            present = datetime.now()
+            present = datetime.now(timezone('Hongkong'))
             for t in raw_modified_times:
                 if t.year != present.year:
                     modified_times.append(t.strftime('%d %b %Y'))
@@ -386,6 +457,9 @@ class Api:
 
             for i in range(len(process_names)):
                 process_list.append([process_names[i], modified_times[i]])
+
+            if not filenames:
+                process_list = []
 
             logger.info(process_list)
 

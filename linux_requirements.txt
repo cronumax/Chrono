@@ -28,6 +28,7 @@ PyScreeze==0.1.26
 python-xlib==0.29
 python3-xlib==0.15
 PyTweening==1.0.3
+pytz==2021.1
 pywebview==3.4
 requests==2.25.1
 rubicon-objc==0.4.0
