@@ -1,8 +1,8 @@
 venv/
-Chrono.log
 __pycache__/
 build/
 dist/
 *.spec
 processes/
 test.py
+logs/

@@ -16,11 +16,20 @@ else:
     from plyer import notification
 import pyautogui as pag
 from pytz import timezone
+from logging.handlers import TimedRotatingFileHandler
 
 
-logging.basicConfig(filename='Chrono.log', level=logging.DEBUG,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', filemode='w')
+log_handler = TimedRotatingFileHandler(
+    'logs/Chrono.log',
+    when='midnight',
+    backupCount=0  # 30 for production
+)
+log_formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+log_handler.setFormatter(log_formatter)
 logger = logging.getLogger(__name__)
+logger.addHandler(log_handler)
+logger.setLevel(logging.DEBUG)
 
 
 class Api:
@@ -89,6 +98,8 @@ class Api:
 
     def logout(self):
         self.logged_in = False
+
+        logger.info('{0} logged out'.format(self.current_user_email))
 
     def register(self, first_name, last_name, email, code, pw, agree_privacy_n_terms, send_update):
         response = requests.post(self.api_url + 'register', {'1st_name': first_name, 'last_name': last_name, 'email': email,
