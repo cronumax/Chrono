@@ -34,12 +34,23 @@ $(document).ready(function() {
             $('#registerEmailVerifyLn').css('color', '#2bbfb4')
             $('#registerEmailVerifyLn').html("<i class='fa fa-check'></i> Sent")
           } else {
-            Swal.fire({
-              title: 'Error',
-              html: res.msg,
-              icon: 'error',
-              confirmButtonText: 'Ok'
-            })
+            $('#registerEmailVerifyLn').css('color', '#aaa')
+            $('#registerEmailVerifyLn').html('Verify')
+            if (res.msg.includes('There is an update available.')) {
+              Swal.fire({
+                title: 'New Version Available',
+                html: res.msg,
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+              })
+            } else {
+              Swal.fire({
+                title: 'Error',
+                html: res.msg,
+                icon: 'error',
+                confirmButtonText: 'Ok'
+              })
+            }
           }
         })
       } else {
@@ -102,12 +113,21 @@ $(document).ready(function() {
           window.pywebview.api.navigate_to_dashboard()
         })
       } else {
-        Swal.fire({
-          title: 'Error',
-          html: res.msg,
-          icon: 'error',
-          confirmButtonText: 'Ok'
-        })
+        if (res.msg.includes('There is an update available.')) {
+          Swal.fire({
+            title: 'New Version Available',
+            html: res.msg,
+            icon: 'warning',
+            confirmButtonText: 'Ok'
+          })
+        } else {
+          Swal.fire({
+            title: 'Error',
+            html: res.msg,
+            icon: 'error',
+            confirmButtonText: 'Ok'
+          })
+        }
       }
     })
 
@@ -164,12 +184,21 @@ $(document).ready(function() {
           window.pywebview.api.navigate_to_dashboard()
         })
       } else {
-        Swal.fire({
-          title: 'Error',
-          html: res.msg,
-          icon: 'error',
-          confirmButtonText: 'Ok'
-        })
+        if (res.msg.includes('There is an update available.')) {
+          Swal.fire({
+            title: 'New Version Available',
+            html: res.msg,
+            icon: 'warning',
+            confirmButtonText: 'Ok'
+          })
+        } else {
+          Swal.fire({
+            title: 'Error',
+            html: res.msg,
+            icon: 'error',
+            confirmButtonText: 'Ok'
+          })
+        }
       }
     })
 
@@ -229,12 +258,21 @@ $(document).ready(function() {
         })
       } else {
         $('#sendEmailBtn').html("SEND")
-        Swal.fire({
-          title: 'Error',
-          html: res.msg,
-          icon: 'error',
-          confirmButtonText: 'Ok'
-        })
+        if (res.msg.includes('There is an update available.')) {
+          Swal.fire({
+            title: 'New Version Available',
+            html: res.msg,
+            icon: 'warning',
+            confirmButtonText: 'Ok'
+          })
+        } else {
+          Swal.fire({
+            title: 'Error',
+            html: res.msg,
+            icon: 'error',
+            confirmButtonText: 'Ok'
+          })
+        }
       }
     })
 
