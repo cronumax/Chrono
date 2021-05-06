@@ -45,6 +45,8 @@ logger.setLevel(logging.DEBUG)
 
 class Api:
     def __init__(self):
+        logger.info('Chrono started')
+
         self.version = '0.0.1'
         self.window = None
         self.api_url = 'http://localhost:8000/'
@@ -588,6 +590,15 @@ class Api:
             return process_list
         except Exception as e:
             logger.error('load_process_list() error: {0}'.format(str(e)))
+
+    def check_app_version(self):
+        try:
+            logger.info('Check app version')
+
+            return requests.post(self.api_url + 'check-app-version',
+                                 {'app_id': self.app_id, 'app_version': self.version}).json()
+        except Exception as e:
+            logger.error('check_app_version() error: {0}'.format(str(e)))
 
     def thread_handler(self):
         try:

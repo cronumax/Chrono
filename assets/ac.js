@@ -2,6 +2,17 @@ $(window).on('pywebviewready', function() {
   $('.nav-link').click(function() {
     $(this).removeClass('active')
   })
+
+  window.pywebview.api.check_app_version().then(res => {
+    if (!res['status']) {
+      Swal.fire({
+        title: 'New Version Available',
+        html: res.msg,
+        icon: 'warning',
+        confirmButtonText: 'Ok'
+      })
+    }
+  })
 })
 
 $(document).ready(function() {
@@ -15,7 +26,7 @@ $(document).ready(function() {
           if (res['status']) {
             Swal.fire({
               title: 'Done',
-              text: res.msg,
+              html: res.msg,
               icon: 'success',
               confirmButtonText: 'Ok',
               timer: 3000
@@ -25,7 +36,7 @@ $(document).ready(function() {
           } else {
             Swal.fire({
               title: 'Error',
-              text: res.msg,
+              html: res.msg,
               icon: 'error',
               confirmButtonText: 'Ok'
             })
@@ -39,7 +50,7 @@ $(document).ready(function() {
         }
         Swal.fire({
           title: 'Error',
-          text: txt,
+          html: txt,
           icon: 'error',
           confirmButtonText: 'Ok'
         })
@@ -71,7 +82,7 @@ $(document).ready(function() {
     if (typeof validateMsg !== 'undefined') {
       Swal.fire({
         title: 'Error',
-        text: validateMsg,
+        html: validateMsg,
         icon: 'error',
         confirmButtonText: 'Ok'
       })
@@ -83,7 +94,7 @@ $(document).ready(function() {
       if (res['status']) {
         Swal.fire({
           title: 'Done',
-          text: res.msg,
+          html: res.msg,
           icon: 'success',
           confirmButtonText: 'Ok',
           timer: 3000
@@ -93,7 +104,7 @@ $(document).ready(function() {
       } else {
         Swal.fire({
           title: 'Error',
-          text: res.msg,
+          html: res.msg,
           icon: 'error',
           confirmButtonText: 'Ok'
         })
@@ -133,7 +144,7 @@ $(document).ready(function() {
     if (typeof validateMsg !== 'undefined') {
       Swal.fire({
         title: 'Error',
-        text: validateMsg,
+        html: validateMsg,
         icon: 'error',
         confirmButtonText: 'Ok'
       })
@@ -145,7 +156,7 @@ $(document).ready(function() {
       if (res['status']) {
         Swal.fire({
           title: 'Done',
-          text: res.msg,
+          html: res.msg,
           icon: 'success',
           confirmButtonText: 'Ok',
           timer: 3000
@@ -155,7 +166,7 @@ $(document).ready(function() {
       } else {
         Swal.fire({
           title: 'Error',
-          text: res.msg,
+          html: res.msg,
           icon: 'error',
           confirmButtonText: 'Ok'
         })
@@ -182,7 +193,7 @@ $(document).ready(function() {
     if (typeof validateMsg !== 'undefined') {
       Swal.fire({
         title: 'Error',
-        text: validateMsg,
+        html: validateMsg,
         icon: 'error',
         confirmButtonText: 'Ok'
       })
@@ -198,7 +209,7 @@ $(document).ready(function() {
           if (res['status']) {
             Swal.fire({
               title: 'Done',
-              text: res.msg,
+              html: res.msg,
               icon: 'success',
               confirmButtonText: 'Ok',
               timer: 3000
@@ -210,7 +221,7 @@ $(document).ready(function() {
             $('#sendEmailBtn').html("SEND")
             Swal.fire({
               title: 'Error',
-              text: res.msg,
+              html: res.msg,
               icon: 'error',
               confirmButtonText: 'Ok'
             })
@@ -220,7 +231,7 @@ $(document).ready(function() {
         $('#sendEmailBtn').html("SEND")
         Swal.fire({
           title: 'Error',
-          text: res.msg,
+          html: res.msg,
           icon: 'error',
           confirmButtonText: 'Ok'
         })
@@ -259,7 +270,7 @@ $(document).ready(function() {
     if (typeof validateMsg !== 'undefined') {
       Swal.fire({
         title: 'Error',
-        text: validateMsg,
+        html: validateMsg,
         icon: 'error',
         confirmButtonText: 'Ok'
       })
@@ -271,7 +282,7 @@ $(document).ready(function() {
       if (res['status']) {
         Swal.fire({
           title: 'Done',
-          text: res.msg,
+          html: res.msg,
           icon: 'success',
           confirmButtonText: 'Ok',
           timer: 3000
@@ -282,7 +293,7 @@ $(document).ready(function() {
       } else {
         Swal.fire({
           title: 'Error',
-          text: res.msg,
+          html: res.msg,
           icon: 'error',
           confirmButtonText: 'Ok'
         })
