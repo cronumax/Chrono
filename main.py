@@ -4,6 +4,7 @@ import webview
 import logging
 import time
 import threading
+import secrets
 from datetime import datetime, timedelta
 import json
 import platform
@@ -19,8 +20,18 @@ from pytz import timezone
 from logging.handlers import TimedRotatingFileHandler
 
 
+if platform.system() == 'Linux':
+    app_file_path = '/usr/local/etc'
+else:
+    app_file_path = ''
+
+if not os.path.exists('{0}/logs'.format(app_file_path)):
+    os.makedirs('{0}/logs'.format(app_file_path))
+if not os.path.exists('{0}/processes'.format(app_file_path)):
+    os.makedirs('{0}/processes'.format(app_file_path))
+
 log_handler = TimedRotatingFileHandler(
-    'logs/Chrono.log',
+    '{0}/logs/Chrono.log'.format(app_file_path),
     when='midnight',
     backupCount=0  # 30 for production
 )
@@ -34,6 +45,7 @@ logger.setLevel(logging.DEBUG)
 
 class Api:
     def __init__(self):
+        self.version = '0.0.1'
         self.window = None
         self.api_url = 'http://localhost:8000/'
         self.current_user_email = None
@@ -41,6 +53,18 @@ class Api:
         self.access_token = {}
         self.is_recording = False
         self.is_playing = False
+        if pathlib.Path('{0}/Chrono.json'.format(app_file_path)).exists():
+            with open('{0}/Chrono.json'.format(app_file_path)) as f:
+                app = json.load(f)
+
+            self.app_id = app['id']
+
+            if app['version'] != self.version:
+                self.register_or_update_app_version_info(app, 'update-app')
+        else:
+            app = {}
+            self.app_id = app['id'] = secrets.token_urlsafe()
+            self.register_or_update_app_version_info(app, 'register-app')
         '''
         To do: let user change these settings when we hv a gd error handling. Don't want dummy user action to backfire Cronumax/ Chrono's reputation.
         '''
@@ -52,11 +76,22 @@ class Api:
         self.god_speed = False
         self.timezone = 'Hongkong'
 
-    def auto_renew_access_token_when_logged_in(self):
+    def register_or_update_app_version_info(self, app, endpt):
+        app['version'] = self.version
+
+        with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
+            json.dump(app, f)
+
+        res = requests.post(
+            self.api_url + endpt, {'app_id': self.app_id, 'version': self.version}).json()
+
+        logger.info(res['msg']) if res['status'] else logger.error(res['msg'])
+
+    def renew_token(self):
         while self.logged_in:
             if datetime.strptime(self.access_token['expiry_date'], '%Y-%m-%d %H:%M:%S.%f%z').astimezone(timezone(self.timezone)) - datetime.now(timezone(self.timezone)) < timedelta(minutes=3) and self.access_token['email'] == self.current_user_email:
-                res = requests.post(self.api_url + 'extend-access-token',
-                                    {'code': self.access_token['code'], 'email': self.current_user_email}).json()
+                res = requests.post(self.api_url + 'renew-token',
+                                    {'code': self.access_token['code'], 'email': self.current_user_email, 'app_id': self.app_id}).json()
 
                 if res['status']:
                     self.access_token['expiry_date'] = res['expiry_date']
@@ -67,25 +102,31 @@ class Api:
             time.sleep(60)
 
     def send_email(self, type, email):
-        return requests.post(self.api_url + 'send-email', {'type': type, 'email': email}).json()
+        return requests.post(self.api_url + 'send-email', {'type': type, 'email': email, 'app_id': self.app_id}).json()
 
     def login(self, email, pw):
         res = requests.post(self.api_url + 'login',
-                            {'email': email, 'pw': pw}).json()
+                            {'email': email, 'pw': pw, 'app_id': self.app_id}).json()
 
         if res['status']:
             self.logged_in = True
             self.current_user_email = email
 
+            with open('{0}/Chrono.json'.format(app_file_path)) as f:
+                app = json.load(f)
+            app['user'] = email
+            with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
+                json.dump(app, f)
+
             response = requests.post(
-                self.api_url + 'access-token', {'email': email, 'pw': pw}).json()
+                self.api_url + 'access-token', {'email': email, 'pw': pw, 'app_id': self.app_id}).json()
 
             if response['status']:
                 self.access_token['code'] = response['code']
                 self.access_token['expiry_date'] = response['expiry_date']
                 self.access_token['email'] = response['email']
                 thread = threading.Thread(
-                    target=self.auto_renew_access_token_when_logged_in)
+                    target=self.renew_token)
                 thread.start()
             else:
                 logger.error(response['msg'])
@@ -102,40 +143,49 @@ class Api:
         logger.info('{0} logged out'.format(self.current_user_email))
 
     def register(self, first_name, last_name, email, code, pw, agree_privacy_n_terms, send_update):
-        response = requests.post(self.api_url + 'register', {'1st_name': first_name, 'last_name': last_name, 'email': email,
-                                                             'code': code, 'pw': pw, 'agree_privacy_n_terms': agree_privacy_n_terms, 'send_update': send_update}).json()
+        try:
+            response = requests.post(self.api_url + 'register', {'1st_name': first_name, 'last_name': last_name, 'email': email,
+                                                                 'code': code, 'pw': pw, 'agree_privacy_n_terms': agree_privacy_n_terms, 'send_update': send_update, 'app_id': self.app_id}).json()
 
-        if response['status']:
-            self.logged_in = True
-            self.current_user_email = email
+            if response['status']:
+                self.logged_in = True
+                self.current_user_email = email
 
-            res = requests.post(
-                self.api_url + 'access-token', {'email': email, 'pw': pw}).json()
+                with open('{0}/Chrono.json'.format(app_file_path)) as f:
+                    app = json.load(f)
+                app['user'] = email
+                with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
+                    json.dump(app, f)
 
-            if res['status']:
-                self.access_token['code'] = res['code']
-                self.access_token['expiry_date'] = response['expiry_date']
-                self.access_token['email'] = response['email']
-                thread = threading.Thread(
-                    target=self.auto_renew_access_token_when_logged_in)
-                thread.start()
+                res = requests.post(
+                    self.api_url + 'access-token', {'email': email, 'pw': pw, 'app_id': self.app_id}).json()
+
+                if res['status']:
+                    self.access_token['code'] = res['code']
+                    self.access_token['expiry_date'] = res['expiry_date']
+                    self.access_token['email'] = res['email']
+                    thread = threading.Thread(
+                        target=self.renew_token)
+                    thread.start()
+                else:
+                    logger.error(res['msg'])
+
+                    return res
             else:
-                logger.error(res['msg'])
+                logger.error(response['msg'])
 
-                return res
-        else:
-            logger.error(response['msg'])
-
-        return response
+            return response
+        except Exception as e:
+            logger.error('register() error: {0}'.format(str(e)))
 
     def reset_pw(self, new_pw, old_pw=None, code=None):
         if old_pw:
-            return requests.post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'old_pw': old_pw, 'email': self.current_user_email}).json()
+            return requests.post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'old_pw': old_pw, 'email': self.current_user_email, 'app_id': self.app_id, 'code': self.access_token['code']}).json()
         else:
-            return requests.post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'code': code}).json()
+            return requests.post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'code': code, 'app_id': self.app_id}).json()
 
     def forgot_pw(self, email):
-        return requests.post(self.api_url + 'forgot-pw', {'email': email}).json()
+        return requests.post(self.api_url + 'forgot-pw', {'email': email, 'app_id': self.app_id}).json()
 
     def navigate_to_dashboard(self):
         self.window.load_url('assets/index.html')
@@ -368,17 +418,17 @@ class Api:
             events.insert(0, {'owner': self.current_user_email})
 
             # To do: check file path consistency across OSes
-            if pathlib.Path('processes/{0}.json'.format(process)).exists():
+            if pathlib.Path('{0}/processes/{1}.json'.format(app_file_path, process)).exists():
                 status = False
                 msg = 'Process {0} already exists locally.'.format(process)
             else:
-                with open('processes/{0}.json'.format(process), 'w') as f:
+                with open('{0}/processes/{1}.json'.format(app_file_path, process), 'w') as f:
                     json.dump(events, f)
 
                 date = timezone(self.timezone).localize(datetime.fromtimestamp(pathlib.Path(
-                    'processes/{0}.json'.format(process)).stat().st_mtime))
+                    '{0}/processes/{1}.json'.format(app_file_path, process)).stat().st_mtime))
                 response = requests.post(self.api_url + 'upload-process-meta-data', {
-                                         'email': self.current_user_email, 'name': process, 'date': date.strftime('%Y-%m-%d %H:%M:%S.%f%z')}).json()
+                    'email': self.current_user_email, 'name': process, 'date': date.strftime('%Y-%m-%d %H:%M:%S.%f%z'), 'app_id': self.app_id, 'code': self.access_token['code']}).json()
 
                 if not response['status']:
                     logger.info(response['msg'])
@@ -396,7 +446,7 @@ class Api:
 
     def load(self, process):
         try:
-            with open('processes/{0}.json'.format(process)) as f:
+            with open('{0}/processes/{1}.json'.format(app_file_path, process)) as f:
                 events = json.load(f)
 
             logger.info('Process {0} for user {1} loaded'.format(
@@ -413,18 +463,19 @@ class Api:
                 self.current_user_email, new_name, old_name))
 
             response = requests.post(self.api_url + 'rename-process', {
-                                     'email': self.current_user_email, 'old_name': old_name, 'new_name': new_name}).json()
+                'email': self.current_user_email, 'old_name': old_name, 'new_name': new_name, 'app_id': self.app_id, 'code': self.access_token['code']}).json()
 
             if response['status']:
                 # Update local process name
-                new_path = 'processes/{0}.json'.format(new_name)
+                new_path = '{0}/processes/{1}.json'.format(
+                    app_file_path, new_name)
                 if pathlib.Path(new_path).exists():
                     status = False
                     msg = 'Process {0} already exists locally.'.format(
                         new_name)
 
                     res = requests.post(self.api_url + 'rename-process', {
-                        'email': self.current_user_email, 'old_name': old_name, 'new_name': new_name, 'revert': True}).json()
+                        'email': self.current_user_email, 'old_name': old_name, 'new_name': new_name, 'revert': True, 'app_id': self.app_id, 'code': self.access_token['code']}).json()
 
                     if res:
                         logger.info(res['msg'])
@@ -433,7 +484,8 @@ class Api:
 
                         return res
                 else:
-                    os.rename('processes/{0}.json'.format(old_name), new_path)
+                    os.rename(
+                        '{0}/processes/{1}.json'.format(app_file_path, old_name), new_path)
 
                     status = True
                     msg = 'Process {0} renamed to {1}.'.format(
@@ -454,11 +506,11 @@ class Api:
     def del_process(self, process):
         try:
             response = requests.post(
-                self.api_url + 'del-process', {'email': self.current_user_email, 'name': process}).json()
+                self.api_url + 'del-process', {'email': self.current_user_email, 'name': process, 'app_id': self.app_id, 'code': self.access_token['code']}).json()
 
             if response['status']:
                 # Del local process
-                path = 'processes/{0}.json'.format(process)
+                path = '{0}/processes/{1}.json'.format(app_file_path, process)
                 if pathlib.Path(path).exists():
                     os.remove(path)
 
@@ -485,17 +537,18 @@ class Api:
             process_list, process_names, raw_modified_times = (
                 [] for i in range(3))
             response = requests.post(
-                self.api_url + 'retrieve-process', {'email': self.current_user_email}).json()
+                self.api_url + 'retrieve-process', {'email': self.current_user_email, 'app_id': self.app_id, 'code': self.access_token['code']}).json()
             for p in response:
                 process_names.append(p['name'])
                 raw_modified_times.append(datetime.strptime(
                     p['date'], '%Y-%m-%d %H:%M:%S.%f%z').astimezone(timezone(self.timezone)))
 
             # Check against local processes
-            _, _, filenames = next(os.walk('processes/'))
+            _, _, filenames = next(
+                os.walk('{0}/processes/'.format(app_file_path)))
             if filenames:
                 for n in filenames:
-                    with open('processes/{0}'.format(n)) as f:
+                    with open('{0}/processes/{1}'.format(app_file_path, n)) as f:
                         events = json.load(f)
                     if events[0]['owner'] != self.current_user_email:
                         filenames.remove(n)
@@ -505,7 +558,7 @@ class Api:
                     if not process_names[i] in local_process_names:
                         process_names.pop(i)
                     elif raw_modified_times[i] != timezone(self.timezone).localize(datetime.fromtimestamp(pathlib.Path(
-                            'processes/{0}.json'.format(process_names[i])).stat().st_mtime)):
+                            '{0}/processes/{1}.json'.format(app_file_path, process_names[i])).stat().st_mtime)):
                         logger.error('Process date mismatch')
                         process_names.pop(i)
 
