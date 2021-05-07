@@ -65,14 +65,15 @@ $(document).ready(function() {
     window.pywebview.api.navigate_to_login()
   })
 
-  $('#profileNavLn').click(function() {
-    $('#profile').siblings().removeClass('active show')
-    $('#profile').addClass('active show')
-  })
-
   $('#profileChangePwLn').click(function() {
     $('#resetPwWithOldPw').siblings().removeClass('active show')
     $('#resetPwWithOldPw').addClass('active show')
+  })
+
+  $('#resetPwWithOldPwProfileLn').click(function() {
+    $('#resetPwWithOldPwForm :input').val('')
+    $('#resetPwWithOldPw').removeClass('active show')
+    $('#profile').addClass('active show')
   })
 
   $('#resetPwWithOldPwForm').submit(function() {

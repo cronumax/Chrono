@@ -24,7 +24,6 @@ hr {
 
 #signInBtn, #sendEmailBtn, #registerBtn, #resetPwWithTokenBtn {
   width: 100%;
-  border: 1px solid #666;
   border-radius: 18px;
   background-color: #df2176;
 }

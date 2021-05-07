@@ -29,9 +29,12 @@ html {
 
 #resetPwWithOldPwBtn {
   width: 100%;
-  border: 1px solid #666;
   border-radius: 18px;
   background-color: #df2176;
+}
+
+#resetPwWithOldPwProfileLn {
+  text-align: center;
 }
 
 @keyframes glowing {
@@ -244,4 +247,9 @@ input:checked+.slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+}
+
+hr {
+  width: 70%;
+  background-color: #666;
 }
