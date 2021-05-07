@@ -177,8 +177,8 @@ function promptForProcessName(rename = false, oldName = null) {
     // Frontend validation
     if (!result.value) {
       var errorTxt = 'Process name cannot be empty.'
-    } else if (/[^a-zA-Z0-9\-]/.test(result.value)) {
-      var errorTxt = 'Process name can only contain alphanumeric (a-z, A-Z, 0-9) or hyphen (-).'
+    } else if (!(/^\w+( \w+)*$/.test(result.value))) {
+      var errorTxt = 'Process name can only contain alphanumeric (a-z, A-Z, 0-9) or underscore (_), and only one space between words.'
     }
 
     if (result.isConfirmed) {
