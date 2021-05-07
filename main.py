@@ -114,6 +114,11 @@ class Api:
             self.logged_in = True
             self.current_user_email = email
 
+            # Create local directory for storing user's process JSON files
+            if not os.path.exists('{0}/processes/{1}'.format(app_file_path, self.current_user_email)):
+                os.makedirs(
+                    '{0}/processes/{1}'.format(app_file_path, self.current_user_email))
+
             with open('{0}/Chrono.json'.format(app_file_path)) as f:
                 app = json.load(f)
             app['user'] = email
@@ -152,6 +157,10 @@ class Api:
             if response['status']:
                 self.logged_in = True
                 self.current_user_email = email
+
+                if not os.path.exists('{0}/processes/{1}'.format(app_file_path, self.current_user_email)):
+                    os.makedirs(
+                        '{0}/processes/{1}'.format(app_file_path, self.current_user_email))
 
                 with open('{0}/Chrono.json'.format(app_file_path)) as f:
                     app = json.load(f)
@@ -420,25 +429,32 @@ class Api:
             events.insert(0, {'owner': self.current_user_email})
 
             # To do: check file path consistency across OSes
-            if pathlib.Path('{0}/processes/{1}.json'.format(app_file_path, process)).exists():
+            path = '{0}/processes/{1}/{2}.json'.format(
+                app_file_path, self.current_user_email, process)
+            if pathlib.Path(path).exists():
                 status = False
-                msg = 'Process {0} already exists locally.'.format(process)
+                msg = 'Process {0} for user {1} already exists locally.'.format(
+                    process, self.current_user_email)
             else:
-                with open('{0}/processes/{1}.json'.format(app_file_path, process), 'w') as f:
+                with open(path, 'w') as f:
                     json.dump(events, f)
 
                 date = timezone(self.timezone).localize(datetime.fromtimestamp(pathlib.Path(
-                    '{0}/processes/{1}.json'.format(app_file_path, process)).stat().st_mtime))
+                    '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, process)).stat().st_mtime))
+
                 response = requests.post(self.api_url + 'upload-process-meta-data', {
                     'email': self.current_user_email, 'name': process, 'date': date.strftime('%Y-%m-%d %H:%M:%S.%f%z'), 'app_id': self.app_id, 'code': self.access_token['code']}).json()
 
-                if not response['status']:
-                    logger.info(response['msg'])
+                if response['status']:
+                    status = True
+                    msg = 'Process {0} for user {1} saved.'.format(
+                        process, self.current_user_email)
+                else:
+                    os.remove(path)
+
+                    logger.error(response['msg'])
 
                     return response
-                else:
-                    status = True
-                    msg = 'Process {0} saved.'.format(process)
 
             logger.info(msg)
 
@@ -448,7 +464,7 @@ class Api:
 
     def load(self, process):
         try:
-            with open('{0}/processes/{1}.json'.format(app_file_path, process)) as f:
+            with open('{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, process)) as f:
                 events = json.load(f)
 
             logger.info('Process {0} for user {1} loaded'.format(
@@ -464,38 +480,34 @@ class Api:
             logger.info('User {0} proposed new name {1} for process {2}'.format(
                 self.current_user_email, new_name, old_name))
 
+            # Check local existence
+            new_path = '{0}/processes/{1}/{2}.json'.format(
+                app_file_path, self.current_user_email, new_name)
+            if pathlib.Path(new_path).exists():
+                msg = 'Process {0} for user {1} already exists locally.'.format(
+                    new_name, self.current_user_email)
+
+                logger.error(msg)
+
+                return {
+                    'status': False,
+                    'msg': msg
+                }
+
             response = requests.post(self.api_url + 'rename-process', {
                 'email': self.current_user_email, 'old_name': old_name, 'new_name': new_name, 'app_id': self.app_id, 'code': self.access_token['code']}).json()
 
             if response['status']:
                 # Update local process name
-                new_path = '{0}/processes/{1}.json'.format(
-                    app_file_path, new_name)
-                if pathlib.Path(new_path).exists():
-                    status = False
-                    msg = 'Process {0} already exists locally.'.format(
-                        new_name)
+                os.rename(
+                    '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, old_name), new_path)
 
-                    res = requests.post(self.api_url + 'rename-process', {
-                        'email': self.current_user_email, 'old_name': old_name, 'new_name': new_name, 'revert': True, 'app_id': self.app_id, 'code': self.access_token['code']}).json()
-
-                    if res:
-                        logger.info(res['msg'])
-                    else:
-                        logger.error(res['msg'])
-
-                        return res
-                else:
-                    os.rename(
-                        '{0}/processes/{1}.json'.format(app_file_path, old_name), new_path)
-
-                    status = True
-                    msg = 'Process {0} renamed to {1}.'.format(
-                        old_name, new_name)
+                msg = 'Process {0} renamed to {1} for user {2}.'.format(
+                    old_name, new_name, self.current_user_email)
 
                 logger.info(msg)
 
-                return {'status': status, 'msg': msg}
+                return {'status': True, 'msg': msg}
             else:
                 logger.error(response['msg'])
 
@@ -512,7 +524,8 @@ class Api:
 
             if response['status']:
                 # Del local process
-                path = '{0}/processes/{1}.json'.format(app_file_path, process)
+                path = '{0}/processes/{1}/{2}.json'.format(
+                    app_file_path, self.current_user_email, process)
                 if pathlib.Path(path).exists():
                     os.remove(path)
 
@@ -547,10 +560,10 @@ class Api:
 
             # Check against local processes
             _, _, filenames = next(
-                os.walk('{0}/processes/'.format(app_file_path)))
+                os.walk('{0}/processes/{1}/'.format(app_file_path, self.current_user_email)))
             if filenames:
                 for n in filenames:
-                    with open('{0}/processes/{1}'.format(app_file_path, n)) as f:
+                    with open('{0}/processes/{1}/{2}'.format(app_file_path, self.current_user_email, n)) as f:
                         events = json.load(f)
                     if events[0]['owner'] != self.current_user_email:
                         filenames.remove(n)
@@ -560,7 +573,7 @@ class Api:
                     if not process_names[i] in local_process_names:
                         process_names.pop(i)
                     elif raw_modified_times[i] != timezone(self.timezone).localize(datetime.fromtimestamp(pathlib.Path(
-                            '{0}/processes/{1}.json'.format(app_file_path, process_names[i])).stat().st_mtime)):
+                            '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, process_names[i])).stat().st_mtime)):
                         logger.error('Process date mismatch')
                         process_names.pop(i)
 

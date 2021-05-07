@@ -179,6 +179,8 @@ function promptForProcessName(rename = false, oldName = null) {
       var errorTxt = 'Process name cannot be empty.'
     } else if (!(/^\w+( \w+)*$/.test(result.value))) {
       var errorTxt = 'Process name can only contain alphanumeric (a-z, A-Z, 0-9) or underscore (_), and only one space between words.'
+    } else if (result.value === oldName) {
+      var errorTxt = 'New process name cannot be the same as the old name.'
     }
 
     if (result.isConfirmed) {
