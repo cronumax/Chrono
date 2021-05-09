@@ -98,8 +98,9 @@ class Api:
                                     {'code': self.access_token['code'], 'email': self.current_user_email, 'app_id': self.app_id}).json()
 
                 if res['status']:
-                    self.access_token['expiry_date'] = res['expiry_date']
                     logger.info(res['msg'])
+
+                    self.access_token['expiry_date'] = res['expiry_date']
                 else:
                     logger.error(res['msg'])
 
@@ -113,6 +114,8 @@ class Api:
                             {'email': email, 'pw': pw, 'app_id': self.app_id}).json()
 
         if res['status']:
+            logger.info(res['msg'])
+
             self.logged_in = True
             self.current_user_email = email
 
@@ -122,6 +125,8 @@ class Api:
                 self.api_url + 'access-token', {'email': email, 'pw': pw, 'app_id': self.app_id}).json()
 
             if response['status']:
+                logger.info(response['msg'])
+
                 self.access_token['code'] = response['code']
                 self.access_token['expiry_date'] = response['expiry_date']
                 self.access_token['email'] = response['email']
@@ -148,6 +153,8 @@ class Api:
                                                                  'code': code, 'pw': pw, 'agree_privacy_n_terms': agree_privacy_n_terms, 'send_update': send_update, 'app_id': self.app_id}).json()
 
             if response['status']:
+                logger.info(response['msg'])
+
                 self.logged_in = True
                 self.current_user_email = email
 
@@ -157,6 +164,8 @@ class Api:
                     self.api_url + 'access-token', {'email': email, 'pw': pw, 'app_id': self.app_id}).json()
 
                 if res['status']:
+                    logger.info(res['msg'])
+
                     self.access_token['code'] = res['code']
                     self.access_token['expiry_date'] = res['expiry_date']
                     self.access_token['email'] = res['email']
@@ -451,9 +460,13 @@ class Api:
             path = '{0}/processes/{1}/{2}.json'.format(
                 app_file_path, self.current_user_email, process)
             if pathlib.Path(path).exists():
-                status = False
-                msg = 'Process {0} for user {1} already exists locally.'.format(
-                    process, self.current_user_email)
+                logger.error('Process {0} for user {1} already exists locally.'.format(
+                    process, self.current_user_email))
+
+                return {
+                    'status': False,
+                    'msg': 'Process {0} already exists locally.'.format(process)
+                }
             else:
                 with open(path, 'w') as f:
                     json.dump(events, f)
@@ -465,19 +478,13 @@ class Api:
                     'email': self.current_user_email, 'name': process, 'date': date.strftime('%Y-%m-%d %H:%M:%S.%f%z'), 'app_id': self.app_id, 'code': self.access_token['code']}).json()
 
                 if response['status']:
-                    status = True
-                    msg = 'Process {0} for user {1} saved.'.format(
-                        process, self.current_user_email)
+                    logger.info(response['log_msg'])
                 else:
                     os.remove(path)
 
                     logger.error(response['msg'])
 
-                    return response
-
-            logger.info(msg)
-
-            return {'status': status, 'msg': msg}
+                return response
         except Exception as e:
             logger.error('save() error: {0}'.format(str(e)))
 
@@ -503,14 +510,12 @@ class Api:
             new_path = '{0}/processes/{1}/{2}.json'.format(
                 app_file_path, self.current_user_email, new_name)
             if pathlib.Path(new_path).exists():
-                msg = 'Process {0} for user {1} already exists locally.'.format(
-                    new_name, self.current_user_email)
-
-                logger.error(msg)
+                logger.error('Process {0} for user {1} already exists locally.'.format(
+                    new_name, self.current_user_email))
 
                 return {
                     'status': False,
-                    'msg': msg
+                    'msg': 'Process {0} already exists locally.'.format(new_name)
                 }
 
             response = requests.post(self.api_url + 'rename-process', {
@@ -521,12 +526,9 @@ class Api:
                 os.rename(
                     '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, old_name), new_path)
 
-                msg = 'Process {0} renamed to {1} for user {2}.'.format(
-                    old_name, new_name, self.current_user_email)
+                logger.info(response['log_msg'])
 
-                logger.info(msg)
-
-                return {'status': True, 'msg': msg}
+                return {'status': True, 'msg': response['msg']}
             else:
                 logger.error(response['msg'])
 
@@ -548,19 +550,18 @@ class Api:
                 if pathlib.Path(path).exists():
                     os.remove(path)
 
-                    status = True
-                    msg = 'Process {0} removed.'.format(process)
+                    logger.info(response['msg'])
+
+                    return response
                 else:
-                    status = False
-                    msg = 'Process {0} does not exist.'.format(process)
+                    logger.error('Process {0} does not exist locally for user {1}.'.format(
+                        process, self.current_user_email))
+
+                    return {'status': False, 'msg': 'Process {0} does not exist locally.'.format(process)}
             else:
                 logger.error(response['msg'])
 
                 return response
-
-            logger.info(msg)
-
-            return {'status': status, 'msg': msg}
         except Exception as e:
             logger.error('del_process() error: {0}'.format(str(e)))
 
