@@ -118,8 +118,13 @@ a:active, a:hover {
   color: #df2176;
 }
 
-#profileChangePwLn {
+#profile>span, a {
   text-align: center;
+}
+
+#profile>span {
+  display: block;
+  padding: .5rem 2rem;
 }
 
 .card {

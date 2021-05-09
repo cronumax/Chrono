@@ -136,6 +136,18 @@ $(window).on('pywebviewready', function() {
       })
     }
   })
+
+  window.pywebview.api.get_user_name().then(res => {
+    if (res['status']) {
+      $('#userName').html(res['user_name'])
+    }
+  })
+
+  window.pywebview.api.get_user_email().then(res => {
+    if (res['status']) {
+      $('#userEmail').html(res['user_email'])
+    }
+  })
 })
 
 $(document).ready(function() {

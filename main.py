@@ -733,6 +733,28 @@ class Api:
 
             return {'status': False, 'msg': str(e)}
 
+    def get_user_name(self):
+        try:
+            res = requests.post(self.api_url + 'get-user-name',
+                                {'app_id': self.app_id, 'email': self.current_user_email}).json()
+
+            logger.info(res['msg']) if res['status'] else logger.error(
+                res['msg'])
+
+            return res
+        except Exception as e:
+            logger.error(str(e))
+
+            return {'status': False, 'msg': str(e)}
+
+    def get_user_email(self):
+        try:
+            return {'status': True, 'user_email': self.current_user_email}
+        except Exception as e:
+            logger.error(str(e))
+
+            return {'status': False, 'msg': str(e)}
+
     def thread_handler(self):
         try:
             pag.keyUp('esc')  # Hot fix for macOS thread issue
