@@ -158,6 +158,10 @@ $(document).ready(function() {
       validateMsg = 'Password does not contain any capital letter.'
     } else if (!values['newPw'].match(/\d/)) {
       validateMsg = 'Password does not contain any digit.'
+    } else if (values['confirmPw'].length === 0) {
+      validateMsg = 'Confirm password cannot be empty.'
+    } else if (values['newPw'] !== values['confirmPw']) {
+      validateMsg = 'Confirm password does not match.'
     } else if (!values['agreePrivacynTerms']) {
       validateMsg = 'Agreement on privacy notice and terms of use needed.'
     }
