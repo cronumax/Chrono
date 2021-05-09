@@ -50,6 +50,92 @@ $(window).on('pywebviewready', function() {
       }
     })
   })
+
+  $('#touchModeBtn').change(function() {
+    if ($(this).is(':checked')) {
+      window.pywebview.api.enable_touch_mode().then(res => {
+        if (!res['status']) {
+          Swal.fire({
+            title: 'Warning',
+            text: res['msg'],
+            icon: 'warning',
+            confirmButtonText: 'Ok'
+          }).then(function() {
+            $(this).prop('checked', false)
+          })
+        }
+      })
+    } else {
+      window.pywebview.api.disable_touch_mode().then(res => {
+        if (!res['status']) {
+          Swal.fire({
+            title: 'Warning',
+            text: res['msg'],
+            icon: 'warning',
+            confirmButtonText: 'Ok'
+          }).then(function() {
+            $(this).prop('checked', true)
+          })
+        }
+      })
+    }
+  })
+
+  $('#godSpeedBtn').change(function() {
+    if ($(this).is(':checked')) {
+      window.pywebview.api.enable_god_speed().then(res => {
+        if (!res['status']) {
+          Swal.fire({
+            title: 'Warning',
+            text: res['msg'],
+            icon: 'warning',
+            confirmButtonText: 'Ok'
+          }).then(function() {
+            $(this).prop('checked', false)
+          })
+        }
+      })
+    } else {
+      window.pywebview.api.disable_god_speed().then(res => {
+        if (!res['status']) {
+          Swal.fire({
+            title: 'Warning',
+            text: res['msg'],
+            icon: 'warning',
+            confirmButtonText: 'Ok'
+          }).then(function() {
+            $(this).prop('checked', true)
+          })
+        }
+      })
+    }
+  })
+
+  window.pywebview.api.get_touch_mode().then(res => {
+    if (res['status']) {
+      $('#touchModeBtn').prop('checked', res['touch_mode'])
+    } else {
+      Swal.fire({
+        title: 'Warning',
+        text: res['msg'],
+        icon: 'warning',
+        confirmButtonText: 'Ok'
+      })
+    }
+  })
+
+  window.pywebview.api.get_god_speed().then(res => {
+    if (res['status']) {
+      $('#godSpeedBtn').prop('checked', res['god_speed'])
+    } else {
+      Swal.fire({
+        title: 'Warning',
+        text: res['msg'],
+        icon: 'warning',
+        confirmButtonText: 'Ok'
+      })
+    }
+  })
 })
 
 $(document).ready(function() {

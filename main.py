@@ -29,6 +29,8 @@ if not os.path.exists('{0}/logs'.format(app_file_path)):
     os.makedirs('{0}/logs'.format(app_file_path))
 if not os.path.exists('{0}/processes'.format(app_file_path)):
     os.makedirs('{0}/processes'.format(app_file_path))
+if not os.path.exists('{0}/settings'.format(app_file_path)):
+    os.makedirs('{0}/settings'.format(app_file_path))
 
 log_handler = TimedRotatingFileHandler(
     '{0}/logs/Chrono.log'.format(app_file_path),
@@ -114,16 +116,7 @@ class Api:
             self.logged_in = True
             self.current_user_email = email
 
-            # Create local directory for storing user's process JSON files
-            if not os.path.exists('{0}/processes/{1}'.format(app_file_path, self.current_user_email)):
-                os.makedirs(
-                    '{0}/processes/{1}'.format(app_file_path, self.current_user_email))
-
-            with open('{0}/Chrono.json'.format(app_file_path)) as f:
-                app = json.load(f)
-            app['user'] = email
-            with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
-                json.dump(app, f)
+            self.load_or_save_app_config_on_login(email)
 
             response = requests.post(
                 self.api_url + 'access-token', {'email': email, 'pw': pw, 'app_id': self.app_id}).json()
@@ -158,15 +151,7 @@ class Api:
                 self.logged_in = True
                 self.current_user_email = email
 
-                if not os.path.exists('{0}/processes/{1}'.format(app_file_path, self.current_user_email)):
-                    os.makedirs(
-                        '{0}/processes/{1}'.format(app_file_path, self.current_user_email))
-
-                with open('{0}/Chrono.json'.format(app_file_path)) as f:
-                    app = json.load(f)
-                app['user'] = email
-                with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
-                    json.dump(app, f)
+                self.load_or_save_app_config_on_login(email)
 
                 res = requests.post(
                     self.api_url + 'access-token', {'email': email, 'pw': pw, 'app_id': self.app_id}).json()
@@ -188,6 +173,40 @@ class Api:
             return response
         except Exception as e:
             logger.error('register() error: {0}'.format(str(e)))
+
+    def load_or_save_app_config_on_login(self, email):
+        # Create local directory for storing user's process JSON files
+        user_processes_path = '{0}/processes/{1}'.format(
+            app_file_path, email)
+        if not os.path.exists(user_processes_path):
+            os.makedirs(user_processes_path)
+
+        # Load or save user's settings
+        user_settings_path = '{0}/settings/{1}.json'.format(
+            app_file_path, email)
+        if os.path.exists(user_settings_path):
+            with open(user_settings_path) as f:
+                user_settings = json.load(f)
+            self.touch_mode = user_settings['touch_mode']
+            self.god_speed = user_settings['god_speed']
+        else:
+            if platform.system() == 'Darwin':
+                self.touch_mode = False
+            else:
+                self.touch_mode = True
+            self.god_speed = False
+            user_settings = {'touch_mode': self.touch_mode,
+                             'god_speed': self.god_speed}
+            with open(user_settings_path, 'w') as f:
+                json.dump(user_settings, f)
+
+        # Save app user info
+        app_info_path = '{0}/Chrono.json'.format(app_file_path)
+        with open(app_info_path) as f:
+            app = json.load(f)
+        app['user'] = email
+        with open(app_info_path, 'w') as f:
+            json.dump(app, f)
 
     def reset_pw(self, new_pw, old_pw=None, code=None):
         if old_pw:
@@ -612,6 +631,107 @@ class Api:
                                  {'app_id': self.app_id, 'app_version': self.version}).json()
         except Exception as e:
             logger.error('check_app_version() error: {0}'.format(str(e)))
+
+    def get_touch_mode(self):
+        try:
+            msg = 'Touch mode {0}'.format(
+                'on' if self.touch_mode else 'off')
+
+            logger.info(msg)
+
+            return {'status': True, 'msg': msg, 'touch_mode': self.touch_mode}
+        except Exception as e:
+            logger.error(
+                'get_touch_mode() error: {0}'.formst(str(e)))
+
+            return {'status': False, 'msg': str(e)}
+
+    def get_god_speed(self):
+        try:
+            msg = 'God speed {0}'.format(
+                'on' if self.god_speed else 'off')
+
+            logger.info(msg)
+
+            return {'status': True, 'msg': msg, 'god_speed': self.god_speed}
+        except Exception as e:
+            logger.error(
+                'get_god_speed() error: {0}'.formst(str(e)))
+
+            return {'status': False, 'msg': str(e)}
+
+    def update_settings_file(self, key, value):
+        # Save user's settings
+        user_settings_path = '{0}/settings/{1}.json'.format(
+            app_file_path, self.current_user_email)
+        with open(user_settings_path) as f:
+            user_settings = json.load(f)
+        user_settings[key] = value
+        with open(user_settings_path, 'w') as f:
+            json.dump(user_settings, f)
+
+    def enable_touch_mode(self):
+        try:
+            if platform.system() == 'Darwin':
+                msg = 'Touch mode is not available on macOS yet.'
+
+                logger.warning(msg)
+
+                return {'status': False, 'msg': msg}
+            else:
+                self.touch_mode = True
+                self.update_settings_file('touch_mode', True)
+                msg = 'Touch mode enabled'
+
+                logger.info(msg)
+
+                return {'status': True, 'msg': msg}
+        except Exception as e:
+            logger.error('enable_touch_mode() error: {0}'.format(str(e)))
+
+            return {'status': False, 'msg': str(e)}
+
+    def disable_touch_mode(self):
+        try:
+            self.touch_mode = False
+            self.update_settings_file('touch_mode', False)
+            msg = 'Touch mode disabled'
+
+            logger.info(msg)
+
+            return {'status': True, 'msg': msg}
+        except Exception as e:
+            logger.error('disable_touch_mode() error: {0}'.format(str(e)))
+
+            return {'status': False, 'msg': str(e)}
+
+    def enable_god_speed(self):
+        try:
+            self.god_speed = True
+            self.update_settings_file('god_speed', True)
+            msg = 'God speed enabled'
+
+            logger.info(msg)
+
+            return {'status': True, 'msg': msg}
+        except Exception as e:
+            logger.error('enable_god_speed() error: {0}'.format(str(e)))
+
+            return {'status': False, 'msg': str(e)}
+
+    def disable_god_speed(self):
+        try:
+            self.god_speed = False
+            self.update_settings_file('god_speed', False)
+            msg = 'God speed disabled'
+
+            logger.info(msg)
+
+            return {'status': True, 'msg': msg}
+        except Exception as e:
+            logger.error('disable_touch_mode() error: {0}'.format(str(e)))
+
+            return {'status': False, 'msg': str(e)}
 
     def thread_handler(self):
         try:
