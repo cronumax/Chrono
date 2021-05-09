@@ -49,7 +49,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '0.0.1'
+        self.version = '0.1.0'
         self.window = None
         self.api_url = 'http://localhost:8000/'
         self.current_user_email = None
