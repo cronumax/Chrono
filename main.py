@@ -51,7 +51,7 @@ class Api:
 
         self.version = '0.1.0'
         self.window = None
-        self.api_url = 'http://localhost:8000/'
+        self.api_url = 'https://chrono.cronumax.com/'
         self.current_user_email = None
         self.logged_in = False
         self.access_token = {}
