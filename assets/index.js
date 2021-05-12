@@ -1,6 +1,4 @@
 $(window).on('pywebviewready', function() {
-  refreshProcessList()
-
   $('#recordBtn').click(function() {
     var msg = 'Record btn clicked'
     $(this).addClass('running')
@@ -148,6 +146,8 @@ $(window).on('pywebviewready', function() {
       $('#userEmail').html(res['user_email'])
     }
   })
+
+  refreshProcessList()
 })
 
 $(document).ready(function() {
