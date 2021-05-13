@@ -563,14 +563,21 @@ class Api:
 
     def load_process_list(self):
         try:
-            process_list, process_names, raw_modified_times = (
-                [] for i in range(3))
-            response = requests.post(
+            res = requests.post(
                 self.api_url + 'retrieve-process', {'email': self.current_user_email, 'app_id': self.app_id, 'code': self.access_token['code']}).json()
-            for p in response:
-                process_names.append(p['name'])
-                raw_modified_times.append(datetime.strptime(
-                    p['date'], '%Y-%m-%d %H:%M:%S.%f%z').astimezone(timezone(self.timezone)))
+
+            if res['status']:
+                logger.info(res['msg'])
+
+                process_list = res['process_list']
+            else:
+                logger.error(res['msg'])
+
+                return []
+
+            for p in process_list:
+                p['date'] = datetime.strptime(
+                    p['date'], '%Y-%m-%d %H:%M:%S.%f%z').astimezone(timezone(self.timezone))
 
             # Check against local processes
             _, _, filenames = next(
@@ -583,40 +590,42 @@ class Api:
                         filenames.remove(n)
                 local_process_names = [n[:-5] for n in filenames]
 
-                for i in range(len(process_names)):
-                    if not process_names[i] in local_process_names:
-                        process_names.pop(i)
-                    elif raw_modified_times[i] != timezone(self.timezone).localize(datetime.fromtimestamp(pathlib.Path(
-                            '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, process_names[i])).stat().st_mtime)):
-                        logger.error('Process date mismatch')
-                        process_names.pop(i)
+                for p in process_list:
+                    if not p['name'] in local_process_names:
+                        logger.error(
+                            'Process {0} not in local'.format(p['name']))
 
-            modified_times = []
+                        process_list.remove(p)
+                    elif p['date'] != timezone(self.timezone).localize(datetime.fromtimestamp(pathlib.Path(
+                            '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, p['name'])).stat().st_mtime)):
+                        logger.error(
+                            'Process {0} date mismatch'.format(p['name']))
+
+                        process_list.remove(p)
+            else:
+                return []
+
             present = datetime.now(timezone(self.timezone))
-            for t in raw_modified_times:
-                if t.year != present.year:
-                    modified_times.append(t.strftime('%d %b %Y'))
-                elif t.month != present.month or (t.month == present.month and present.day - t.day >= 7):
-                    modified_times.append(t.strftime('%d %b'))
-                elif 0 < present.day - t.day < 7:
-                    if present.day - t.day == 1:
-                        modified_times.append('Yesterday')
+            for p in process_list:
+                if p['date'].year != present.year:
+                    p['date'] = p['date'].strftime('%d %b %Y')
+                elif p['date'].month != present.month or (p['date'].month == present.month and present.day - p['date'].day >= 7):
+                    p['date'] = p['date'].strftime('%d %b')
+                elif 0 < present.day - p['date'].day < 7:
+                    if present.day - p['date'].day == 1:
+                        p['date'] = 'Yesterday'
                     else:
-                        modified_times.append(t.strftime('%a'))
+                        p['date'] = t.strftime('%a')
                 else:
-                    modified_times.append(t.strftime('%H:%M'))
-
-            for i in range(len(process_names)):
-                process_list.append([process_names[i], modified_times[i]])
-
-            if not filenames:
-                process_list = []
+                    p['date'] = p['date'].strftime('%H:%M')
 
             logger.info(process_list)
 
             return process_list
         except Exception as e:
             logger.error('load_process_list() error: {0}'.format(str(e)))
+
+            return []
 
     def check_app_version(self):
         try:
@@ -756,7 +765,7 @@ class Api:
     def get_user_license(self):
         try:
             res = requests.post(self.api_url + 'get-user-license', {
-                                'app_id': self.app_id, 'code': self.access_token['code'], 'email': self.current_user_email}).json()
+                'app_id': self.app_id, 'code': self.access_token['code'], 'email': self.current_user_email}).json()
 
             logger.info(res['msg']) if res['status'] else logger.error(
                 res['msg'])
