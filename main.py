@@ -196,10 +196,7 @@ class Api:
             self.touch_mode = user_settings['touch_mode']
             self.god_speed = user_settings['god_speed']
         else:
-            if platform.system() == 'Darwin':
-                self.touch_mode = False
-            else:
-                self.touch_mode = True
+            self.touch_mode = False
             self.god_speed = False
             user_settings = {'touch_mode': self.touch_mode,
                              'god_speed': self.god_speed}
