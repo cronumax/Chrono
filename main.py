@@ -73,10 +73,7 @@ class Api:
         To do: let user change these settings when we hv a gd error handling. Don't want dummy user action to backfire Cronumax/ Chrono's reputation.
         '''
         self.escape_key = Key.esc
-        if platform.system() == 'Darwin':
-            self.touch_mode = False
-        else:
-            self.touch_mode = True
+        self.touch_mode = False
         self.god_speed = False
         self.timezone = 'Hongkong'
 
@@ -750,7 +747,24 @@ class Api:
 
     def get_user_email(self):
         try:
+            logger.info('Retrieved user email: {0}'.format(
+                self.current_user_email))
+
             return {'status': True, 'user_email': self.current_user_email}
+        except Exception as e:
+            logger.error(str(e))
+
+            return {'status': False, 'msg': str(e)}
+
+    def get_user_license(self):
+        try:
+            res = requests.post(self.api_url + 'get-user-license', {
+                                'app_id': self.app_id, 'code': self.access_token['code'], 'email': self.current_user_email}).json()
+
+            logger.info(res['msg']) if res['status'] else logger.error(
+                res['msg'])
+
+            return res
         except Exception as e:
             logger.error(str(e))
 

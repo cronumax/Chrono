@@ -109,43 +109,60 @@ $(window).on('pywebviewready', function() {
     }
   })
 
-  window.pywebview.api.get_touch_mode().then(res => {
-    if (res['status']) {
-      $('#touchModeBtn').prop('checked', res['touch_mode'])
-    } else {
-      Swal.fire({
-        title: 'Warning',
-        text: res['msg'],
-        icon: 'warning',
-        confirmButtonText: 'Ok'
-      })
-    }
-  })
+  setTimeout(function() {
+    window.pywebview.api.get_touch_mode().then(res => {
+      if (res['status']) {
+        $('#touchModeBtn').prop('checked', res['touch_mode'])
+      } else {
+        Swal.fire({
+          title: 'Warning',
+          text: res['msg'],
+          icon: 'warning',
+          confirmButtonText: 'Ok'
+        })
+      }
+    })
+  }, 10)
 
-  window.pywebview.api.get_god_speed().then(res => {
-    if (res['status']) {
-      $('#godSpeedBtn').prop('checked', res['god_speed'])
-    } else {
-      Swal.fire({
-        title: 'Warning',
-        text: res['msg'],
-        icon: 'warning',
-        confirmButtonText: 'Ok'
-      })
-    }
-  })
+  setTimeout(function() {
+    window.pywebview.api.get_god_speed().then(res => {
+      if (res['status']) {
+        $('#godSpeedBtn').prop('checked', res['god_speed'])
+      } else {
+        Swal.fire({
+          title: 'Warning',
+          text: res['msg'],
+          icon: 'warning',
+          confirmButtonText: 'Ok'
+        })
+      }
+    })
+  }, 20)
 
-  window.pywebview.api.get_user_name().then(res => {
-    if (res['status']) {
-      $('#userName').html(res['user_name'])
-    }
-  })
+  setTimeout(function() {
+    window.pywebview.api.get_user_name().then(res => {
+      if (res['status']) {
+        $('#userName').html(res['user_name'])
+      }
+    })
+  }, 30)
 
-  window.pywebview.api.get_user_email().then(res => {
-    if (res['status']) {
-      $('#userEmail').html(res['user_email'])
-    }
-  })
+  setTimeout(function() {
+    window.pywebview.api.get_user_email().then(res => {
+      if (res['status']) {
+        $('#userEmail').html(res['user_email'])
+      }
+    })
+  }, 40)
+
+  setTimeout(function() {
+    window.pywebview.api.get_user_license().then(res => {
+      if (res['status']) {
+        $('#userLicenseTier').html(res['tier'])
+        $('#userLicenseExpiryDate').html(res['expiry_date'])
+      }
+    })
+  }, 50)
 
   refreshProcessList()
 })
