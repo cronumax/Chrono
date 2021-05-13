@@ -19,7 +19,7 @@ $(window).on('pywebviewready', function() {
     } else {
       Swal.fire({
         title: 'Error',
-        text: 'Please select a process.',
+        html: 'Please select a process.',
         icon: 'error',
         confirmButtonText: 'Ok'
       })
@@ -37,7 +37,7 @@ $(window).on('pywebviewready', function() {
   $('#processList tbody').on('click', '#delBtn', function() {
     Swal.fire({
       title: 'Remove process ' + $(this).parent().parent().find('td:first').html() + '?',
-      text: 'You will not be able to revert this.',
+      html: 'You will not be able to revert this.',
       icon: 'warning',
       confirmButtonText: 'Confirm',
       showCancelButton: true,
@@ -55,7 +55,7 @@ $(window).on('pywebviewready', function() {
         if (!res['status']) {
           Swal.fire({
             title: 'Warning',
-            text: res['msg'],
+            html: res['msg'],
             icon: 'warning',
             confirmButtonText: 'Ok'
           }).then(function() {
@@ -68,7 +68,7 @@ $(window).on('pywebviewready', function() {
         if (!res['status']) {
           Swal.fire({
             title: 'Warning',
-            text: res['msg'],
+            html: res['msg'],
             icon: 'warning',
             confirmButtonText: 'Ok'
           }).then(function() {
@@ -85,7 +85,7 @@ $(window).on('pywebviewready', function() {
         if (!res['status']) {
           Swal.fire({
             title: 'Warning',
-            text: res['msg'],
+            html: res['msg'],
             icon: 'warning',
             confirmButtonText: 'Ok'
           }).then(function() {
@@ -98,7 +98,7 @@ $(window).on('pywebviewready', function() {
         if (!res['status']) {
           Swal.fire({
             title: 'Warning',
-            text: res['msg'],
+            html: res['msg'],
             icon: 'warning',
             confirmButtonText: 'Ok'
           }).then(function() {
@@ -116,7 +116,7 @@ $(window).on('pywebviewready', function() {
       } else {
         Swal.fire({
           title: 'Warning',
-          text: res['msg'],
+          html: res['msg'],
           icon: 'warning',
           confirmButtonText: 'Ok'
         })
@@ -131,7 +131,7 @@ $(window).on('pywebviewready', function() {
       } else {
         Swal.fire({
           title: 'Warning',
-          text: res['msg'],
+          html: res['msg'],
           icon: 'warning',
           confirmButtonText: 'Ok'
         })
@@ -220,7 +220,7 @@ $(document).ready(function() {
     if (typeof validateMsg !== 'undefined') {
       Swal.fire({
         title: 'Error',
-        text: validateMsg,
+        html: validateMsg,
         icon: 'error',
         confirmButtonText: 'Ok'
       })
@@ -232,7 +232,7 @@ $(document).ready(function() {
       if (res['status']) {
         Swal.fire({
           title: 'Done',
-          text: res.msg,
+          html: res.msg,
           icon: 'success',
           confirmButtonText: 'Ok',
           timer: 3000
@@ -242,7 +242,7 @@ $(document).ready(function() {
       } else {
         Swal.fire({
           title: 'Error',
-          text: res.msg,
+          html: res.msg,
           icon: 'error',
           confirmButtonText: 'Ok'
         })
@@ -303,7 +303,7 @@ function promptForProcessName(rename = false, oldName = null) {
       if (errorTxt) {
         Swal.fire({
           title: 'Error',
-          text: errorTxt,
+          html: errorTxt,
           icon: 'error',
           confirmButtonText: 'Ok'
         })
@@ -326,7 +326,7 @@ function backendValidation(res) {
   if (res.status) {
     Swal.fire({
       title: 'Done',
-      text: res.msg,
+      html: res.msg,
       icon: 'success',
       confirmButtonText: 'Ok',
       timer: 3000
@@ -335,7 +335,7 @@ function backendValidation(res) {
   } else {
     Swal.fire({
       title: 'Error',
-      text: res.msg,
+      html: res.msg,
       icon: 'error',
       confirmButtonText: 'Ok'
     })
