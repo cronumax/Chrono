@@ -206,6 +206,8 @@ $(document).ready(function() {
       validateMsg = 'New password cannot be empty.'
     } else if (values['resetPwWithOldPwNewPw'].length < 8) {
       validateMsg = 'New password too short.'
+    } else if (values['resetPwWithOldPwNewPw'] === values['oldPw']) {
+      validateMsg = 'New password cannot be the same as old password.'
     } else if (!values['resetPwWithOldPwNewPw'].match(/[A-z]/)) {
       validateMsg = 'New password does not contain any letter.'
     } else if (!values['resetPwWithOldPwNewPw'].match(/[A-Z]/)) {
