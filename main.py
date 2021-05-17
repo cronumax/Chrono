@@ -213,9 +213,22 @@ class Api:
 
     def reset_pw(self, new_pw, old_pw=None, code=None):
         if old_pw:
-            return requests.post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'old_pw': old_pw, 'email': self.current_user_email, 'app_id': self.app_id, 'code': self.access_token['code']}).json()
+            res = requests.post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'old_pw': old_pw,
+                                'email': self.current_user_email, 'app_id': self.app_id, 'code': self.access_token['code']}).json()
+
+            logger.info(res['msg']) if res['status'] else logger.error(res['msg'])
         else:
-            return requests.post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'code': code, 'app_id': self.app_id}).json()
+            res = requests.post(self.api_url + 'reset-pw',
+                                {'new_pw': new_pw, 'code': code, 'app_id': self.app_id}).json()
+
+            if res['status']:
+                logger.info(res['msg'])
+
+                self.login(res['email'], new_pw)
+            else:
+                logger.error(res['msg'])
+
+        return res
 
     def forgot_pw(self, email):
         return requests.post(self.api_url + 'forgot-pw', {'email': email, 'app_id': self.app_id}).json()
