@@ -20,10 +20,10 @@ from pytz import timezone
 from logging.handlers import TimedRotatingFileHandler
 
 
-if platform.system() == 'Linux':
-    app_file_path = '/usr/local/etc'
+if platform.system() == 'Windows':
+    app_file_path = ''  # To do
 else:
-    app_file_path = ''
+    app_file_path = '/usr/local/etc'
 
 if not os.path.exists('{0}/logs'.format(app_file_path)):
     os.makedirs('{0}/logs'.format(app_file_path))
