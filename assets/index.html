@@ -52,7 +52,10 @@
       <h1 id='userName'></h1>
       <span id='userEmail'></span>
       <span id='userLicenseTier'></span>
-      <span id='userLicenseExpiryDate'></span>
+      <div class='style-row'>
+        <span class='label'>License Expiry Date</span>
+        <span id='userLicenseExpiryDate'></span>
+      </div>
       <hr>
       <a class='nav-link' data-toggle='tab' href="#changePw" id='profileChangePwLn'>CHANGE PASSWORD</a>
     </div>
@@ -84,14 +87,18 @@
     </div>
     <div class="tab-pane fade" id="settings">
       <h1 id='settingsPageTitle'>Settings</h1>
-      <div class='settings-row'>
+      <div class='style-row'>
+        <span class='label'>Version</span><span id='appVer'></span>
+      </div>
+      <hr>
+      <div class='style-row'>
         <span>Touch Mode</span>
         <label class="switch">
           <input type="checkbox" id='touchModeBtn'>
           <span class="slider round"></span>
         </label>
       </div>
-      <div class='settings-row'>
+      <div class='style-row'>
         <span>Speed Mode</span>
         <label class="switch">
           <input type="checkbox" id='godSpeedBtn'>

@@ -69,10 +69,6 @@ h1 {
   color: #666;
 }
 
-#settingsPageTitle {
-  margin-bottom: -1rem;
-}
-
 #processList {
   width: 100%;
   table-layout: fixed;
@@ -118,11 +114,11 @@ a:active, a:hover {
   color: #df2176;
 }
 
-#profile>span, a {
+a, #userEmail, #userLicenseTier {
   text-align: center;
 }
 
-#profile>span {
+#userEmail, #userLicenseTier {
   display: block;
   padding: .5rem 2rem;
 }
@@ -185,18 +181,22 @@ a:active, a:hover {
   background-color: #222;
 }
 
-.settings-row {
-  margin: 2rem;
+.style-row {
+  margin: 2rem 9rem;
 }
 
-.settings-row>span {
+.style-row>span {
   vertical-align: middle;
+}
+
+#userLicenseExpiryDate, #appVer {
+  float: right;
 }
 
 /* The switch - the box around the slider */
 .switch {
   position: absolute;
-  right: 1rem;
+  right: 9rem;
   width: 4rem;
   height: 2rem;
   margin-bottom: 0;

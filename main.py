@@ -214,9 +214,10 @@ class Api:
     def reset_pw(self, new_pw, old_pw=None, code=None):
         if old_pw:
             res = requests.post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'old_pw': old_pw,
-                                'email': self.current_user_email, 'app_id': self.app_id, 'code': self.access_token['code']}).json()
+                                                            'email': self.current_user_email, 'app_id': self.app_id, 'code': self.access_token['code']}).json()
 
-            logger.info(res['msg']) if res['status'] else logger.error(res['msg'])
+            logger.info(res['msg']) if res['status'] else logger.error(
+                res['msg'])
         else:
             res = requests.post(self.api_url + 'reset-pw',
                                 {'new_pw': new_pw, 'code': code, 'app_id': self.app_id}).json()
@@ -784,6 +785,16 @@ class Api:
                 res['msg'])
 
             return res
+        except Exception as e:
+            logger.error(str(e))
+
+            return {'status': False, 'msg': str(e)}
+
+    def get_app_info(self):
+        try:
+            logger.info('Retrieved app version: {0}'.format(self.version))
+
+            return {'status': True, 'version': self.version}
         except Exception as e:
             logger.error(str(e))
 

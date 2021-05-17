@@ -164,6 +164,14 @@ $(window).on('pywebviewready', function() {
     })
   }, 50)
 
+  setTimeout(function() {
+    window.pywebview.api.get_app_info().then(res => {
+      if (res['status']) {
+        $('#appVer').html(res['version'])
+      }
+    })
+  }, 60)
+
   refreshProcessList()
 })
 
