@@ -619,7 +619,7 @@ class Api:
                     if present.day - p['date'].day == 1:
                         p['date'] = 'Yesterday'
                     else:
-                        p['date'] = t.strftime('%a')
+                        p['date'] = p['date'].strftime('%a')
                 else:
                     p['date'] = p['date'].strftime('%H:%M')
 
