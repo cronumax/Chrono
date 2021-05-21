@@ -799,8 +799,14 @@ class Api:
         except Exception as e:
             logger.error('thread_handler() error: {0}'.format(str(e)))
 
+    def on_closed(self):
+        logger.info('Chrono closed')
+
+        os.system('kill %d' % os.getpid())
+
 
 if __name__ == '__main__':
     api = Api()
     api.window = webview.create_window('Chrono', 'assets/ac.html', js_api=api)
+    api.window.closed += api.on_closed
     webview.start(api.thread_handler, debug=True)
