@@ -21,7 +21,7 @@ from logging.handlers import TimedRotatingFileHandler
 
 
 if platform.system() == 'Windows':
-    app_file_path = ''  # To do
+    app_file_path = '/ProgramData/Chrono'
 else:
     app_file_path = '/usr/local/etc'
 
@@ -604,18 +604,8 @@ class Api:
                         filenames.remove(n)
                 local_process_names = [n[:-5] for n in filenames]
 
-                for p in process_list:
-                    if not p['name'] in local_process_names:
-                        logger.error(
-                            'Process {0} not in local'.format(p['name']))
-
-                        process_list.remove(p)
-                    elif p['date'] != timezone(self.timezone).localize(datetime.fromtimestamp(pathlib.Path(
-                            '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, p['name'])).stat().st_mtime)):
-                        logger.error(
-                            'Process {0} date mismatch'.format(p['name']))
-
-                        process_list.remove(p)
+                process_list = [p for p in process_list if p['name'] in local_process_names and p['date'] == timezone(self.timezone).localize(
+                    datetime.fromtimestamp(pathlib.Path('{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, p['name'])).stat().st_mtime))]
             else:
                 return []
 
