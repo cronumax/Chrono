@@ -39,19 +39,19 @@ pip install -r windows_requirements.txt
 ### Linux
 
 ```bash
-pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import plyer.platforms.linux.notification main.py -n Chrono
+pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import plyer.platforms.linux.notification main.py -n Chrono -i media/automation.png
 ```
 
 ### macOS
 
 ```bash
-pyinstaller --onefile --windowed --add-data 'assets:assets' main.py -n Chrono
+pyinstaller --onefile --windowed --add-data 'assets:assets' main.py -n Chrono -i media/automation.png
 ```
 
 ### Windows
 
 ```bash
-pyinstaller --onefile --windowed --add-data 'assets;assets' --hidden-import plyer.platforms.win.notification main.py -n Chrono
+pyinstaller --onefile --windowed --add-data 'assets;assets' --hidden-import plyer.platforms.win.notification main.py -n Chrono -i media/automation.ico
 ```
 
 ## Remarks
