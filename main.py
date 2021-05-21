@@ -802,7 +802,10 @@ class Api:
     def on_closed(self):
         logger.info('Chrono closed')
 
-        os.system('kill %d' % os.getpid())
+        if platform.system() == 'Windows':
+            os.system('taskkill /f /pid %d' % os.getpid())
+        else:
+            os.system('kill %d' % os.getpid())
 
 
 if __name__ == '__main__':
