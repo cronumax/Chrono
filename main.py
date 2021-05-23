@@ -144,10 +144,10 @@ class Api:
 
         logger.info('{0} logged out'.format(self.current_user_email))
 
-    def register(self, first_name, last_name, email, code, pw, referer, agree_privacy_n_terms, send_update):
+    def register(self, first_name, last_name, email, code, pw, referrer, agree_privacy_n_terms, send_update):
         try:
             response = requests.post(self.api_url + 'register', {'1st_name': first_name, 'last_name': last_name, 'email': email,
-                                                                 'code': code, 'pw': pw, 'referer': referer, 'agree_privacy_n_terms': agree_privacy_n_terms, 'send_update': send_update, 'app_id': self.app_id}).json()
+                                                                 'code': code, 'pw': pw, 'referrer': referrer, 'agree_privacy_n_terms': agree_privacy_n_terms, 'send_update': send_update, 'app_id': self.app_id}).json()
 
             if response['status']:
                 logger.info(response['msg'])

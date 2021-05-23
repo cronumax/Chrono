@@ -176,7 +176,7 @@ $(document).ready(function() {
       return false
     }
 
-    window.pywebview.api.register(values['1stName'], values['lastName'], values['newEmail'], values['verifyCode'], values['newPw'], values['referer'], values['agreePrivacynTerms'], values['receiveCronumaxUpdates']).then(res => {
+    window.pywebview.api.register(values['1stName'], values['lastName'], values['newEmail'], values['verifyCode'], values['newPw'], values['referrer'], values['agreePrivacynTerms'], values['receiveCronumaxUpdates']).then(res => {
       if (res['status']) {
         Swal.fire({
           title: 'Done',
