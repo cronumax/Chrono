@@ -188,6 +188,8 @@ $(document).ready(function() {
           window.pywebview.api.navigate_to_dashboard()
         })
       } else {
+        $('#registerEmailVerifyLn').css('color', '#aaa')
+        $('#registerEmailVerifyLn').html('Verify')
         if (res.msg.includes('There is an update available.')) {
           Swal.fire({
             title: 'New Version Available',
