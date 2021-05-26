@@ -258,3 +258,7 @@ hr {
   width: 70%;
   background-color: #666;
 }
+
+.form-select {
+  float: right;
+}

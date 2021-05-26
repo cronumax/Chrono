@@ -49,6 +49,25 @@ $(window).on('pywebviewready', function() {
     })
   })
 
+  $('#timezoneSelection').change(function() {
+    var timezone = $(this).children('option:selected').text()
+
+    window.pywebview.api.set_timezone(timezone).then(res => {
+      if (!res['status']) {
+        Swal.fire({
+          title: 'Warning',
+          html: res['msg'],
+          icon: 'warning',
+          confirmButtonText: 'Ok'
+        }).then(function() {
+          window.pywebview.api.get_timezone().then(originalTimezone => {
+            $('#timezoneSelection').val(originalTimezone).attr('selected', 'selected')
+          })
+        })
+      }
+    })
+  })
+
   $('#touchModeBtn').change(function() {
     if ($(this).is(':checked')) {
       window.pywebview.api.enable_touch_mode().then(res => {
@@ -171,6 +190,22 @@ $(window).on('pywebviewready', function() {
       }
     })
   }, 60)
+
+  setTimeout(function() {
+    window.pywebview.api.get_timezone_list().then(timezoneList => {
+      $('#timezoneSelection').empty()
+      $.each(timezoneList, function(i, timezone) {
+        var row = '<option>' + timezone + '</option>'
+        $('#timezoneSelection').append(row)
+      })
+    })
+  }, 70)
+
+  setTimeout(function() {
+    window.pywebview.api.get_timezone().then(timezone => {
+      $('#timezoneSelection').val(timezone).attr('selected', 'selected')
+    })
+  }, 80)
 
   refreshProcessList()
 })

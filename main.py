@@ -16,7 +16,7 @@ if platform.system() == 'Darwin':
 else:
     from plyer import notification
 import pyautogui as pag
-from pytz import timezone
+from pytz import timezone, common_timezones
 from logging.handlers import TimedRotatingFileHandler
 
 
@@ -49,7 +49,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '1.0.0'
+        self.version = '1.0.1'
         self.window = None
         self.api_url = 'https://chrono.cronumax.com/'
         self.current_user_email = None
@@ -70,12 +70,12 @@ class Api:
             self.app_id = app['id'] = secrets.token_urlsafe()
             self.register_or_update_app_version_info(app, 'register-app')
         '''
-        To do: let user change these settings when we hv a gd error handling. Don't want dummy user action to backfire Cronumax/ Chrono's reputation.
+        Defaults
         '''
         self.escape_key = Key.esc
         self.touch_mode = False
         self.god_speed = False
-        self.timezone = 'Hongkong'
+        self.timezone = 'Asia/Hong_Kong'
 
     def register_or_update_app_version_info(self, app, endpt):
         app['version'] = self.version
@@ -180,6 +180,26 @@ class Api:
         except Exception as e:
             logger.error('register() error: {0}'.format(str(e)))
 
+    def load_settings(self, user_settings, field):
+        logger.info('Load {0} from user settings file'.format(field))
+
+        try:
+            if field == 'touch_mode':
+                self.touch_mode = user_settings[field]
+            elif field == 'god_speed':
+                self.god_speed = user_settings[field]
+            elif field == 'timezone':
+                self.timezone = user_settings[field]
+        except:
+            logger.warning('{0} missing in user settings file'.format(field))
+
+            if field == 'touch_mode':
+                self.update_settings_file(field, self.touch_mode)
+            elif field == 'god_speed':
+                self.update_settings_file(field, self.god_speed)
+            elif field == 'timezone':
+                self.update_settings_file(field, self.timezone)
+
     def load_or_save_app_config_on_login(self, email):
         # Create local directory for storing user's process JSON files
         user_processes_path = '{0}/processes/{1}'.format(
@@ -193,13 +213,15 @@ class Api:
         if os.path.exists(user_settings_path):
             with open(user_settings_path) as f:
                 user_settings = json.load(f)
-            self.touch_mode = user_settings['touch_mode']
-            self.god_speed = user_settings['god_speed']
+
+            self.load_settings(user_settings_path, user_settings, 'touch_mode')
+            self.load_settings(user_settings_path, user_settings, 'god_speed')
+            self.load_settings(user_settings_path, user_settings, 'timezone')
         else:
-            self.touch_mode = False
-            self.god_speed = False
             user_settings = {'touch_mode': self.touch_mode,
-                             'god_speed': self.god_speed}
+                             'god_speed': self.god_speed,
+                             'timezone': self.timezone}
+
             with open(user_settings_path, 'w') as f:
                 json.dump(user_settings, f)
 
@@ -604,8 +626,8 @@ class Api:
                         filenames.remove(n)
                 local_process_names = [n[:-5] for n in filenames]
 
-                process_list = [p for p in process_list if p['name'] in local_process_names and p['date'] == timezone(self.timezone).localize(
-                    datetime.fromtimestamp(pathlib.Path('{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, p['name'])).stat().st_mtime))]
+                process_list = [p for p in process_list if p['name'] in local_process_names and p['date'] == datetime.fromtimestamp(pathlib.Path(
+                    '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, p['name'])).stat().st_mtime, timezone(self.timezone))]
             else:
                 return []
 
@@ -669,7 +691,9 @@ class Api:
             return {'status': False, 'msg': str(e)}
 
     def update_settings_file(self, key, value):
-        # Save user's settings
+        logger.info(
+            'Update {0} to {1} in user settings file'.format(key, value))
+
         user_settings_path = '{0}/settings/{1}.json'.format(
             app_file_path, self.current_user_email)
         with open(user_settings_path) as f:
@@ -738,6 +762,31 @@ class Api:
             return {'status': True, 'msg': msg}
         except Exception as e:
             logger.error('disable_touch_mode() error: {0}'.format(str(e)))
+
+            return {'status': False, 'msg': str(e)}
+
+    def get_timezone_list(self):
+        return common_timezones
+
+    def get_timezone(self):
+        logger.info('Timezone {0}'.format(self.timezone))
+
+        return self.timezone
+
+    def set_timezone(self, timezone):
+        try:
+            if timezone in common_timezones:
+                self.timezone = timezone
+                self.update_settings_file('timezone', timezone)
+                msg = 'Set timezone to {0}'.format(timezone)
+
+                logger.info(msg)
+
+                return {'status': True, 'msg': msg}
+            else:
+                raise Exception('Invalid timezone.')
+        except Exception as e:
+            logger.error('set_timezone() error: {0}'.format(str(e)))
 
             return {'status': False, 'msg': str(e)}
 
