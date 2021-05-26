@@ -214,9 +214,9 @@ class Api:
             with open(user_settings_path) as f:
                 user_settings = json.load(f)
 
-            self.load_settings(user_settings_path, user_settings, 'touch_mode')
-            self.load_settings(user_settings_path, user_settings, 'god_speed')
-            self.load_settings(user_settings_path, user_settings, 'timezone')
+            self.load_settings(user_settings, 'touch_mode')
+            self.load_settings(user_settings, 'god_speed')
+            self.load_settings(user_settings, 'timezone')
         else:
             user_settings = {'touch_mode': self.touch_mode,
                              'god_speed': self.god_speed,
