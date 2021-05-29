@@ -55,10 +55,6 @@ html {
   animation: glowing 1s infinite;
 }
 
-.selected, .selected>td {
-  background-color: #232323;
-}
-
 #ctrlPanel {
   display: flex;
   position: relative;
