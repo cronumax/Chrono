@@ -10,6 +10,17 @@ Cronumax dev team
 
 Commercial
 
+## Dependencies
+
+Keep version for the following packages,
+
+| Package    | Version | Rationale              |
+| ---------- | ------- | ---------------------- |
+| **idna**   | 2.10    | Compatible w/ requests |
+| **pynput** | 1.6.8   | Avoid Xorg error       |
+
+otherwise, use the latest.
+
 ## Get Started
 
 ### Linux
