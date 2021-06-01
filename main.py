@@ -861,4 +861,4 @@ if __name__ == '__main__':
     api = Api()
     api.window = webview.create_window('Chrono', 'assets/ac.html', js_api=api)
     api.window.closed += api.on_closed
-    webview.start(api.thread_handler)
+    webview.start(api.thread_handler, debug=True)

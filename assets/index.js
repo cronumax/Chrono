@@ -316,7 +316,7 @@ function refreshProcessList() {
       $.each(process, function(j, data) {
         row += '<td>' + data + '</td>'
       })
-      row += "<td><button id='renameBtn' class='btn'><i class='fa fa-edit fa-lg'></i></button><button id='delBtn' class='btn'><i class='fa fa-trash fa-lg'></i></button></td>"
+      row += "<td><button id='scheduleBtn' class='btn'><i class='far fa-clock fa-lg'></i></button><button id='renameBtn' class='btn'><i class='far fa-edit fa-lg'></i></button><button id='delBtn' class='btn'><i class='far fa-trash-alt fa-lg'></i></button></td>"
       row += '</tr>'
       $('#processList tbody').append(row)
     })
