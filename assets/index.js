@@ -30,6 +30,44 @@ $(window).on('pywebviewready', function() {
     $(this).addClass('selected').siblings().removeClass('selected')
   })
 
+  $('#processList tbody').on('click', '#scheduleBtn', function() {
+    if ($(this).hasClass('active')) {
+      Swal.fire({
+        title: 'Disable scheduled run?',
+        icon: 'warning',
+        confirmButtonText: 'Confirm',
+        showCancelButton: true,
+        allowOutsideClick: () => !Swal.isLoading()
+      }).then(res => {
+        if (res.isConfirmed) {
+          $(this).removeClass('active')
+          // Disable scheduled run
+        }
+      })
+    } else {
+      // Prompt to let user select date & time for scheduling auto process run
+      Swal.fire({
+        title: 'Schedule auto replay',
+        type: 'question',
+        html: "<input id='datepicker' class='swal2-input' readonly>",
+        // customClass: 'swal2-overflow',
+        onOpen: function() {
+          $('#datepicker').datepicker({
+            dateFormat: 'yy/mm/dd'
+          })
+        },
+        confirmButtonText: 'Save',
+        showCancelButton: true,
+        allowOutsideClick: () => !Swal.isLoading()
+      }).then(res => {
+        if (res.isConfirmed) {
+          $(this).addClass('active')
+          // Enable scheduled run
+        }
+      })
+    }
+  })
+
   $('#processList tbody').on('click', '#renameBtn', function() {
     promptForProcessName(true, $(this).parent().parent().find('td:first').html())
   })

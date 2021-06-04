@@ -258,3 +258,22 @@ hr {
 .form-select {
   float: right;
 }
+
+.ui-widget-content [class="ui-state-default"] {
+  background: none;
+}
+
+.ui-widget-content .ui-state-active {
+  background: #df2176;
+  border-color: #df2176;
+  color: #fff;
+}
+
+.ui-widget-content [class="ui-state-default ui-state-hover"], .ui-widget-content [class="ui-state-default ui-state-focus"] {
+  background: none;
+  border-color: #df2176;
+}
+
+.ui-widget-content .ui-state-highlight.ui-state-hover, .ui-widget-content .ui-state-highlight.ui-state-focus {
+  border-color: #df2176;
+}
