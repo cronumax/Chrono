@@ -32,11 +32,15 @@ hr {
   margin-bottom: 1rem;
 }
 
-a {
+#forgotPwLn, #registerLn, #forgotPwSignInLn, #forgotPwResetPwWithTokenLn, #registerEmailVerifyLn, #registerSignInLn, #resetPwWithTokenSignInLn, #privacyNotice, #terms {
   color: #aaa;
 }
 
-a:active, a:hover {
+#forgotPwLn:active, #registerLn:active, #forgotPwSignInLn:active, #forgotPwResetPwWithTokenLn:active, #registerEmailVerifyLn:active, #registerSignInLn:active, #resetPwWithTokenSignInLn:active, #privacyNotice:active, #terms:active {
+  color: #df2176;
+}
+
+#forgotPwLn:hover, #registerLn:hover, #forgotPwSignInLn:hover, #forgotPwResetPwWithTokenLn:hover, #registerEmailVerifyLn:hover, #registerSignInLn:hover, #resetPwWithTokenSignInLn:hover, #privacyNotice:hover, #terms:hover {
   color: #df2176;
 }
 

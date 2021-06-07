@@ -92,6 +92,7 @@ h1 {
   position: absolute;
   right: 5rem;
   margin-top: .4rem;
+  text-decoration: none;
 }
 
 .ferrari-red {
@@ -102,11 +103,15 @@ h1 {
   color: #fff;
 }
 
-a {
+#profileChangePwLn, #resetPwWithOldPwProfileLn {
   color: #aaa;
 }
 
-a:active, a:hover {
+#profileChangePwLn:active, #resetPwWithOldPwProfileLn:active {
+  color: #df2176;
+}
+
+#profileChangePwLn:hover, #resetPwWithOldPwProfileLn:hover {
   color: #df2176;
 }
 
@@ -276,4 +281,8 @@ hr {
 
 .ui-widget-content .ui-state-highlight.ui-state-hover, .ui-widget-content .ui-state-highlight.ui-state-focus {
   border-color: #df2176;
+}
+
+#timezoneSelection {
+  width: auto;
 }
