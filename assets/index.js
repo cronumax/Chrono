@@ -48,10 +48,9 @@ $(window).on('pywebviewready', function() {
       // Prompt to let user select date & time for scheduling auto process run
       Swal.fire({
         title: 'Schedule auto replay',
-        type: 'question',
+        icon: 'question',
         html: "<input id='datepicker' class='swal2-input' readonly>",
-        // customClass: 'swal2-overflow',
-        onOpen: function() {
+        didOpen: function() {
           $('#datepicker').datepicker({
             dateFormat: 'yy/mm/dd'
           })
