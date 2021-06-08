@@ -18,7 +18,7 @@
 }
 
 hr {
-  width: 70%;
+  margin: 1rem auto;
   background-color: #666;
 }
 
@@ -45,6 +45,7 @@ hr {
 }
 
 .form-control, .form-control:focus {
+  margin: 1rem 0;
   color: #eee;
   background-color: #222;
 }

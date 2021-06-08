@@ -178,6 +178,7 @@ a, #userEmail, #userLicenseTier {
 }
 
 .form-control, .form-control:focus {
+  margin: 1rem 0;
   color: #eee;
   background-color: #222;
 }
@@ -256,8 +257,12 @@ input:checked+.slider:before {
 }
 
 hr {
-  width: 70%;
+  margin: 1rem auto;
   background-color: #666;
+}
+
+.page-divider {
+  width: 70%;
 }
 
 .form-select {
@@ -285,4 +290,9 @@ hr {
 
 #timezoneSelection {
   width: auto;
+}
+
+tbody {
+  border-top: 2px solid #303030;
+  border-bottom: 2px solid #303030;
 }
