@@ -296,3 +296,7 @@ tbody {
   border-top: 2px solid #303030;
   border-bottom: 2px solid #303030;
 }
+
+.bootstrap-datetimepicker-widget table td.hour:hover, .bootstrap-datetimepicker-widget table td.minute:hover, .bootstrap-datetimepicker-widget table td span:hover, .fa-chevron-up, .fa-chevron-down {
+  color: #207bf9;
+}

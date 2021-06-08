@@ -49,19 +49,24 @@ $(window).on('pywebviewready', function() {
       Swal.fire({
         title: 'Schedule auto replay',
         icon: 'question',
-        html: "<input id='datepicker' class='swal2-input' readonly>",
+        html: "<input id='datetimepicker' class='swal2-input'>",
+        width: '42rem',
         didOpen: function() {
-          $('#datepicker').datepicker({
-            dateFormat: 'yy/mm/dd'
+          $('#datetimepicker').datetimepicker({
+            format: 'DD/MM/YYYY HH:mm',
+            defaultDate: new Date(),
+            inline: true,
+            sideBySide: true
           })
         },
-        confirmButtonText: 'Save',
+        confirmButtonText: 'Next',
         showCancelButton: true,
         allowOutsideClick: () => !Swal.isLoading()
       }).then(res => {
         if (res.isConfirmed) {
           $(this).addClass('active')
           // Enable scheduled run
+          console.log($('#datetimepicker').val())
         }
       })
     }
