@@ -300,3 +300,16 @@ tbody {
 .bootstrap-datetimepicker-widget table td.hour:hover, .bootstrap-datetimepicker-widget table td.minute:hover, .bootstrap-datetimepicker-widget table td span:hover, .fa-chevron-up, .fa-chevron-down {
   color: #207bf9;
 }
+
+.swal2-styled.swal2-deny {
+  border: 0;
+  border-radius: 0.25em;
+  background: initial;
+  background-color: #df2176;
+  color: #fff;
+  font-size: 1.0625em;
+}
+
+.swal2-styled.swal2-confirm, .swal2-styled.swal2-deny, .swal2-styled.swal2-cancel {
+  box-shadow: none;
+}

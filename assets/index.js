@@ -45,11 +45,11 @@ $(window).on('pywebviewready', function() {
         }
       })
     } else {
-      // Prompt to let user select date & time for scheduling auto process run
+      // Prompt to let user set date, time & recurrence for scheduling replay
       Swal.fire({
-        title: 'Schedule auto replay',
+        title: 'Schedule replay',
         icon: 'question',
-        html: "<input id='datetimepicker' class='swal2-input'>",
+        html: "<p>Date & time</p><input id='datetimepicker' class='swal2-input'>",
         width: '42rem',
         didOpen: function() {
           $('#datetimepicker').datetimepicker({
@@ -59,14 +59,52 @@ $(window).on('pywebviewready', function() {
             sideBySide: true
           })
         },
-        confirmButtonText: 'Next',
+        confirmButtonText: 'Save',
+        denyButtonText: 'Repeat',
+        showDenyButton: true,
         showCancelButton: true,
         allowOutsideClick: () => !Swal.isLoading()
       }).then(res => {
+        var datetime = $('#datetimepicker').val()
         if (res.isConfirmed) {
-          $(this).addClass('active')
           // Enable scheduled run
-          console.log($('#datetimepicker').val())
+          console.log(datetime)
+          $(this).addClass('active')
+        } else if (res.isDenied) {
+          // Let user select predefined recurrence
+          Swal.fire({
+            title: 'Repeat',
+            icon: 'question',
+            html: "<select id='predefinedRecurrence' data-placeholder='Select a recurrence'><option value='every_min'>Every minute</option><option value='every_hr'>Every hour</option><option value='every_day'>Every day</option><option value='every_wk'>Every week</option><option value='every_mo'>Every month</option><option value='every_yr'>Every year</option></select>",
+            didOpen: function() {
+              $('#predefinedRecurrence').awselect({
+                background: "#303030",
+                active_background: "#262626",
+                placeholder_color: "#fff",
+                placeholder_active_color: "#666",
+                option_color: "#fff",
+                immersive: true
+              })
+            },
+            confirmButtonText: 'Save',
+            denyButtonText: 'Custom',
+            showDenyButton: true,
+            showCancelButton: true,
+            allowOutsideClick: () => !Swal.isLoading()
+          }).then(res2 => {
+            if (res2.isConfirmed) {
+              // Enable scheduled run
+              console.log('Save')
+              console.log(datetime)
+              console.log(res2.value)
+              $(this).addClass('active')
+            } else if (res2.isDenied) {
+              // Let user select custom recurrence
+              console.log('Custom repeat')
+              console.log(datetime)
+              console.log($('.swal2-select').val())
+            }
+          })
         }
       })
     }
