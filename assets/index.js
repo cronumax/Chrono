@@ -260,6 +260,48 @@ $(window).on('pywebviewready', function() {
                   $('#awselect_moIntervalNum').hide()
                   $('#awselect_yrIntervalNum').hide()
 
+                  $('#minIntervalNum').change(function() {
+                    if ($('#minIntervalNum').val() === '1' && $('#awselect_intervalUnit .current_value').text().slice(-1) === 's') {
+                      $('#awselect_intervalUnit .current_value').text($('#awselect_intervalUnit .current_value').text().slice(0, -1))
+                    } else if ($('#minIntervalNum').val() !== '1' && $('#awselect_intervalUnit .current_value').text().slice(-1) !== 's') {
+                      $('#awselect_intervalUnit .current_value').text($('#awselect_intervalUnit .current_value').text() + 's')
+                    }
+                  })
+                  $('#hrIntervalNum').change(function() {
+                    if ($('#hrIntervalNum').val() === '1' && $('#awselect_intervalUnit .current_value').text().slice(-1) === 's') {
+                      $('#awselect_intervalUnit .current_value').text($('#awselect_intervalUnit .current_value').text().slice(0, -1))
+                    } else if ($('#hrIntervalNum').val() !== '1' && $('#awselect_intervalUnit .current_value').text().slice(-1) !== 's') {
+                      $('#awselect_intervalUnit .current_value').text($('#awselect_intervalUnit .current_value').text() + 's')
+                    }
+                  })
+                  $('#dayIntervalNum').change(function() {
+                    if ($('#dayIntervalNum').val() === '1' && $('#awselect_intervalUnit .current_value').text().slice(-1) === 's') {
+                      $('#awselect_intervalUnit .current_value').text($('#awselect_intervalUnit .current_value').text().slice(0, -1))
+                    } else if ($('#dayIntervalNum').val() !== '1' && $('#awselect_intervalUnit .current_value').text().slice(-1) !== 's') {
+                      $('#awselect_intervalUnit .current_value').text($('#awselect_intervalUnit .current_value').text() + 's')
+                    }
+                  })
+                  $('#wkIntervalNum').change(function() {
+                    if ($('#wkIntervalNum').val() === '1' && $('#awselect_intervalUnit .current_value').text().slice(-1) === 's') {
+                      $('#awselect_intervalUnit .current_value').text($('#awselect_intervalUnit .current_value').text().slice(0, -1))
+                    } else if ($('#wkIntervalNum').val() !== '1' && $('#awselect_intervalUnit .current_value').text().slice(-1) !== 's') {
+                      $('#awselect_intervalUnit .current_value').text($('#awselect_intervalUnit .current_value').text() + 's')
+                    }
+                  })
+                  $('#moIntervalNum').change(function() {
+                    if ($('#moIntervalNum').val() === '1' && $('#awselect_intervalUnit .current_value').text().slice(-1) === 's') {
+                      $('#awselect_intervalUnit .current_value').text($('#awselect_intervalUnit .current_value').text().slice(0, -1))
+                    } else if ($('#moIntervalNum').val() !== '1' && $('#awselect_intervalUnit .current_value').text().slice(-1) !== 's') {
+                      $('#awselect_intervalUnit .current_value').text($('#awselect_intervalUnit .current_value').text() + 's')
+                    }
+                  })
+                  $('#yrIntervalNum').change(function() {
+                    if ($('#yrIntervalNum').val() === '1' && $('#awselect_intervalUnit .current_value').text().slice(-1) === 's') {
+                      $('#awselect_intervalUnit .current_value').text($('#awselect_intervalUnit .current_value').text().slice(0, -1))
+                    } else if ($('#yrIntervalNum').val() !== '1' && $('#awselect_intervalUnit .current_value').text().slice(-1) !== 's') {
+                      $('#awselect_intervalUnit .current_value').text($('#awselect_intervalUnit .current_value').text() + 's')
+                    }
+                  })
                   $('#intervalUnit').change(function() {
                     switch ($(this).val()) {
                       case 'min':
