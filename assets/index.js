@@ -71,12 +71,29 @@ $(window).on('pywebviewready', function() {
           console.log(datetime)
           $(this).addClass('active')
         } else if (res.isDenied) {
-          // Let user select predefined recurrence
+          // Let user set predefined recurrence
           Swal.fire({
             title: 'Repeat',
             icon: 'question',
-            html: "<select id='predefinedRecurrence' data-placeholder='Select a recurrence'><option value='every_min'>Every minute</option><option value='every_hr'>Every hour</option><option value='every_day'>Every day</option><option value='every_wk'>Every week</option><option value='every_mo'>Every month</option><option value='every_yr'>Every year</option></select>",
+            html: "<select id='predefinedRecurrence' data-placeholder='Repeat'></select>",
             didOpen: function() {
+              var predefinedRecurrences = {
+                'every_min': 'Every minute',
+                'every_hr': 'Every hour',
+                'every_day': 'Every day',
+                'every_wk': 'Every week',
+                'every_mo': 'Every month',
+                'every_yr': 'Every year'
+              }
+              var option = ''
+
+              for (let key of Object.keys(predefinedRecurrences)) {
+                option += '<option value="' + key + '">' + predefinedRecurrences[key] + '</option>'
+              }
+              $('#predefinedRecurrence').append(option)
+
+              $('#predefinedRecurrence option:first').attr('selected', true)
+
               $('#predefinedRecurrence').awselect({
                 background: "#303030",
                 active_background: "#262626",
@@ -87,22 +104,230 @@ $(window).on('pywebviewready', function() {
               })
             },
             confirmButtonText: 'Save',
-            denyButtonText: 'Custom',
+            denyButtonText: 'Custom...',
             showDenyButton: true,
             showCancelButton: true,
             allowOutsideClick: () => !Swal.isLoading()
           }).then(res2 => {
             if (res2.isConfirmed) {
+              var predefinedRecurrence = $('#predefinedRecurrence').val()
+
               // Enable scheduled run
-              console.log('Save')
               console.log(datetime)
-              console.log(res2.value)
+              console.log(predefinedRecurrence)
               $(this).addClass('active')
             } else if (res2.isDenied) {
-              // Let user select custom recurrence
-              console.log('Custom repeat')
-              console.log(datetime)
-              console.log($('.swal2-select').val())
+              // Let user set custom recurrence
+              Swal.fire({
+                title: 'Custom',
+                icon: 'question',
+                html: "<select id='minIntervalNum' data-placeholder='Interval number'></select><select id='hrIntervalNum' data-placeholder='Interval number'></select><select id='dayIntervalNum' data-placeholder='Interval number'></select><select id='wkIntervalNum' data-placeholder='Interval number'></select><select id='moIntervalNum' data-placeholder='Interval number'></select><select id='yrIntervalNum' data-placeholder='Interval number'></select><select id='intervalUnit' data-placeholder='Interval unit'></select><select id='ends' data-placeholder='Ends'></select>",
+                didOpen: function() {
+                  var intervalUnits = {
+                    'min': 'minute',
+                    'hr': 'hour',
+                    'day': 'day',
+                    'wk': 'week',
+                    'mo': 'month',
+                    'yr': 'year'
+                  }
+                  var ends = {
+                    'noEnd': "Doesn't end",
+                    'date': "On a date",
+                    'afterNumOfOccurences': 'After number of occurences'
+                  }
+
+                  var minNumOptions
+                  var hrNumOptions
+                  var dayNumOptions
+                  var wkNumOptions
+                  var moNumOptions
+                  var yrNumOptions
+                  var unitOptions
+                  var endOptions
+
+                  for (var i = 1; i < 60; i++) {
+                    minNumOptions += '<option value="' + i + '">' + i + '</option>'
+                  }
+                  for (var i = 1; i < 24; i++) {
+                    hrNumOptions += '<option value="' + i + '">' + i + '</option>'
+                  }
+                  for (var i = 1; i < 100; i++) {
+                    dayNumOptions += '<option value="' + i + '">' + i + '</option>'
+                  }
+                  for (var i = 1; i < 53; i++) {
+                    wkNumOptions += '<option value="' + i + '">' + i + '</option>'
+                  }
+                  for (var i = 1; i < 37; i++) {
+                    moNumOptions += '<option value="' + i + '">' + i + '</option>'
+                  }
+                  for (var i = 1; i < 31; i++) {
+                    yrNumOptions += '<option value="' + i + '">' + i + '</option>'
+                  }
+                  for (let key of Object.keys(intervalUnits)) {
+                    unitOptions += '<option value="' + key + '">' + intervalUnits[key] + '</option>'
+                  }
+                  for (let key of Object.keys(ends)) {
+                    endOptions += '<option value="' + key + '">' + ends[key] + '</option>'
+                  }
+
+                  $('#minIntervalNum').append(minNumOptions)
+                  $('#hrIntervalNum').append(hrNumOptions)
+                  $('#dayIntervalNum').append(dayNumOptions)
+                  $('#wkIntervalNum').append(wkNumOptions)
+                  $('#moIntervalNum').append(moNumOptions)
+                  $('#yrIntervalNum').append(yrNumOptions)
+                  $('#intervalUnit').append(unitOptions)
+                  $('#ends').append(endOptions)
+
+                  $('#minIntervalNum option:first').attr('selected', true)
+                  $('#hrIntervalNum option:first').attr('selected', true)
+                  $('#dayIntervalNum option:first').attr('selected', true)
+                  $('#wkIntervalNum option:first').attr('selected', true)
+                  $('#moIntervalNum option:first').attr('selected', true)
+                  $('#yrIntervalNum option:first').attr('selected', true)
+                  $('#intervalUnit option:first').attr('selected', true)
+                  $('#ends option:first').attr('selected', true)
+
+                  $('#minIntervalNum').awselect({
+                    background: "#303030",
+                    active_background: "#262626",
+                    placeholder_color: "#fff",
+                    placeholder_active_color: "#666",
+                    option_color: "#fff",
+                    immersive: true
+                  })
+                  $('#hrIntervalNum').awselect({
+                    background: "#303030",
+                    active_background: "#262626",
+                    placeholder_color: "#fff",
+                    placeholder_active_color: "#666",
+                    option_color: "#fff",
+                    immersive: true
+                  })
+                  $('#dayIntervalNum').awselect({
+                    background: "#303030",
+                    active_background: "#262626",
+                    placeholder_color: "#fff",
+                    placeholder_active_color: "#666",
+                    option_color: "#fff",
+                    immersive: true
+                  })
+                  $('#wkIntervalNum').awselect({
+                    background: "#303030",
+                    active_background: "#262626",
+                    placeholder_color: "#fff",
+                    placeholder_active_color: "#666",
+                    option_color: "#fff",
+                    immersive: true
+                  })
+                  $('#moIntervalNum').awselect({
+                    background: "#303030",
+                    active_background: "#262626",
+                    placeholder_color: "#fff",
+                    placeholder_active_color: "#666",
+                    option_color: "#fff",
+                    immersive: true
+                  })
+                  $('#yrIntervalNum').awselect({
+                    background: "#303030",
+                    active_background: "#262626",
+                    placeholder_color: "#fff",
+                    placeholder_active_color: "#666",
+                    option_color: "#fff",
+                    immersive: true
+                  })
+                  $('#intervalUnit').awselect({
+                    background: "#303030",
+                    active_background: "#262626",
+                    placeholder_color: "#fff",
+                    placeholder_active_color: "#666",
+                    option_color: "#fff",
+                    immersive: true
+                  })
+                  $('#ends').awselect({
+                    background: "#303030",
+                    active_background: "#262626",
+                    placeholder_color: "#fff",
+                    placeholder_active_color: "#666",
+                    option_color: "#fff",
+                    immersive: true
+                  })
+
+                  $('#awselect_hrIntervalNum').hide()
+                  $('#awselect_dayIntervalNum').hide()
+                  $('#awselect_wkIntervalNum').hide()
+                  $('#awselect_moIntervalNum').hide()
+                  $('#awselect_yrIntervalNum').hide()
+
+                  $('#intervalUnit').change(function() {
+                    switch ($(this).val()) {
+                      case 'min':
+                        $('#awselect_minIntervalNum').show()
+                        $('#awselect_hrIntervalNum').hide()
+                        $('#awselect_dayIntervalNum').hide()
+                        $('#awselect_wkIntervalNum').hide()
+                        $('#awselect_moIntervalNum').hide()
+                        $('#awselect_yrIntervalNum').hide()
+                        break
+                      case 'hr':
+                        $('#awselect_minIntervalNum').hide()
+                        $('#awselect_hrIntervalNum').show()
+                        $('#awselect_dayIntervalNum').hide()
+                        $('#awselect_wkIntervalNum').hide()
+                        $('#awselect_moIntervalNum').hide()
+                        $('#awselect_yrIntervalNum').hide()
+                        break
+                      case 'day':
+                        $('#awselect_minIntervalNum').hide()
+                        $('#awselect_hrIntervalNum').hide()
+                        $('#awselect_dayIntervalNum').show()
+                        $('#awselect_wkIntervalNum').hide()
+                        $('#awselect_moIntervalNum').hide()
+                        $('#awselect_yrIntervalNum').hide()
+                        break
+                      case 'wk':
+                        $('#awselect_minIntervalNum').hide()
+                        $('#awselect_hrIntervalNum').hide()
+                        $('#awselect_dayIntervalNum').hide()
+                        $('#awselect_wkIntervalNum').show()
+                        $('#awselect_moIntervalNum').hide()
+                        $('#awselect_yrIntervalNum').hide()
+                        break
+                      case 'mo':
+                        $('#awselect_minIntervalNum').hide()
+                        $('#awselect_hrIntervalNum').hide()
+                        $('#awselect_dayIntervalNum').hide()
+                        $('#awselect_wkIntervalNum').hide()
+                        $('#awselect_moIntervalNum').show()
+                        $('#awselect_yrIntervalNum').hide()
+                        break
+                      case 'yr':
+                        $('#awselect_minIntervalNum').hide()
+                        $('#awselect_hrIntervalNum').hide()
+                        $('#awselect_dayIntervalNum').hide()
+                        $('#awselect_wkIntervalNum').hide()
+                        $('#awselect_moIntervalNum').hide()
+                        $('#awselect_yrIntervalNum').show()
+                    }
+                  })
+                },
+                confirmButtonText: 'Save',
+                showCancelButton: true,
+                allowOutsideClick: () => !Swal.isLoading()
+              }).then(res3 => {
+                if (res3.isConfirmed) {
+                  var intervalNum = $('#intervalNum').val()
+                  var intervalUnit = $('#intervalUnit').val()
+                  var ends = $('#ends').val()
+
+                  console.log(datetime)
+                  console.log(intervalNum)
+                  console.log(intervalUnit)
+                  console.log(ends)
+                  $(this).addClass('active')
+                }
+              })
             }
           })
         }
