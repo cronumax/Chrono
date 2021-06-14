@@ -121,7 +121,7 @@ $(window).on('pywebviewready', function() {
               Swal.fire({
                 title: 'Custom',
                 icon: 'question',
-                html: "<p>Every</p><select id='minIntervalNum' data-placeholder='Interval number'></select><select id='hrIntervalNum' data-placeholder='Interval number'></select><select id='dayIntervalNum' data-placeholder='Interval number'></select><select id='wkIntervalNum' data-placeholder='Interval number'></select><select id='moIntervalNum' data-placeholder='Interval number'></select><select id='yrIntervalNum' data-placeholder='Interval number'></select><select id='intervalUnit' data-placeholder='Interval unit'></select><select id='ends' data-placeholder='Ends'></select>",
+                html: "<p>Every</p><select id='minIntervalNum' data-placeholder='Interval number'></select><select id='hrIntervalNum' data-placeholder='Interval number'></select><select id='dayIntervalNum' data-placeholder='Interval number'></select><select id='wkIntervalNum' data-placeholder='Interval number'></select><select id='moIntervalNum' data-placeholder='Interval number'></select><select id='yrIntervalNum' data-placeholder='Interval number'></select><select id='intervalUnit' data-placeholder='Interval unit'></select><select id='wkSettings' data-placeholder='Repeat on'></select><select id='ends' data-placeholder='Ends'></select>",
                 didOpen: function() {
                   var intervalUnits = {
                     'min': 'minute',
@@ -131,20 +131,30 @@ $(window).on('pywebviewready', function() {
                     'mo': 'month',
                     'yr': 'year'
                   }
+                  var daysOfWk = {
+                    'sun': 'Sunday',
+                    'mon': 'Monday',
+                    'tue': 'Tuesday',
+                    'wed': 'Wednesday',
+                    'thu': 'Thursday',
+                    'fri': 'Friday',
+                    'sat': 'Saturday'
+                  }
                   var ends = {
                     'noEnd': "Doesn't end",
                     'date': "On a date",
                     'afterNumOfOccurences': 'After number of occurences'
                   }
 
-                  var minNumOptions
-                  var hrNumOptions
-                  var dayNumOptions
-                  var wkNumOptions
-                  var moNumOptions
-                  var yrNumOptions
-                  var unitOptions
-                  var endOptions
+                  var minNumOptions = ''
+                  var hrNumOptions = ''
+                  var dayNumOptions = ''
+                  var wkNumOptions = ''
+                  var moNumOptions = ''
+                  var yrNumOptions = ''
+                  var unitOptions = ''
+                  var wkSettingsOptions = ''
+                  var endOptions = ''
 
                   for (var i = 1; i < 60; i++) {
                     minNumOptions += '<option value="' + i + '">' + i + '</option>'
@@ -167,6 +177,9 @@ $(window).on('pywebviewready', function() {
                   for (let key of Object.keys(intervalUnits)) {
                     unitOptions += '<option value="' + key + '">' + intervalUnits[key] + '</option>'
                   }
+                  for (let key of Object.keys(daysOfWk)) {
+                    wkSettingsOptions += '<option value="' + key + '">' + daysOfWk[key] + '</option>'
+                  }
                   for (let key of Object.keys(ends)) {
                     endOptions += '<option value="' + key + '">' + ends[key] + '</option>'
                   }
@@ -178,6 +191,7 @@ $(window).on('pywebviewready', function() {
                   $('#moIntervalNum').append(moNumOptions)
                   $('#yrIntervalNum').append(yrNumOptions)
                   $('#intervalUnit').append(unitOptions)
+                  $('#wkSettings').append(wkSettingsOptions)
                   $('#ends').append(endOptions)
 
                   $('#minIntervalNum option:first').attr('selected', true)
@@ -187,6 +201,8 @@ $(window).on('pywebviewready', function() {
                   $('#moIntervalNum option:first').attr('selected', true)
                   $('#yrIntervalNum option:first').attr('selected', true)
                   $('#intervalUnit option:first').attr('selected', true)
+                  $('#wkSettings option:first').attr('selected', true)
+                  var d = $('#wkSettings option:eq(' + new Date().getDay().toString() + ')').text()
                   $('#ends option:first').attr('selected', true)
 
                   $('#minIntervalNum').awselect({
@@ -245,6 +261,16 @@ $(window).on('pywebviewready', function() {
                     option_color: "#fff",
                     immersive: true
                   })
+                  $('#wkSettings').awselect({
+                    background: "#303030",
+                    active_background: "#262626",
+                    placeholder_color: "#fff",
+                    placeholder_active_color: "#666",
+                    option_color: "#fff",
+                    immersive: true
+                  })
+                  $('#awselect_wkSettings a:contains("' + d + '")').css('color', '#df2176')
+                  $('#awselect_wkSettings .current_value').text('On ' + d)
                   $('#ends').awselect({
                     background: "#303030",
                     active_background: "#262626",
@@ -259,6 +285,7 @@ $(window).on('pywebviewready', function() {
                   $('#awselect_wkIntervalNum').hide()
                   $('#awselect_moIntervalNum').hide()
                   $('#awselect_yrIntervalNum').hide()
+                  $('#awselect_wkSettings').hide()
 
                   $('#minIntervalNum').change(function() {
                     if ($('#minIntervalNum').val() === '1' && $('#awselect_intervalUnit .current_value').text().slice(-1) === 's') {
@@ -309,6 +336,7 @@ $(window).on('pywebviewready', function() {
                         $('#awselect_hrIntervalNum').hide()
                         $('#awselect_dayIntervalNum').hide()
                         $('#awselect_wkIntervalNum').hide()
+                        $('#awselect_wkSettings').hide()
                         $('#awselect_moIntervalNum').hide()
                         $('#awselect_yrIntervalNum').hide()
                         break
@@ -317,6 +345,7 @@ $(window).on('pywebviewready', function() {
                         $('#awselect_hrIntervalNum').show()
                         $('#awselect_dayIntervalNum').hide()
                         $('#awselect_wkIntervalNum').hide()
+                        $('#awselect_wkSettings').hide()
                         $('#awselect_moIntervalNum').hide()
                         $('#awselect_yrIntervalNum').hide()
                         break
@@ -325,6 +354,7 @@ $(window).on('pywebviewready', function() {
                         $('#awselect_hrIntervalNum').hide()
                         $('#awselect_dayIntervalNum').show()
                         $('#awselect_wkIntervalNum').hide()
+                        $('#awselect_wkSettings').hide()
                         $('#awselect_moIntervalNum').hide()
                         $('#awselect_yrIntervalNum').hide()
                         break
@@ -333,6 +363,7 @@ $(window).on('pywebviewready', function() {
                         $('#awselect_hrIntervalNum').hide()
                         $('#awselect_dayIntervalNum').hide()
                         $('#awselect_wkIntervalNum').show()
+                        $('#awselect_wkSettings').show()
                         $('#awselect_moIntervalNum').hide()
                         $('#awselect_yrIntervalNum').hide()
                         break
@@ -341,6 +372,7 @@ $(window).on('pywebviewready', function() {
                         $('#awselect_hrIntervalNum').hide()
                         $('#awselect_dayIntervalNum').hide()
                         $('#awselect_wkIntervalNum').hide()
+                        $('#awselect_wkSettings').hide()
                         $('#awselect_moIntervalNum').show()
                         $('#awselect_yrIntervalNum').hide()
                         break
@@ -349,8 +381,61 @@ $(window).on('pywebviewready', function() {
                         $('#awselect_hrIntervalNum').hide()
                         $('#awselect_dayIntervalNum').hide()
                         $('#awselect_wkIntervalNum').hide()
+                        $('#awselect_wkSettings').hide()
                         $('#awselect_moIntervalNum').hide()
                         $('#awselect_yrIntervalNum').show()
+                    }
+                  })
+                  $('#wkSettings').change(function() {
+                    var pressed = $('#awselect_wkSettings a:contains("' + $('#wkSettings option:selected').text() + '")')
+                    var lastSelected = $('#awselect_wkSettings a').filter(function() {
+                      return $(this).css('color') === 'rgb(223, 33, 118)'
+                    })
+                    var amtSelected = lastSelected.length
+
+                    if (pressed.css('color') === 'rgb(255, 255, 255)') {
+                      pressed.css('color', '#df2176')
+                      amtSelected += 1
+                    } else {
+                      pressed.css('color', '#fff')
+                      amtSelected -= 1
+                    }
+
+                    // If no selection, prompt error, else if only 1 selection, show full name, else show 1st 3 chars
+                    if (amtSelected === 0) {
+                      // Revert
+                      $('#awselect_wkSettings a:contains("' + d + '")').css('color', '#df2176')
+                      $('#awselect_wkSettings .current_value').text('On ' + d)
+                    } else if (amtSelected === 1) {
+                      lastSelected.each(function() {
+                        if ($(this).not(':contains("' + pressed.text() + '")').length > 0) {
+                          $('#awselect_wkSettings .current_value').text('On ' + $(this).text())
+                        }
+                      })
+                    } else {
+                      var t = []
+                      if (pressed.css('color') === 'rgb(223, 33, 118)') {
+                        // Deselect
+                        lastSelected.each(function() {
+                          if ($(this).not(':contains("' + pressed.text() + '")').length > 0) {
+                            t.push($(this).text().substring(0, 3))
+                          }
+                        })
+                        $('#awselect_wkSettings .current_value').text('On ' + t.join(', '))
+                      } else {
+                        // Select
+                        for (let val of Object.values(daysOfWk)) {
+                          lastSelected.each(function() {
+                            if ($(this).text() === val) {
+                              t.push($(this).text().substring(0, 3))
+                            }
+                          })
+                          if (pressed.text() === val) {
+                            t.push(pressed.text().substring(0, 3))
+                          }
+                        }
+                        $('#awselect_wkSettings .current_value').text('On ' + t.join(', '))
+                      }
                     }
                   })
                 },
