@@ -121,7 +121,7 @@ $(window).on('pywebviewready', function() {
               Swal.fire({
                 title: 'Custom',
                 icon: 'question',
-                html: "<p>Every</p><select id='minIntervalNum' data-placeholder='Interval number'></select><select id='hrIntervalNum' data-placeholder='Interval number'></select><select id='dayIntervalNum' data-placeholder='Interval number'></select><select id='wkIntervalNum' data-placeholder='Interval number'></select><select id='moIntervalNum' data-placeholder='Interval number'></select><select id='yrIntervalNum' data-placeholder='Interval number'></select><select id='intervalUnit' data-placeholder='Interval unit'></select><select id='wkSettings' data-placeholder='Repeat on'></select><div class='moSettings'><input type='radio' name='moSetting' value='sameDayEachMo' id='sameDayEachMo' checked><label for='sameDayEachMo'>On the same day each month</label><input type='radio' name='moSetting' value='sameDayOfWkEachMo' id='sameDayOfWkEachMo'><label for='sameDayOfWkEachMo'>On every</label></div><select id='ends' data-placeholder='Ends'></select>",
+                html: "<p>Every</p><select id='minIntervalNum' data-placeholder='Interval number'></select><select id='hrIntervalNum' data-placeholder='Interval number'></select><select id='dayIntervalNum' data-placeholder='Interval number'></select><select id='wkIntervalNum' data-placeholder='Interval number'></select><select id='moIntervalNum' data-placeholder='Interval number'></select><select id='yrIntervalNum' data-placeholder='Interval number'></select><select id='intervalUnit' data-placeholder='Interval unit'></select><select id='wkSettings' data-placeholder='Repeat on'></select><div class='moSettings'><input type='radio' name='moSetting' value='sameDayEachMo' id='sameDayEachMo' checked><label for='sameDayEachMo'>Same day each month</label><input type='radio' name='moSetting' value='sameDayOfWkEachMo' id='sameDayOfWkEachMo'><label for='sameDayOfWkEachMo'>Every </label></div><select id='ends' data-placeholder='Ends'></select>",
                 didOpen: function() {
                   var intervalUnits = {
                     'min': 'minute',
@@ -271,6 +271,58 @@ $(window).on('pywebviewready', function() {
                   })
                   $('#awselect_wkSettings a:contains("' + d + '")').css('color', '#df2176')
                   $('#awselect_wkSettings .current_value').text('On ' + d)
+                  // 2nd opt txt handling for mo settings
+                  var aM = datetime.split(' ')[0].split('/')
+                  var dM = new Date(aM[2], aM[1] - 1, aM[0])
+                  var dOWC = 0
+
+                  for (var i = 1; i <= aM[0]; i++) {
+                    var iDM = new Date(aM[2], aM[1] - 1, i)
+                    if (iDM.getDay() == dM.getDay()) {
+                      dOWC++
+                    }
+                  }
+
+                  switch (dOWC) {
+                    case 1:
+                      $('.moSettings > label').eq(1).append(' 1st ')
+                      break
+                    case 2:
+                      $('.moSettings > label').eq(1).append(' 2nd ')
+                      break
+                    case 3:
+                      $('.moSettings > label').eq(1).append(' 3rd ')
+                      break
+                    case 4:
+                      $('.moSettings > label').eq(1).append(' 4th ')
+                      break
+                    case 5:
+                      $('.moSettings > label').eq(1).append(' 5th ')
+                  }
+
+                  switch (dM.getDay()) {
+                    case 0:
+                      $('.moSettings > label').eq(1).append(' Sunday')
+                      break
+                    case 1:
+                      $('.moSettings > label').eq(1).append(' Monday')
+                      break
+                    case 2:
+                      $('.moSettings > label').eq(1).append(' Tuesday')
+                      break
+                    case 3:
+                      $('.moSettings > label').eq(1).append(' Wednesday')
+                      break
+                    case 4:
+                      $('.moSettings > label').eq(1).append(' Thursday')
+                      break
+                    case 5:
+                      $('.moSettings > label').eq(1).append(' Friday')
+                      break
+                    case 6:
+                      $('.moSettings > label').eq(1).append(' Saturday')
+                  }
+
                   $('#ends').awselect({
                     background: "#303030",
                     active_background: "#262626",
@@ -283,9 +335,10 @@ $(window).on('pywebviewready', function() {
                   $('#awselect_hrIntervalNum').hide()
                   $('#awselect_dayIntervalNum').hide()
                   $('#awselect_wkIntervalNum').hide()
-                  $('#awselect_moIntervalNum').hide()
-                  $('#awselect_yrIntervalNum').hide()
                   $('#awselect_wkSettings').hide()
+                  $('#awselect_moIntervalNum').hide()
+                  $('.moSettings').hide()
+                  $('#awselect_yrIntervalNum').hide()
 
                   $('#minIntervalNum').change(function() {
                     if ($('#minIntervalNum').val() === '1' && $('#awselect_intervalUnit .current_value').text().slice(-1) === 's') {
@@ -338,6 +391,7 @@ $(window).on('pywebviewready', function() {
                         $('#awselect_wkIntervalNum').hide()
                         $('#awselect_wkSettings').hide()
                         $('#awselect_moIntervalNum').hide()
+                        $('.moSettings').hide()
                         $('#awselect_yrIntervalNum').hide()
                         break
                       case 'hr':
@@ -347,6 +401,7 @@ $(window).on('pywebviewready', function() {
                         $('#awselect_wkIntervalNum').hide()
                         $('#awselect_wkSettings').hide()
                         $('#awselect_moIntervalNum').hide()
+                        $('.moSettings').hide()
                         $('#awselect_yrIntervalNum').hide()
                         break
                       case 'day':
@@ -356,6 +411,7 @@ $(window).on('pywebviewready', function() {
                         $('#awselect_wkIntervalNum').hide()
                         $('#awselect_wkSettings').hide()
                         $('#awselect_moIntervalNum').hide()
+                        $('.moSettings').hide()
                         $('#awselect_yrIntervalNum').hide()
                         break
                       case 'wk':
@@ -365,6 +421,7 @@ $(window).on('pywebviewready', function() {
                         $('#awselect_wkIntervalNum').show()
                         $('#awselect_wkSettings').show()
                         $('#awselect_moIntervalNum').hide()
+                        $('.moSettings').hide()
                         $('#awselect_yrIntervalNum').hide()
                         break
                       case 'mo':
@@ -374,6 +431,7 @@ $(window).on('pywebviewready', function() {
                         $('#awselect_wkIntervalNum').hide()
                         $('#awselect_wkSettings').hide()
                         $('#awselect_moIntervalNum').show()
+                        $('.moSettings').show()
                         $('#awselect_yrIntervalNum').hide()
                         break
                       case 'yr':
@@ -383,6 +441,7 @@ $(window).on('pywebviewready', function() {
                         $('#awselect_wkIntervalNum').hide()
                         $('#awselect_wkSettings').hide()
                         $('#awselect_moIntervalNum').hide()
+                        $('.moSettings').hide()
                         $('#awselect_yrIntervalNum').show()
                     }
                   })
