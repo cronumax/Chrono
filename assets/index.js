@@ -511,8 +511,16 @@ $(window).on('pywebviewready', function() {
                     }
                   })
                   $('#ends').change(function() {
-                    console.log($('#ends').val())
-                    $('#datepicker').data('DateTimePicker').toggle()
+                    switch ($('#ends').val()) {
+                      case 'noEnd':
+                        $('#datepicker').data('DateTimePicker').hide()
+                        break
+                      case 'date':
+                        $('#datepicker').data('DateTimePicker').show()
+                        break
+                      case 'afterNumOfOccurences':
+                        $('#datepicker').data('DateTimePicker').hide()
+                    }
                   })
                 },
                 confirmButtonText: 'Save',
