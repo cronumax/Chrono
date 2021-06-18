@@ -516,11 +516,15 @@ $(window).on('pywebviewready', function() {
                         $('#datepicker').data('DateTimePicker').hide()
                         break
                       case 'date':
+                        $('#awselect_ends .current_value').text($('#datepicker').val())
                         $('#datepicker').data('DateTimePicker').show()
                         break
                       case 'afterNumOfOccurences':
                         $('#datepicker').data('DateTimePicker').hide()
                     }
+                  })
+                  $('#datepicker').on('dp.change', function() {
+                    $('#awselect_ends .current_value').text($(this).val())
                   })
                 },
                 confirmButtonText: 'Save',
