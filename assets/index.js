@@ -56,8 +56,11 @@ $(window).on('pywebviewready', function() {
             format: 'YYYY-MM-DD HH:mm',
             defaultDate: new Date(),
             inline: true,
-            sideBySide: true
+            showTodayButton: true,
+            debug: true // Keep picker open
           })
+          $('#datetimepicker').hide()
+          $('.fa-clock-o').removeClass('fa-clock-o').addClass('fa-clock')
         },
         confirmButtonText: 'Save',
         denyButtonText: 'Repeat',
@@ -121,7 +124,7 @@ $(window).on('pywebviewready', function() {
               Swal.fire({
                 title: 'Custom',
                 icon: 'question',
-                html: "<p>Every</p><select id='minIntervalNum' data-placeholder='Interval number'></select><select id='hrIntervalNum' data-placeholder='Interval number'></select><select id='dayIntervalNum' data-placeholder='Interval number'></select><select id='wkIntervalNum' data-placeholder='Interval number'></select><select id='moIntervalNum' data-placeholder='Interval number'></select><select id='yrIntervalNum' data-placeholder='Interval number'></select><select id='intervalUnit' data-placeholder='Interval unit'></select><select id='wkSettings' data-placeholder='Repeat on'></select><div class='moSettings'><input type='radio' name='moSetting' value='sameDayEachMo' id='sameDayEachMo' checked><label for='sameDayEachMo'>Same day each month</label><input type='radio' name='moSetting' value='sameDayOfWkEachMo' id='sameDayOfWkEachMo'><label for='sameDayOfWkEachMo'>Every </label></div><select id='ends' data-placeholder='Ends'></select>",
+                html: "<p>Every</p><select id='minIntervalNum' data-placeholder='Interval number'></select><select id='hrIntervalNum' data-placeholder='Interval number'></select><select id='dayIntervalNum' data-placeholder='Interval number'></select><select id='wkIntervalNum' data-placeholder='Interval number'></select><select id='moIntervalNum' data-placeholder='Interval number'></select><select id='yrIntervalNum' data-placeholder='Interval number'></select><select id='intervalUnit' data-placeholder='Interval unit'></select><select id='wkSettings' data-placeholder='Repeat on'></select><div class='moSettings'><input type='radio' name='moSetting' value='sameDayEachMo' id='sameDayEachMo' checked><label for='sameDayEachMo'>Same day each month</label><input type='radio' name='moSetting' value='sameDayOfWkEachMo' id='sameDayOfWkEachMo'><label for='sameDayOfWkEachMo'>Every </label></div><select id='ends' data-placeholder='Ends'></select><input id='datepicker' class='swal2-input'>",
                 didOpen: function() {
                   var intervalUnits = {
                     'min': 'minute',
@@ -333,6 +336,12 @@ $(window).on('pywebviewready', function() {
                     option_color: "#fff",
                     immersive: true
                   })
+                  $('#datepicker').datetimepicker({
+                    format: 'YYYY-MM-DD',
+                    defaultDate: new Date(),
+                    inline: true,
+                    showTodayButton: true
+                  })
 
                   $('#awselect_hrIntervalNum').hide()
                   $('#awselect_dayIntervalNum').hide()
@@ -341,6 +350,8 @@ $(window).on('pywebviewready', function() {
                   $('#awselect_moIntervalNum').hide()
                   $('.moSettings').hide()
                   $('#awselect_yrIntervalNum').hide()
+                  $('#datepicker').hide()
+                  $('#datepicker').data('DateTimePicker').hide()
 
                   $('#minIntervalNum').change(function() {
                     if ($('#minIntervalNum').val() === '1' && $('#awselect_intervalUnit .current_value').text().slice(-1) === 's') {
@@ -498,6 +509,10 @@ $(window).on('pywebviewready', function() {
                         $('#awselect_wkSettings .current_value').text('On ' + t.join(', '))
                       }
                     }
+                  })
+                  $('#ends').change(function() {
+                    console.log($('#ends').val())
+                    $('#datepicker').data('DateTimePicker').toggle()
                   })
                 },
                 confirmButtonText: 'Save',

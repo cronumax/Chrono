@@ -297,7 +297,15 @@ tbody {
   border-bottom: 2px solid #303030;
 }
 
-.bootstrap-datetimepicker-widget table td.hour:hover, .bootstrap-datetimepicker-widget table td.minute:hover, .bootstrap-datetimepicker-widget table td span:hover, .fa-chevron-up, .fa-chevron-down {
+.bootstrap-datetimepicker-widget table td.day:not(.active):hover, .bootstrap-datetimepicker-widget table td.hour:not(.active):hover, .bootstrap-datetimepicker-widget table td.minute:not(.active):hover {
+  background: none;
+}
+
+.bootstrap-datetimepicker-widget table td span:not(.active):hover, .bootstrap-datetimepicker-widget table thead tr:first-child th:not(.active):hover, .bootstrap-datetimepicker-widget table td i:not(.active):hover {
+  background: none;
+}
+
+.fa-chevron-up, .fa-chevron-down {
   color: #207bf9;
 }
 
