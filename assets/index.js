@@ -53,7 +53,7 @@ $(window).on('pywebviewready', function() {
         width: '42rem',
         didOpen: function() {
           $('#datetimepicker').datetimepicker({
-            format: 'DD/MM/YYYY HH:mm',
+            format: 'YYYY-MM-DD HH:mm',
             defaultDate: new Date(),
             inline: true,
             sideBySide: true
@@ -272,12 +272,14 @@ $(window).on('pywebviewready', function() {
                   $('#awselect_wkSettings a:contains("' + d + '")').css('color', '#df2176')
                   $('#awselect_wkSettings .current_value').text('On ' + d)
                   // 2nd opt txt handling for mo settings
-                  var aM = datetime.split(' ')[0].split('/')
-                  var dM = new Date(aM[2], aM[1] - 1, aM[0])
+                  var sM = datetime.split(' ')[0]
+                  var aM = sM.split('-')
+                  var dM = new Date(sM)
                   var dOWC = 0
 
-                  for (var i = 1; i <= aM[0]; i++) {
-                    var iDM = new Date(aM[2], aM[1] - 1, i)
+                  for (var i = 1; i <= aM[2]; i++) {
+                    var iDM = new Date(aM[0], aM[1] - 1, i)
+
                     if (iDM.getDay() == dM.getDay()) {
                       dOWC++
                     }
