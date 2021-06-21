@@ -526,15 +526,15 @@ $(window).on('pywebviewready', function() {
                       case 'forever':
                         $('a[data-action="today"]').click()
                         $('#awselect_ends .current_value').text("Doesn't end")
-                        $('#OccurrenceNum').val(0)
+                        $('#OccurrenceNum').val(1)
                         $('#datepicker').data('DateTimePicker').hide()
                         $('#OccurrenceNum').hide()
                         break
                       case 'date':
                         $('#OccurrenceNum').hide()
-                        $('#OccurrenceNum').val(0)
+                        $('#OccurrenceNum').val(1)
 
-                        $('#awselect_ends .current_value').text($('#datepicker').val())
+                        $('#awselect_ends .current_value').text('Ends on ' + $('#datepicker').val())
                         $('#datepicker').data('DateTimePicker').show()
                         break
                       case 'occurrence':
@@ -546,7 +546,7 @@ $(window).on('pywebviewready', function() {
                     }
                   })
                   $('#datepicker').on('dp.change', function() {
-                    $('#awselect_ends .current_value').text($(this).val())
+                    $('#awselect_ends .current_value').text('Ends on ' + $(this).val())
                   })
                 },
                 confirmButtonText: 'Save',
@@ -984,12 +984,12 @@ function pwTip(id) {
 }
 
 function occurrenceNumHandler() {
-  if (!$('#OccurrenceNum').val()) {
-    $('#OccurrenceNum').val(0) // Placeholder
+  if (!$('#OccurrenceNum').val() || $('#OccurrenceNum').val() === '0') {
+    $('#OccurrenceNum').val(1) // Placeholder
   }
   if ($('#OccurrenceNum').val() === '1') {
-    $('#awselect_ends .current_value').text('After ' + $('#OccurrenceNum').val() + ' occurrence')
+    $('#awselect_ends .current_value').text('Ends after ' + $('#OccurrenceNum').val() + ' occurrence')
   } else {
-    $('#awselect_ends .current_value').text('After ' + $('#OccurrenceNum').val() + ' occurrences')
+    $('#awselect_ends .current_value').text('Ends after ' + $('#OccurrenceNum').val() + ' occurrences')
   }
 }
