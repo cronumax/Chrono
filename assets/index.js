@@ -55,6 +55,7 @@ $(window).on('pywebviewready', function() {
           $('#datetimepicker').datetimepicker({
             format: 'YYYY-MM-DD HH:mm',
             defaultDate: new Date(),
+            minDate: new Date(),
             inline: true,
             showTodayButton: true,
             debug: true // Keep picker open
@@ -339,6 +340,7 @@ $(window).on('pywebviewready', function() {
                   $('#datepicker').datetimepicker({
                     format: 'YYYY-MM-DD',
                     defaultDate: new Date(),
+                    minDate: new Date(),
                     inline: true,
                     showTodayButton: true
                   })
