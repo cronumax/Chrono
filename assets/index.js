@@ -124,7 +124,7 @@ $(window).on('pywebviewready', function() {
               Swal.fire({
                 title: 'Custom',
                 icon: 'question',
-                html: "<p>Every</p><select id='minIntervalNum' data-placeholder='Interval number'></select><select id='hrIntervalNum' data-placeholder='Interval number'></select><select id='dayIntervalNum' data-placeholder='Interval number'></select><select id='wkIntervalNum' data-placeholder='Interval number'></select><select id='moIntervalNum' data-placeholder='Interval number'></select><select id='yrIntervalNum' data-placeholder='Interval number'></select><select id='intervalUnit' data-placeholder='Interval unit'></select><select id='wkSettings' data-placeholder='Repeat on'></select><div class='moSettings'><input type='radio' name='moSetting' value='sameDayEachMo' id='sameDayEachMo' checked><label for='sameDayEachMo'>Same day each month</label><input type='radio' name='moSetting' value='sameDayOfWkEachMo' id='sameDayOfWkEachMo'><label for='sameDayOfWkEachMo'>Every </label></div><select id='ends' data-placeholder='Ends'></select><input id='datepicker' class='swal2-input'>",
+                html: "<p>Every</p><select id='minIntervalNum' data-placeholder='Interval number'></select><select id='hrIntervalNum' data-placeholder='Interval number'></select><select id='dayIntervalNum' data-placeholder='Interval number'></select><select id='wkIntervalNum' data-placeholder='Interval number'></select><select id='moIntervalNum' data-placeholder='Interval number'></select><select id='yrIntervalNum' data-placeholder='Interval number'></select><select id='intervalUnit' data-placeholder='Interval unit'></select><select id='wkSettings' data-placeholder='Repeat on'></select><div class='moSettings'><input type='radio' name='moSetting' value='sameDayEachMo' id='sameDayEachMo' checked><label for='sameDayEachMo'>Same day each month</label><input type='radio' name='moSetting' value='sameDayOfWkEachMo' id='sameDayOfWkEachMo'><label for='sameDayOfWkEachMo'>Every </label></div><select id='ends' data-placeholder='Ends'></select><input id='datepicker' class='swal2-input'><input id='OccurrenceNum' type='text' class='form-control'>",
                 didOpen: function() {
                   var intervalUnits = {
                     'min': 'minute',
@@ -144,9 +144,9 @@ $(window).on('pywebviewready', function() {
                     'sat': 'Saturday'
                   }
                   var ends = {
-                    'noEnd': "Doesn't end",
+                    'forever': "Doesn't end",
                     'date': "On a date",
-                    'afterNumOfOccurences': 'After number of occurences'
+                    'occurrence': 'After number of occurrences'
                   }
 
                   var minNumOptions = ''
@@ -342,6 +342,14 @@ $(window).on('pywebviewready', function() {
                     inline: true,
                     showTodayButton: true
                   })
+                  var cleave = new Cleave('#OccurrenceNum', {
+                    numeral: true,
+                    numeralIntegerScale: 5,
+                    numeralPositiveOnly: true,
+                    onValueChanged: function() {
+                      occurrenceNumHandler()
+                    }
+                  })
 
                   $('#awselect_hrIntervalNum').hide()
                   $('#awselect_dayIntervalNum').hide()
@@ -352,6 +360,7 @@ $(window).on('pywebviewready', function() {
                   $('#awselect_yrIntervalNum').hide()
                   $('#datepicker').hide()
                   $('#datepicker').data('DateTimePicker').hide()
+                  $('#OccurrenceNum').hide()
 
                   $('#minIntervalNum').change(function() {
                     if ($('#minIntervalNum').val() === '1' && $('#awselect_intervalUnit .current_value').text().slice(-1) === 's') {
@@ -512,15 +521,28 @@ $(window).on('pywebviewready', function() {
                   })
                   $('#ends').change(function() {
                     switch ($('#ends').val()) {
-                      case 'noEnd':
+                      case 'forever':
+                        // Hide inputs for other options
                         $('#datepicker').data('DateTimePicker').hide()
+                        $('#OccurrenceNum').hide()
+                        // Reset inputs for other options
+                        $('a[data-action="today"]').click()
+                        $('#OccurrenceNum').val(0)
                         break
                       case 'date':
                         $('#awselect_ends .current_value').text($('#datepicker').val())
                         $('#datepicker').data('DateTimePicker').show()
+                        // Hide inputs for other options
+                        $('#OccurrenceNum').hide()
+                        // Reset inputs for other options
+                        $('#OccurrenceNum').val(0)
                         break
-                      case 'afterNumOfOccurences':
+                      case 'occurrence':
+                        occurrenceNumHandler()
+                        $('#OccurrenceNum').show()
+                        // Hide inputs for other options
                         $('#datepicker').data('DateTimePicker').hide()
+                        // Reset inputs for other options
                     }
                   })
                   $('#datepicker').on('dp.change', function() {
@@ -959,4 +981,15 @@ function pwTip(id) {
   }).blur(function() {
     pwTips.hide();
   })
+}
+
+function occurrenceNumHandler() {
+  if (!$('#OccurrenceNum').val()) {
+    $('#OccurrenceNum').val(0) // Placeholder
+  }
+  if ($('#OccurrenceNum').val() === '1') {
+    $('#awselect_ends .current_value').text('After ' + $('#OccurrenceNum').val() + ' occurrence')
+  } else {
+    $('#awselect_ends .current_value').text('After ' + $('#OccurrenceNum').val() + ' occurrences')
+  }
 }

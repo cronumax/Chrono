@@ -380,3 +380,16 @@ tbody {
   background: #df2176;
   transition: all 250ms cubic-bezier(0, 0.95, 0.38, 0.98);
 }
+
+#OccurrenceNum::-webkit-inner-spin-button,
+#OccurrenceNum::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+#OccurrenceNum {
+  height: 52px;
+  text-align: center;
+}
