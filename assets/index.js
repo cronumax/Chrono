@@ -522,27 +522,25 @@ $(window).on('pywebviewready', function() {
                   $('#ends').change(function() {
                     switch ($('#ends').val()) {
                       case 'forever':
-                        // Hide inputs for other options
+                        $('a[data-action="today"]').click()
+                        $('#awselect_ends .current_value').text("Doesn't end")
+                        $('#OccurrenceNum').val(0)
                         $('#datepicker').data('DateTimePicker').hide()
                         $('#OccurrenceNum').hide()
-                        // Reset inputs for other options
-                        $('a[data-action="today"]').click()
-                        $('#OccurrenceNum').val(0)
                         break
                       case 'date':
+                        $('#OccurrenceNum').hide()
+                        $('#OccurrenceNum').val(0)
+
                         $('#awselect_ends .current_value').text($('#datepicker').val())
                         $('#datepicker').data('DateTimePicker').show()
-                        // Hide inputs for other options
-                        $('#OccurrenceNum').hide()
-                        // Reset inputs for other options
-                        $('#OccurrenceNum').val(0)
                         break
                       case 'occurrence':
+                        $('a[data-action="today"]').click()
+                        $('#datepicker').data('DateTimePicker').hide()
+
                         occurrenceNumHandler()
                         $('#OccurrenceNum').show()
-                        // Hide inputs for other options
-                        $('#datepicker').data('DateTimePicker').hide()
-                        // Reset inputs for other options
                     }
                   })
                   $('#datepicker').on('dp.change', function() {
