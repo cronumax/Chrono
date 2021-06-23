@@ -394,6 +394,6 @@ tbody {
   text-align: center;
 }
 
-.day.disabled, .month.disabled, .year.disabled, .decade.disabled {
+.minute.disabled, .hour.disabled, .day.disabled, .month.disabled, .year.disabled, .decade.disabled {
   text-decoration: line-through;
 }
