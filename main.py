@@ -856,6 +856,12 @@ class Api:
         else:
             os.system('kill %d' % os.getpid())
 
+    def repeat(self):
+        pass
+
+    def schedule(self, datetime, predefinedRecurrence=None, intervalNum=None, intervalUnit=None, ends=None):
+        pass
+
 
 if __name__ == '__main__':
     api = Api()

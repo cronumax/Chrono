@@ -31,7 +31,7 @@ $(window).on('pywebviewready', function() {
   })
 
   $('#processList tbody').on('click', '#scheduleBtn', function() {
-    if ($(this).hasClass('active')) {
+    if ($(this).hasClass('running')) {
       Swal.fire({
         title: 'Disable scheduled run?',
         icon: 'warning',
@@ -40,7 +40,7 @@ $(window).on('pywebviewready', function() {
         allowOutsideClick: () => !Swal.isLoading()
       }).then(res => {
         if (res.isConfirmed) {
-          $(this).removeClass('active')
+          $(this).removeClass('running')
           // Disable scheduled run
         }
       })
@@ -71,9 +71,13 @@ $(window).on('pywebviewready', function() {
       }).then(res => {
         var datetime = $('#datetimepicker').val()
         if (res.isConfirmed) {
-          // Enable scheduled run
-          console.log(datetime)
-          $(this).addClass('active')
+          window.pywebview.api.schedule(datetime).then(res => {
+            if (res['status']) {
+              $(this).addClass('running')
+            } else {
+              simpleWarningPopUp(res['msg'])
+            }
+          })
         } else if (res.isDenied) {
           // Let user set predefined recurrence
           Swal.fire({
@@ -82,6 +86,7 @@ $(window).on('pywebviewready', function() {
             html: "<select id='predefinedRecurrence' data-placeholder='Repeat'></select>",
             didOpen: function() {
               var predefinedRecurrences = {
+                'immediate': 'Immediately',
                 'every_min': 'Every minute',
                 'every_hr': 'Every hour',
                 'every_day': 'Every day',
@@ -116,10 +121,13 @@ $(window).on('pywebviewready', function() {
             if (res2.isConfirmed) {
               var predefinedRecurrence = $('#predefinedRecurrence').val()
 
-              // Enable scheduled run
-              console.log(datetime)
-              console.log(predefinedRecurrence)
-              $(this).addClass('active')
+              window.pywebview.api.schedule(datetime, predefinedRecurrence).then(res => {
+                if (res['status']) {
+                  $(this).addClass('running')
+                } else {
+                  simpleWarningPopUp(res['msg'])
+                }
+              })
             } else if (res2.isDenied) {
               // Let user set custom recurrence
               Swal.fire({
@@ -558,11 +566,13 @@ $(window).on('pywebviewready', function() {
                   var intervalUnit = $('#intervalUnit').val()
                   var ends = $('#ends').val()
 
-                  console.log(datetime)
-                  console.log(intervalNum)
-                  console.log(intervalUnit)
-                  console.log(ends)
-                  $(this).addClass('active')
+                  window.pywebview.api.schedule(datetime, null, intervalNum, intervalUnit, ends).then(res => {
+                    if (res['status']) {
+                      $(this).addClass('running')
+                    } else {
+                      simpleWarningPopUp(res['msg'])
+                    }
+                  })
                 }
               })
             }
@@ -675,12 +685,7 @@ $(window).on('pywebviewready', function() {
       if (res['status']) {
         $('#touchModeBtn').prop('checked', res['touch_mode'])
       } else {
-        Swal.fire({
-          title: 'Warning',
-          html: res['msg'],
-          icon: 'warning',
-          confirmButtonText: 'Ok'
-        })
+        simpleWarningPopUp(res['msg'])
       }
     })
   }, 10)
@@ -690,12 +695,7 @@ $(window).on('pywebviewready', function() {
       if (res['status']) {
         $('#godSpeedBtn').prop('checked', res['god_speed'])
       } else {
-        Swal.fire({
-          title: 'Warning',
-          html: res['msg'],
-          icon: 'warning',
-          confirmButtonText: 'Ok'
-        })
+        simpleWarningPopUp(res['msg'])
       }
     })
   }, 20)
@@ -992,4 +992,13 @@ function occurrenceNumHandler() {
   } else {
     $('#awselect_ends .current_value').text('Ends after ' + $('#OccurrenceNum').val() + ' occurrences')
   }
+}
+
+function simpleWarningPopUp(msg) {
+  Swal.fire({
+    title: 'Warning',
+    html: msg,
+    icon: 'warning',
+    confirmButtonText: 'Ok'
+  })
 }
