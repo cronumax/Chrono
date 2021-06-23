@@ -397,3 +397,7 @@ tbody {
 .minute.disabled, .hour.disabled, .day.disabled, .month.disabled, .year.disabled, .decade.disabled {
   text-decoration: line-through;
 }
+
+a {
+  text-decoration: none;
+}
