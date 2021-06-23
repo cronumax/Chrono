@@ -859,8 +859,35 @@ class Api:
     def repeat(self):
         pass
 
-    def schedule(self, datetime, predefinedRecurrence=None, intervalNum=None, intervalUnit=None, ends=None):
-        pass
+    def schedule(self, datetime, predefined_recurrence=None, interval_num=None, interval_unit=None, wk_settings=None, mo_settings=None, end=None, end_date=None, end_occurrence=None):
+        try:
+            logger.info('Datetime: ' + datetime)
+            if predefined_recurrence:
+                logger.info('Predefined recurrence: ' + predefined_recurrence)
+            if interval_num:
+                logger.info('Interval num: ' + interval_num)
+            if interval_unit:
+                logger.info('Interval unit: ' + interval_unit)
+            if wk_settings:
+                logger.info('Wk settings: ' + ', '.join(wk_settings))
+            if mo_settings:
+                logger.info('Mo settings: ' + mo_settings)
+            if end:
+                logger.info('End: ' + end)
+            if end_date:
+                logger.info('End date: ' + end_date)
+            if end_occurrence:
+                logger.info('End occurrence: ' + end_occurrence)
+
+            msg = 'Data received'
+
+            logger.info(msg)
+
+            return {'status': True, 'msg': msg}
+        except Exception as e:
+            logger.error('schedule() error: {0}'.format(str(e)))
+
+            return {'status': False, 'msg': str(e)}
 
 
 if __name__ == '__main__':

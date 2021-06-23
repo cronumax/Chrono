@@ -35,6 +35,7 @@ $(window).on('pywebviewready', function() {
       Swal.fire({
         title: 'Disable scheduled run?',
         icon: 'warning',
+        html: '[Schedule details]', // To do
         confirmButtonText: 'Confirm',
         showCancelButton: true,
         allowOutsideClick: () => !Swal.isLoading()
@@ -130,10 +131,11 @@ $(window).on('pywebviewready', function() {
               })
             } else if (res2.isDenied) {
               // Let user set custom recurrence
+              var wkSettings = []
               Swal.fire({
                 title: 'Custom',
                 icon: 'question',
-                html: "<p>Every</p><select id='minIntervalNum' data-placeholder='Interval number'></select><select id='hrIntervalNum' data-placeholder='Interval number'></select><select id='dayIntervalNum' data-placeholder='Interval number'></select><select id='wkIntervalNum' data-placeholder='Interval number'></select><select id='moIntervalNum' data-placeholder='Interval number'></select><select id='yrIntervalNum' data-placeholder='Interval number'></select><select id='intervalUnit' data-placeholder='Interval unit'></select><select id='wkSettings' data-placeholder='Repeat on'></select><div class='moSettings'><input type='radio' name='moSetting' value='sameDayEachMo' id='sameDayEachMo' checked><label for='sameDayEachMo'>Same day each month</label><input type='radio' name='moSetting' value='sameDayOfWkEachMo' id='sameDayOfWkEachMo'><label for='sameDayOfWkEachMo'>Every </label></div><select id='ends' data-placeholder='Ends'></select><input id='datepicker' class='swal2-input'><input id='OccurrenceNum' type='text' class='form-control'>",
+                html: "<p>Every</p><select id='minIntervalNum' data-placeholder='Interval number'></select><select id='hrIntervalNum' data-placeholder='Interval number'></select><select id='dayIntervalNum' data-placeholder='Interval number'></select><select id='wkIntervalNum' data-placeholder='Interval number'></select><select id='moIntervalNum' data-placeholder='Interval number'></select><select id='yrIntervalNum' data-placeholder='Interval number'></select><select id='intervalUnit' data-placeholder='Interval unit'></select><select id='wkSettings' data-placeholder='Repeat on'></select><div class='moSettings'><input type='radio' name='moSetting' value='sameDayEachMo' id='sameDayEachMo' checked><label for='sameDayEachMo'>Same day each month</label><input type='radio' name='moSetting' value='sameDayOfWkEachMo' id='sameDayOfWkEachMo'><label for='sameDayOfWkEachMo'>Every </label></div><select id='end' data-placeholder='Ends'></select><input id='datepicker' class='swal2-input'><input id='OccurrenceNum' type='text' class='form-control'>",
                 didOpen: function() {
                   var intervalUnits = {
                     'min': 'minute',
@@ -204,7 +206,7 @@ $(window).on('pywebviewready', function() {
                   $('#yrIntervalNum').append(yrNumOptions)
                   $('#intervalUnit').append(unitOptions)
                   $('#wkSettings').append(wkSettingsOptions)
-                  $('#ends').append(endOptions)
+                  $('#end').append(endOptions)
 
                   $('#minIntervalNum option:first').attr('selected', true)
                   $('#hrIntervalNum option:first').attr('selected', true)
@@ -215,7 +217,7 @@ $(window).on('pywebviewready', function() {
                   $('#intervalUnit option:first').attr('selected', true)
                   $('#wkSettings option:first').attr('selected', true)
                   var d = $('#wkSettings option:eq(' + new Date().getDay().toString() + ')').text()
-                  $('#ends option:first').attr('selected', true)
+                  $('#end option:first').attr('selected', true)
 
                   $('#minIntervalNum').awselect({
                     background: "#303030",
@@ -281,7 +283,10 @@ $(window).on('pywebviewready', function() {
                     option_color: "#fff",
                     immersive: true
                   })
-                  $('#awselect_wkSettings a:contains("' + d + '")').css('color', '#df2176')
+                  $('#awselect_wkSettings a:contains("' + d + '")').css('color', '#df2176').addClass('selected')
+                  $('a.selected').each(function() {
+                    wkSettings.push(Object.keys(daysOfWk).find(key => daysOfWk[key] === $(this).text()))
+                  })
                   $('#awselect_wkSettings .current_value').text('On ' + d)
                   // 2nd opt txt handling for mo settings
                   var sM = datetime.split(' ')[0]
@@ -337,7 +342,7 @@ $(window).on('pywebviewready', function() {
                       $('.moSettings > label').eq(1).append(' Saturday')
                   }
 
-                  $('#ends').awselect({
+                  $('#end').awselect({
                     background: "#303030",
                     active_background: "#262626",
                     placeholder_color: "#fff",
@@ -485,17 +490,17 @@ $(window).on('pywebviewready', function() {
                     var amtSelected = lastSelected.length
 
                     if (pressed.css('color') === 'rgb(255, 255, 255)') {
-                      pressed.css('color', '#df2176')
+                      pressed.css('color', '#df2176').addClass('selected')
                       amtSelected += 1
                     } else {
-                      pressed.css('color', '#fff')
+                      pressed.css('color', '#fff').removeClass('selected')
                       amtSelected -= 1
                     }
 
-                    // If no selection, prompt error, else if only 1 selection, show full name, else show 1st 3 chars
+                    // If no selection, select today, else if only 1 selection, show full name, else show 1st 3 chars
                     if (amtSelected === 0) {
                       // Revert
-                      $('#awselect_wkSettings a:contains("' + d + '")').css('color', '#df2176')
+                      $('#awselect_wkSettings a:contains("' + d + '")').css('color', '#df2176').addClass('selected')
                       $('#awselect_wkSettings .current_value').text('On ' + d)
                     } else if (amtSelected === 1) {
                       lastSelected.each(function() {
@@ -528,12 +533,17 @@ $(window).on('pywebviewready', function() {
                         $('#awselect_wkSettings .current_value').text('On ' + t.join(', '))
                       }
                     }
+
+                    wkSettings = []
+                    $('a.selected').each(function() {
+                      wkSettings.push(Object.keys(daysOfWk).find(key => daysOfWk[key] === $(this).text()))
+                    })
                   })
-                  $('#ends').change(function() {
-                    switch ($('#ends').val()) {
+                  $('#end').change(function() {
+                    switch ($('#end').val()) {
                       case 'forever':
                         $('a[data-action="today"]').click()
-                        $('#awselect_ends .current_value').text("Doesn't end")
+                        $('#awselect_end .current_value').text("Doesn't end")
                         $('#OccurrenceNum').val(1)
                         $('#datepicker').data('DateTimePicker').hide()
                         $('#OccurrenceNum').hide()
@@ -542,7 +552,7 @@ $(window).on('pywebviewready', function() {
                         $('#OccurrenceNum').hide()
                         $('#OccurrenceNum').val(1)
 
-                        $('#awselect_ends .current_value').text('Ends on ' + $('#datepicker').val())
+                        $('#awselect_end .current_value').text('Ends on ' + $('#datepicker').val())
                         $('#datepicker').data('DateTimePicker').show()
                         break
                       case 'occurrence':
@@ -554,7 +564,7 @@ $(window).on('pywebviewready', function() {
                     }
                   })
                   $('#datepicker').on('dp.change', function() {
-                    $('#awselect_ends .current_value').text('Ends on ' + $(this).val())
+                    $('#awselect_end .current_value').text('Ends on ' + $(this).val())
                   })
                 },
                 confirmButtonText: 'Save',
@@ -562,11 +572,32 @@ $(window).on('pywebviewready', function() {
                 allowOutsideClick: () => !Swal.isLoading()
               }).then(res3 => {
                 if (res3.isConfirmed) {
-                  var intervalNum = $('#intervalNum').val()
                   var intervalUnit = $('#intervalUnit').val()
-                  var ends = $('#ends').val()
+                  switch (intervalUnit) {
+                    case 'min':
+                      var intervalNum = $('#minIntervalNum').val()
+                      break
+                    case 'hr':
+                      var intervalNum = $('#hrIntervalNum').val()
+                      break
+                    case 'day':
+                      var intervalNum = $('#dayIntervalNum').val()
+                      break
+                    case 'wk':
+                      var intervalNum = $('#wkIntervalNum').val()
+                      break
+                    case 'mo':
+                      var intervalNum = $('#moIntervalNum').val()
+                      break
+                    case 'yr':
+                      var intervalNum = $('#yrIntervalNum').val()
+                  }
+                  var moSettings = $('input[name=moSetting]:checked').val()
+                  var end = $('#end').val()
+                  var endDate = $('#datepicker').val()
+                  var endOccurrence = $('#OccurrenceNum').val()
 
-                  window.pywebview.api.schedule(datetime, null, intervalNum, intervalUnit, ends).then(res => {
+                  window.pywebview.api.schedule(datetime, null, intervalNum, intervalUnit, wkSettings, moSettings, end, endDate, endOccurrence).then(res => {
                     if (res['status']) {
                       $(this).addClass('running')
                     } else {
@@ -988,9 +1019,9 @@ function occurrenceNumHandler() {
     $('#OccurrenceNum').val(1) // Placeholder
   }
   if ($('#OccurrenceNum').val() === '1') {
-    $('#awselect_ends .current_value').text('Ends after ' + $('#OccurrenceNum').val() + ' occurrence')
+    $('#awselect_end .current_value').text('Ends after ' + $('#OccurrenceNum').val() + ' occurrence')
   } else {
-    $('#awselect_ends .current_value').text('Ends after ' + $('#OccurrenceNum').val() + ' occurrences')
+    $('#awselect_end .current_value').text('Ends after ' + $('#OccurrenceNum').val() + ' occurrences')
   }
 }
 
