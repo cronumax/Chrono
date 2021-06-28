@@ -864,26 +864,23 @@ class Api:
             logger.info('Datetime: ' + datetime)
             if predefined_recurrence:
                 logger.info('Predefined recurrence: ' + predefined_recurrence)
-            if interval_num:
+            elif interval_num and interval_unit:
                 logger.info('Interval num: ' + interval_num)
-            if interval_unit:
                 logger.info('Interval unit: ' + interval_unit)
-            if wk_settings:
-                logger.info('Wk settings: ' + ', '.join(wk_settings))
-            if mo_settings:
-                logger.info('Mo settings: ' + mo_settings)
-            if end:
-                logger.info('End: ' + end)
-            if end_date:
-                logger.info('End date: ' + end_date)
-            if end_occurrence:
-                logger.info('End occurrence: ' + end_occurrence)
 
-            msg = 'Data received'
+                if interval_unit == 'wk' and wk_settings:
+                    logger.info('Wk settings: ' + ', '.join(wk_settings))
+                elif interval_unit == 'mo' and mo_settings:
+                    logger.info('Mo settings: ' + mo_settings)
 
-            logger.info(msg)
+                if end:
+                    logger.info('End: ' + end)
+                    if end == 'date' and end_date:
+                        logger.info('End date: ' + end_date)
+                    elif end == 'occurrence' and end_occurrence:
+                        logger.info('End occurrence: ' + end_occurrence)
 
-            return {'status': True, 'msg': msg}
+            return {'status': True, 'msg': 'Data received'}
         except Exception as e:
             logger.error('schedule() error: {0}'.format(str(e)))
 
