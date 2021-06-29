@@ -31,6 +31,7 @@ $(window).on('pywebviewready', function() {
   })
 
   $('#processList tbody').on('click', '#scheduleBtn', function() {
+    var processName = $(this).parent().parent().find('td:first').html()
     if ($(this).hasClass('running')) {
       Swal.fire({
         title: 'Disable scheduled run?',
@@ -41,8 +42,14 @@ $(window).on('pywebviewready', function() {
         allowOutsideClick: () => !Swal.isLoading()
       }).then(res => {
         if (res.isConfirmed) {
-          $(this).removeClass('running')
           // Disable scheduled run
+          window.pywebview.api.cancel_scheduled_task(processName).then(res => {
+            if (res['status']) {
+              $(this).removeClass('running')
+            } else {
+              simpleWarningPopUp(res['msg'])
+            }
+          })
         }
       })
     } else {
@@ -72,7 +79,7 @@ $(window).on('pywebviewready', function() {
       }).then(res => {
         var datetime = $('#datetimepicker').val()
         if (res.isConfirmed) {
-          window.pywebview.api.schedule(datetime).then(res => {
+          window.pywebview.api.schedule(processName, datetime).then(res => {
             if (res['status']) {
               $(this).addClass('running')
             } else {
@@ -122,7 +129,7 @@ $(window).on('pywebviewready', function() {
             if (res2.isConfirmed) {
               var predefinedRecurrence = $('#predefinedRecurrence').val()
 
-              window.pywebview.api.schedule(datetime, predefinedRecurrence).then(res => {
+              window.pywebview.api.schedule(processName, datetime, predefinedRecurrence).then(res => {
                 if (res['status']) {
                   $(this).addClass('running')
                 } else {
@@ -597,7 +604,7 @@ $(window).on('pywebviewready', function() {
                   var endDate = $('#datepicker').val()
                   var endOccurrence = $('#OccurrenceNum').val()
 
-                  window.pywebview.api.schedule(datetime, null, intervalNum, intervalUnit, wkSettings, moSettings, end, endDate, endOccurrence).then(res => {
+                  window.pywebview.api.schedule(processName, datetime, null, intervalNum, intervalUnit, wkSettings, moSettings, end, endDate, endOccurrence).then(res => {
                     if (res['status']) {
                       $(this).addClass('running')
                     } else {
