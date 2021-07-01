@@ -26,6 +26,7 @@ PyQtWebEngine==5.15.4
 PyQtWebEngine-Qt5==5.15.2
 PyRect==0.1.4
 PyScreeze==0.1.27
+python-dateutil==2.8.1
 python-xlib==0.30
 python3-xlib==0.15
 PyTweening==1.0.3
