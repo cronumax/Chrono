@@ -1051,13 +1051,13 @@ class Api:
                     if end == 'date' and end_date:
                         self.sched.add_job(self.play, 'cron', year='*/{0}'.format(interval_num), month=month, day=day,
                                            hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name])
-                   elif end == 'occurrence' and end_occurrence:
-                       end_date = (date_time_dt + relativedelta(years=(int(interval_num)
+                    elif end == 'occurrence' and end_occurrence:
+                        end_date = (date_time_dt + relativedelta(years=(int(interval_num)
                                                                         * int(end_occurrence)))).strftime('%Y-%m-%d')
 
                         self.sched.add_job(self.play, 'cron', year='*/{0}'.format(interval_num), month=month, day=day,
                                            hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name])
-                   else:
+                    else:
                         self.sched.add_job(self.play, 'cron', year='*/{0}'.format(interval_num), month=month, day=day,
                                            hour=hour, minute=minute, start_date=date_time, id=process_name, args=[process_name])
 
