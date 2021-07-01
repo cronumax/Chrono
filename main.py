@@ -904,16 +904,62 @@ class Api:
             if len(self.sched.get_jobs()) != 0:
                 raise Exception('Another process is scheduled.')
 
+            day_of_wk = datetime.strptime(date_time, '%Y-%m-%d %H:%M').strftime('%a')
+
             if predefined_recurrence:
-                msg += ', repeat ' + predefined_recurrence
+                if predefined_recurrence == 'immediate':
+                    msg += ', repeat immediately'
+                elif predefined_recurrence == 'every_min':
+                    msg += ', repeat every minute'
+                elif predefined_recurrence == 'every_hr':
+                    msg += ', repeat every hour'
+                elif predefined_recurrence == 'every_day':
+                    msg += ', repeat everyday'
+                elif predefined_recurrence == 'every_wk':
+                    msg += ', repeat every week'
+                elif predefined_recurrence == 'every_mo':
+                    msg += ', repeat every month'
+                elif predefined_recurrence == 'every_yr':
+                    msg += ', repeat every year'
             elif interval_num and interval_unit:
-                msg += ', repeat every {0} {1}'.format(
-                    interval_num, interval_unit)
+                if interval_unit == 'min':
+                   if interval_num == '1':
+                        msg += ', repeat every 1 minute'
+                    else:
+                        msg += ', repeat every {0} minutes'.format(interval_num)
+                elif interval_unit == 'hr':
+                    if interval_num == '1':
+                        msg += ', repeat every 1 hour'
+                    else:
+                        msg += ', repeat every {0} hours'.format(interval_num)
+                elif interval_unit == 'day':
+                    if interval_num == '1':
+                        msg += ', repeat every 1 day'
+                    else:
+                        msg += ', repeat every {0} days'.format(interval_num)
+                elif interval_unit == 'wk':
+                    if interval_num == '1':
+                        msg += ', repeat every 1 week'
+                    else:
+                        msg += ', repeat every {0} weeks'.format(interval_num)
+                elif interval_unit == 'mo':
+                    if interval_num == '1':
+                        msg += ', repeat every 1 month'
+                    else:
+                        msg += ', repeat every {0} months'.format(interval_num)
+                elif interval_unit == 'yr':
+                    if interval_num == '1':
+                        msg += ', repeat every 1 year'
+                    else:
+                        msg += ', repeat every {0} years'.format(interval_num)
 
                 if interval_unit == 'wk' and wk_settings:
-                    msg += ' on ' + ', '.join(wk_settings)
+                    wk_settings_days = []
+                    for d in wk_settings:
+                        wk_settings_days.append(d.capitalize())
+                    msg += ' on ' + ', '.join(wk_settings_days)
                 elif interval_unit == 'mo' and mo_settings:
-                    msg += ' on ' + mo_settings
+                    msg += ' on {0} {1}'.format(day_of_wk_ordinal_num, day_of_wk)
 
                 if end == 'date' and end_date:
                     msg += ', ends on ' + end_date
@@ -928,6 +974,7 @@ class Api:
             # Prepare date_time format
             date_time += ':00'
             month = date_time.split(' ')[0].split('-')[1].lstrip('0')
+            day_of_wk = day_of_wk.lower()
             day = date_time.split(' ')[0].split('-')[-1].lstrip('0')
             hour = date_time.split(' ')[1].split(':')[0].lstrip('0')
             minute = date_time.split(' ')[1].split(':')[1].lstrip('0')
@@ -935,30 +982,30 @@ class Api:
             if not predefined_recurrence and not interval_num:
                 # No repeat
                 self.sched.add_job(
-                    self.play, 'date', run_date=date_time, id=process_name, args=[process_name])
+                    self.play, 'date', run_date=date_time, id=process_name, args=[process_name], name=msg)
             elif predefined_recurrence:
                 # Repeat on predefined recurrence
                 if predefined_recurrence == 'immediate':
                     self.sched.add_job(
-                        self.repeat, 'date', run_date=date_time, id=process_name, args=[process_name])
+                        self.repeat, 'date', run_date=date_time, id=process_name, args=[process_name], name=msg)
                 elif predefined_recurrence == 'every_min':
                     self.sched.add_job(
-                        self.play, 'interval', minutes=1, start_date=date_time, id=process_name, args=[process_name])
+                        self.play, 'interval', minutes=1, start_date=date_time, id=process_name, args=[process_name], name=msg)
                 elif predefined_recurrence == 'every_hr':
                     self.sched.add_job(
-                        self.play, 'interval', hours=1, start_date=date_time, id=process_name, args=[process_name])
+                        self.play, 'interval', hours=1, start_date=date_time, id=process_name, args=[process_name], name=msg)
                 elif predefined_recurrence == 'every_day':
                     self.sched.add_job(
-                        self.play, 'interval', days=1, start_date=date_time, id=process_name, args=[process_name])
+                        self.play, 'interval', days=1, start_date=date_time, id=process_name, args=[process_name], name=msg)
                 elif predefined_recurrence == 'every_wk':
                     self.sched.add_job(
-                        self.play, 'interval', weeks=1, start_date=date_time, id=process_name, args=[process_name])
+                        self.play, 'interval', weeks=1, start_date=date_time, id=process_name, args=[process_name], name=msg)
                 elif predefined_recurrence == 'every_mo':
                     self.sched.add_job(
-                        self.play, 'cron', day=day, hour=hour, minute=minute, id=process_name, args=[process_name])
+                        self.play, 'cron', day=day, hour=hour, minute=minute, id=process_name, args=[process_name], name=msg)
                 elif predefined_recurrence == 'every_yr':
                     self.sched.add_job(
-                        self.play, 'cron', month=month, day=day, hour=hour, minute=minute, id=process_name, args=[process_name])
+                        self.play, 'cron', month=month, day=day, hour=hour, minute=minute, id=process_name, args=[process_name], name=msg)
             else:
                 # Repeat on custom recurrence
                 date_time_dt = datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')
@@ -966,100 +1013,97 @@ class Api:
                 if interval_unit == 'min':
                     if end == 'date' and end_date:
                         self.sched.add_job(
-                            self.play, 'interval', minutes=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name])
+                            self.play, 'interval', minutes=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                     elif end == 'occurrence' and end_occurrence:
                         end_date = (date_time_dt +
                                     timedelta(minutes=(int(interval_num) * int(end_occurrence)))).strftime('%Y-%m-%d')
 
                         self.sched.add_job(
-                            self.play, 'interval', minutes=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name])
+                            self.play, 'interval', minutes=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                     else:
                         self.sched.add_job(
-                            self.play, 'interval', minutes=int(interval_num), start_date=date_time, id=process_name, args=[process_name])
+                            self.play, 'interval', minutes=int(interval_num), start_date=date_time, id=process_name, args=[process_name], name=msg)
                 elif interval_unit == 'hr':
                     if end == 'date' and end_date:
                         self.sched.add_job(
-                            self.play, 'interval', hours=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name])
+                            self.play, 'interval', hours=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                     elif end == 'occurrence' and end_occurrence:
                         end_date = (date_time_dt +
                                     timedelta(hours=(int(interval_num) * int(end_occurrence)))).strftime('%Y-%m-%d')
 
                         self.sched.add_job(
-                            self.play, 'interval', hours=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name])
+                            self.play, 'interval', hours=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                     else:
                         self.sched.add_job(
-                            self.play, 'interval', hours=int(interval_num), start_date=date_time, id=process_name, args=[process_name])
+                            self.play, 'interval', hours=int(interval_num), start_date=date_time, id=process_name, args=[process_name], name=msg)
                 elif interval_unit == 'day':
                     if end == 'date' and end_date:
                         self.sched.add_job(
-                            self.play, 'interval', days=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name])
+                            self.play, 'interval', days=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                     elif end == 'occurrence' and end_occurrence:
                         end_date = (date_time_dt + timedelta(days=(int(interval_num)
                                                                    * int(end_occurrence)))).strftime('%Y-%m-%d')
 
                         self.sched.add_job(
-                            self.play, 'interval', days=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name])
+                            self.play, 'interval', days=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                     else:
                         self.sched.add_job(
-                            self.play, 'interval', days=int(interval_num), start_date=date_time, id=process_name, args=[process_name])
+                            self.play, 'interval', days=int(interval_num), start_date=date_time, id=process_name, args=[process_name], name=msg)
                 elif interval_unit == 'wk':
                     if end == 'date' and end_date:
                         self.sched.add_job(self.play, 'cron', week='*/{0}'.format(interval_num), day_of_week=','.join(
-                            wk_settings), hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name])
+                            wk_settings), hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                     elif end == 'occurrence' and end_occurrence:
                         end_date = (date_time_dt + timedelta(weeks=(int(interval_num)
                                                                     * int(end_occurrence)))).strftime('%Y-%m-%d')
 
                         self.sched.add_job(self.play, 'cron', week='*/{0}'.format(interval_num), day_of_week=','.join(
-                            wk_settings), hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name])
+                            wk_settings), hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                     else:
                         self.sched.add_job(self.play, 'cron', week='*/{0}'.format(interval_num), day_of_week=','.join(
-                            wk_settings), hour=hour, minute=minute, start_date=date_time, id=process_name, args=[process_name])
+                            wk_settings), hour=hour, minute=minute, start_date=date_time, id=process_name, args=[process_name], name=msg)
                 elif interval_unit == 'mo':
                     if mo_settings == 'sameDayEachMo':
                         day = date_time.split(' ')[0].split('-')[-1].lstrip('0')
 
                         if end == 'date' and end_date:
                             self.sched.add_job(self.play, 'cron', month='*/{0}'.format(
-                                interval_num), day=day, hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name])
+                                interval_num), day=day, hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                         elif end == 'occurrence' and end_occurrence:
                             end_date = (date_time_dt + relativedelta(months=(int(interval_num)
                                                                              * int(end_occurrence)))).strftime('%Y-%m-%d')
 
                             self.sched.add_job(self.play, 'cron', month='*/{0}'.format(
-                                interval_num), day=day, hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name])
+                                interval_num), day=day, hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                         else:
                             self.sched.add_job(self.play, 'cron', month='*/{0}'.format(
-                                interval_num), day=day, hour=hour, minute=minute, start_date=date_time, id=process_name, args=[process_name])
+                                interval_num), day=day, hour=hour, minute=minute, start_date=date_time, id=process_name, args=[process_name], name=msg)
                     else:
-                        day_of_wk = datetime.strptime(
-                            date_time, '%Y-%m-%d %H:%M:%S').strftime('%a').lower()
-
                         if end == 'date' and end_date:
                             self.sched.add_job(self.play, 'cron', month='*/{0}'.format(
-                                interval_num), day='{0} {1}'.format(day_of_wk_ordinal_num, day_of_wk), hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name])
+                                interval_num), day='{0} {1}'.format(day_of_wk_ordinal_num, day_of_wk), hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                         elif end == 'occurrence' and end_occurrence:
                             end_date = (date_time_dt + relativedelta(months=(int(interval_num)
                                                                              * int(end_occurrence)))).strftime('%Y-%m-%d')
 
                             self.sched.add_job(self.play, 'cron', month='*/{0}'.format(
-                                interval_num), day='{0} {1}'.format(day_of_wk_ordinal_num, day_of_wk), hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name])
+                                interval_num), day='{0} {1}'.format(day_of_wk_ordinal_num, day_of_wk), hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                         else:
                             self.sched.add_job(self.play, 'cron', month='*/{0}'.format(
-                                interval_num), day='{0} {1}'.format(day_of_wk_ordinal_num, day_of_wk), hour=hour, minute=minute, start_date=date_time, id=process_name, args=[process_name])
+                                interval_num), day='{0} {1}'.format(day_of_wk_ordinal_num, day_of_wk), hour=hour, minute=minute, start_date=date_time, id=process_name, args=[process_name], name=msg)
                 elif interval_unit == 'yr':
                     if end == 'date' and end_date:
                         self.sched.add_job(self.play, 'cron', year='*/{0}'.format(interval_num), month=month, day=day,
-                                           hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name])
+                                           hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                     elif end == 'occurrence' and end_occurrence:
                         end_date = (date_time_dt + relativedelta(years=(int(interval_num)
                                                                         * int(end_occurrence)))).strftime('%Y-%m-%d')
 
                         self.sched.add_job(self.play, 'cron', year='*/{0}'.format(interval_num), month=month, day=day,
-                                           hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name])
+                                           hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                     else:
                         self.sched.add_job(self.play, 'cron', year='*/{0}'.format(interval_num), month=month, day=day,
-                                           hour=hour, minute=minute, start_date=date_time, id=process_name, args=[process_name])
+                                           hour=hour, minute=minute, start_date=date_time, id=process_name, args=[process_name], name=msg)
 
             logger.info(msg)
 
@@ -1083,6 +1127,18 @@ class Api:
             return {'status': True, 'msg': msg}
         except Exception as e:
             logger.error('cancel_scheduled_task() error: {0}'.format(str(e)))
+
+            return {'status': False, 'msg': str(e)}
+
+    def get_schedule_details(self, process_name):
+        try:
+            msg = self.sched.get_job(process_name).name
+
+            logger.info('Retrieved schedule details: {0}'.format(msg))
+
+            return {'status': True, 'msg': msg}
+        except Exception as e:
+            logger.error('get_schedule_details() error: {0}'.format(str(e)))
 
             return {'status': False, 'msg': str(e)}
 

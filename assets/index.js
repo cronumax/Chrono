@@ -44,7 +44,16 @@ $(window).on('pywebviewready', function() {
       Swal.fire({
         title: 'Disable scheduled run?',
         icon: 'warning',
-        html: '[Schedule details]', // To do
+        html: '<p></p>',
+        didOpen: function() {
+          window.pywebview.api.get_schedule_details(processName).then(res => {
+            if (res['status']) {
+              $('p').text(res['msg'])
+            } else {
+              simpleWarningPopUp(res['msg'])
+            }
+          })
+        },
         confirmButtonText: 'Confirm',
         showCancelButton: true,
         allowOutsideClick: () => !Swal.isLoading()
