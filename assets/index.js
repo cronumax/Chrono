@@ -213,7 +213,7 @@ $(window).on('pywebviewready', function() {
                   for (var i = 1; i < 53; i++) {
                     wkNumOptions += '<option value="' + i + '">' + i + '</option>'
                   }
-                  for (var i = 1; i < 37; i++) {
+                  for (var i = 1; i < 12; i++) {
                     moNumOptions += '<option value="' + i + '">' + i + '</option>'
                   }
                   for (var i = 1; i < 31; i++) {

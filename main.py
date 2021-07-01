@@ -924,32 +924,32 @@ class Api:
             elif interval_num and interval_unit:
                 if interval_unit == 'min':
                     if interval_num == '1':
-                        msg += ', repeat every 1 minute'
+                        msg += ', repeat every minute'
                     else:
                         msg += ', repeat every {0} minutes'.format(interval_num)
                 elif interval_unit == 'hr':
                     if interval_num == '1':
-                        msg += ', repeat every 1 hour'
+                        msg += ', repeat every hour'
                     else:
                         msg += ', repeat every {0} hours'.format(interval_num)
                 elif interval_unit == 'day':
                     if interval_num == '1':
-                        msg += ', repeat every 1 day'
+                        msg += ', repeat every day'
                     else:
                         msg += ', repeat every {0} days'.format(interval_num)
                 elif interval_unit == 'wk':
                     if interval_num == '1':
-                        msg += ', repeat every 1 week'
+                        msg += ', repeat every week'
                     else:
                         msg += ', repeat every {0} weeks'.format(interval_num)
                 elif interval_unit == 'mo':
                     if interval_num == '1':
-                        msg += ', repeat every 1 month'
+                        msg += ', repeat every month'
                     else:
                         msg += ', repeat every {0} months'.format(interval_num)
                 elif interval_unit == 'yr':
                     if interval_num == '1':
-                        msg += ', repeat every 1 year'
+                        msg += ', repeat every year'
                     else:
                         msg += ', repeat every {0} years'.format(interval_num)
 
@@ -959,7 +959,8 @@ class Api:
                         wk_settings_days.append(d.capitalize())
                     msg += ' on ' + ', '.join(wk_settings_days)
                 elif interval_unit == 'mo' and mo_settings:
-                    msg += ' on {0} {1}'.format(day_of_wk_ordinal_num, day_of_wk)
+                    if mo_settings != 'sameDayEachMo':
+                        msg += ' on the {0} {1}'.format(day_of_wk_ordinal_num, day_of_wk)
 
                 if end == 'date' and end_date:
                     msg += ', ends on ' + end_date
@@ -978,6 +979,7 @@ class Api:
             day = date_time.split(' ')[0].split('-')[-1].lstrip('0')
             hour = date_time.split(' ')[1].split(':')[0].lstrip('0')
             minute = date_time.split(' ')[1].split(':')[1].lstrip('0')
+            end_occurrence = end_occurrence.replace(',', '')
 
             if not predefined_recurrence and not interval_num:
                 # No repeat
