@@ -923,7 +923,7 @@ class Api:
                     msg += ', repeat every year'
             elif interval_num and interval_unit:
                 if interval_unit == 'min':
-                   if interval_num == '1':
+                    if interval_num == '1':
                         msg += ', repeat every 1 minute'
                     else:
                         msg += ', repeat every {0} minutes'.format(interval_num)
