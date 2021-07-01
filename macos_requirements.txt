@@ -1,5 +1,6 @@
 altgraph==0.17
 AppKit==0.2.8
+APScheduler==3.7.0
 beautifulsoup4==4.9.3
 certifi==2020.12.5
 chardet==4.0.0
@@ -162,5 +163,6 @@ requests==2.25.1
 rubicon-objc==0.4.0
 six==1.15.0
 soupsieve==2.2.1
+tzlocal==2.1
 urllib3==1.26.4
 Werkzeug==1.0.1

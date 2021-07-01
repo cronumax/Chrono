@@ -1,4 +1,5 @@
 altgraph==0.17
+APScheduler==3.7.0
 certifi==2020.12.5
 chardet==4.0.0
 dbus-python==1.2.16
@@ -33,4 +34,5 @@ pywebview==3.4
 requests==2.25.1
 rubicon-objc==0.4.0
 six==1.16.0
+tzlocal==2.1
 urllib3==1.26.5
