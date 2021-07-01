@@ -1,28 +1,36 @@
 $(window).on('pywebviewready', function() {
   $('#recordBtn').click(function() {
     var msg = 'Record btn clicked'
-    $(this).addClass('running')
-    $.when(window.pywebview.api.record(msg)).done(function() {
-      promptForProcessName()
-      $('#recordBtn').removeClass('running')
-    })
+    if ($(this).hasClass('running')) {
+      window.pywebview.api.stop_record(msg)
+    } else {
+      $(this).addClass('running')
+      $.when(window.pywebview.api.record(msg)).done(function() {
+        promptForProcessName()
+        $('#recordBtn').removeClass('running')
+      })
+    }
   })
 
   $('#playBtn').click(function() {
     var msg = 'Play btn clicked'
     var processName = $('#processList tr.selected td:first').html()
-    if (processName) {
-      $(this).addClass('running')
-      $.when(window.pywebview.api.play(msg, processName)).done(function() {
-        $('#playBtn').removeClass('running')
-      })
+    if ($(this).hasClass('running')) {
+      window.pywebview.api.stop_play(msg)
     } else {
-      Swal.fire({
-        title: 'Error',
-        html: 'Please select a process.',
-        icon: 'error',
-        confirmButtonText: 'Ok'
-      })
+      if (processName) {
+        $(this).addClass('running')
+        $.when(window.pywebview.api.play(processName, msg)).done(function() {
+          $('#playBtn').removeClass('running')
+        })
+      } else {
+        Swal.fire({
+          title: 'Error',
+          html: 'Please select a process.',
+          icon: 'error',
+          confirmButtonText: 'Ok'
+        })
+      }
     }
   })
 
@@ -82,6 +90,9 @@ $(window).on('pywebviewready', function() {
           window.pywebview.api.schedule(processName, datetime).then(res => {
             if (res['status']) {
               $(this).addClass('running')
+              $.when(window.pywebview.api.is_schedule_on(processName)).done(function() {
+                $('td:contains(' + processName + ')').next().next().find('#scheduleBtn').removeClass('running')
+              })
             } else {
               simpleWarningPopUp(res['msg'])
             }
@@ -132,6 +143,9 @@ $(window).on('pywebviewready', function() {
               window.pywebview.api.schedule(processName, datetime, predefinedRecurrence).then(res => {
                 if (res['status']) {
                   $(this).addClass('running')
+                  $.when(window.pywebview.api.is_schedule_on(processName)).done(function() {
+                    $('td:contains(' + processName + ')').next().next().find('#scheduleBtn').removeClass('running')
+                  })
                 } else {
                   simpleWarningPopUp(res['msg'])
                 }
@@ -139,6 +153,7 @@ $(window).on('pywebviewready', function() {
             } else if (res2.isDenied) {
               // Let user set custom recurrence
               var wkSettings = []
+              var dOWON = ''
               Swal.fire({
                 title: 'Custom',
                 icon: 'question',
@@ -311,20 +326,21 @@ $(window).on('pywebviewready', function() {
 
                   switch (dOWC) {
                     case 1:
-                      $('.moSettings > label').eq(1).append(' 1st ')
+                      dOWON = '1st'
                       break
                     case 2:
-                      $('.moSettings > label').eq(1).append(' 2nd ')
+                      dOWON = '2nd'
                       break
                     case 3:
-                      $('.moSettings > label').eq(1).append(' 3rd ')
+                      dOWON = '3rd'
                       break
                     case 4:
-                      $('.moSettings > label').eq(1).append(' 4th ')
+                      dOWON = '4th'
                       break
                     case 5:
-                      $('.moSettings > label').eq(1).append(' 5th ')
+                      dOWON = '5th'
                   }
+                  $('.moSettings > label').eq(1).append(' {0} '.format(dOWON))
 
                   switch (dM.getDay()) {
                     case 0:
@@ -604,9 +620,12 @@ $(window).on('pywebviewready', function() {
                   var endDate = $('#datepicker').val()
                   var endOccurrence = $('#OccurrenceNum').val()
 
-                  window.pywebview.api.schedule(processName, datetime, null, intervalNum, intervalUnit, wkSettings, moSettings, end, endDate, endOccurrence).then(res => {
+                  window.pywebview.api.schedule(processName, datetime, null, intervalNum, intervalUnit, wkSettings, moSettings, dOWON, end, endDate, endOccurrence).then(res => {
                     if (res['status']) {
                       $(this).addClass('running')
+                      $.when(window.pywebview.api.is_schedule_on(processName)).done(function() {
+                        $('td:contains(' + processName + ')').next().next().find('#scheduleBtn').removeClass('running')
+                      })
                     } else {
                       simpleWarningPopUp(res['msg'])
                     }
