@@ -340,7 +340,7 @@ $(window).on('pywebviewready', function() {
                     case 5:
                       dOWON = '5th'
                   }
-                  $('.moSettings > label').eq(1).append(' {0} '.format(dOWON))
+                  $('.moSettings > label').eq(1).append(' ' + dOWON + ' ')
 
                   switch (dM.getDay()) {
                     case 0:
