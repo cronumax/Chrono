@@ -2,7 +2,7 @@ import os
 import requests
 import webview
 import logging
-import time
+from time import time, sleep
 import threading
 import secrets
 from datetime import datetime, timedelta
@@ -18,6 +18,8 @@ else:
 import pyautogui as pag
 from pytz import timezone, common_timezones
 from logging.handlers import TimedRotatingFileHandler
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 
 
 if platform.system() == 'Windows':
@@ -57,6 +59,7 @@ class Api:
         self.access_token = {}
         self.is_recording = False
         self.is_playing = False
+        self.is_repeating = False
         if pathlib.Path('{0}/Chrono.json'.format(app_file_path)).exists():
             with open('{0}/Chrono.json'.format(app_file_path)) as f:
                 app = json.load(f)
@@ -69,6 +72,10 @@ class Api:
             app = {}
             self.app_id = app['id'] = secrets.token_urlsafe()
             self.register_or_update_app_version_info(app, 'register-app')
+        self.sched = BackgroundScheduler()
+        self.sched.add_listener(self.sched_listener,
+                                EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
+        self.sched.start()
         '''
         Defaults
         '''
@@ -101,7 +108,7 @@ class Api:
                 else:
                     logger.error(res['msg'])
 
-            time.sleep(60)
+            sleep(60)
 
     def send_email(self, type, email):
         return requests.post(self.api_url + 'send-email', {'type': type, 'email': email, 'app_id': self.app_id}).json()
@@ -272,7 +279,7 @@ class Api:
                 self.m_events = []
 
                 while self.is_recording:
-                    time.sleep(1)
+                    sleep(1)
 
                 logger.info('Record finished')
                 if platform.system() == 'Darwin':
@@ -288,10 +295,16 @@ class Api:
         except Exception as e:
             logger.error('record() error: {0}'.format(str(e)))
 
-    def play(self, msg, process_name):
+    def stop_record(self, msg):
+        logger.info('{0}, stop recording'.format(msg))
+
+        self.is_recording = False
+
+    def play(self, process_name, msg=None):
         try:
-            logger.info(msg)
-            logger.info('User selected process: ' + process_name)
+            if msg:
+                logger.info(msg)
+            logger.info('Playing process: ' + process_name)
 
             if not self.is_playing:
                 self.is_playing = True
@@ -305,9 +318,9 @@ class Api:
                     logger.info(event)
 
                     if last_time and not self.god_speed:
-                        time.sleep(event['time'] - last_time)
+                        sleep(event['time'] - last_time)
                     else:
-                        time.sleep(0.05)
+                        sleep(0.05)
                     last_time = event['time']
 
                     # Action
@@ -349,29 +362,34 @@ class Api:
         except Exception as e:
             logger.error('play() error: {0}'.format(str(e)))
 
+    def stop_play(self, msg):
+        logger.info('{0}, stop playing'.format(msg))
+
+        self.is_playing = False
+
     def on_press(self, key):
         if self.is_recording:
             logger.info('Pressed {0}'.format(key))
 
-            self.kb_event_handler(key, 'down', time.time())
+            self.kb_event_handler(key, 'down', time())
 
     def on_release(self, key):
         if self.is_recording:
             logger.info('Released {0}'.format(key))
 
-            self.kb_event_handler(key, 'up', time.time())
-            if key == self.escape_key:
-                self.is_recording = False
-        if self.is_playing:
-            if key == self.escape_key:
-                self.is_playing = False
+            self.kb_event_handler(key, 'up', time())
+
+        if key == self.escape_key:
+            self.is_recording = False
+            self.is_playing = False
+            self.is_repeating = False
 
     def on_touch(self, x, y):
         if self.touch_mode and self.is_recording:
             logger.info('Touched at {0}'.format((x, y)))
 
-            self.m_event_handler('down', (x, y), time.time())
-            self.m_event_handler('up', (x, y), time.time())
+            self.m_event_handler('down', (x, y), time())
+            self.m_event_handler('up', (x, y), time())
 
     def on_click(self, x, y, button, pressed):
         if self.is_recording:
@@ -382,7 +400,7 @@ class Api:
                 self.touch_mode = False
 
             event_type = 'down' if pressed else 'up'
-            self.m_event_handler(event_type, (x, y), time.time(), button)
+            self.m_event_handler(event_type, (x, y), time(), button)
 
     def on_scroll(self, x, y, dx, dy):
         if self.is_recording:
@@ -392,7 +410,7 @@ class Api:
             if self.touch_mode:
                 self.touch_mode = False
 
-            self.m_event_handler(event_type, (x, y), time.time())
+            self.m_event_handler(event_type, (x, y), time())
 
     def special_key_handler(self, key):
         try:
@@ -483,7 +501,8 @@ class Api:
             logger.info('User proposed process name: ' + process)
 
             events = sorted(self.kb_events + self.m_events,
-                            key=lambda i: i['time'])
+                            key=lambda i: i['time'])[:-2]
+
             events.insert(0, {'owner': self.current_user_email})
 
             # To do: check file path consistency across OSes
@@ -842,6 +861,7 @@ class Api:
     def thread_handler(self):
         try:
             pag.keyUp('esc')  # Hot fix for macOS thread issue
+
             with kb_lstner(on_press=self.on_press, on_release=self.on_release) as self.kl, m_lstner(on_move=self.on_touch, on_click=self.on_click, on_scroll=self.on_scroll) as self.ml:
                 self.kl.join()
                 self.ml.join()
@@ -856,35 +876,155 @@ class Api:
         else:
             os.system('kill %d' % os.getpid())
 
-    def repeat(self):
-        pass
+        self.sched.shutdown(wait=False)
 
-    def schedule(self, datetime, predefined_recurrence=None, interval_num=None, interval_unit=None, wk_settings=None, mo_settings=None, end=None, end_date=None, end_occurrence=None):
+    def repeat(self, process_name):
+        self.is_repeating = True
+
+        while self.is_repeating:
+            self.play(process_name, 'Repeat {0}'.format(process_name))
+
+    def stop_repeat(self):
+        logger.info('Stop repeat')
+
+        self.is_playing = False
+        self.is_repeating = False
+
+    def sched_listener(self, event):
+        if event.exception:
+            logger.error('{0} {1}'.format(event.exception, event.traceback))
+        else:
+            logger.info('Scheduled run of {0} finished'.format(event.job_id))
+
+    def schedule(self, process_name, datetime, predefined_recurrence=None, interval_num=None, interval_unit=None, wk_settings=None, mo_settings=None, day_of_wk_ordinal_num=None, end=None, end_date=None, end_occurrence=None):
         try:
-            logger.info('Datetime: ' + datetime)
+            msg = 'Schedule run of {0} at {1}'.format(process_name, datetime)
+
+            if len(self.sched.get_jobs()) != 0:
+                raise Exception('Another process is scheduled.')
+
             if predefined_recurrence:
-                logger.info('Predefined recurrence: ' + predefined_recurrence)
+                msg += ', repeat ' + predefined_recurrence
             elif interval_num and interval_unit:
-                logger.info('Interval num: ' + interval_num)
-                logger.info('Interval unit: ' + interval_unit)
+                msg += ', repeat every {0} {1}'.format(
+                    interval_num, interval_unit)
 
                 if interval_unit == 'wk' and wk_settings:
-                    logger.info('Wk settings: ' + ', '.join(wk_settings))
+                    msg += ' on ' + ', '.join(wk_settings)
                 elif interval_unit == 'mo' and mo_settings:
-                    logger.info('Mo settings: ' + mo_settings)
+                    msg += ' on ' + mo_settings
 
                 if end:
-                    logger.info('End: ' + end)
                     if end == 'date' and end_date:
-                        logger.info('End date: ' + end_date)
+                        msg += ', ends on ' + end_date
                     elif end == 'occurrence' and end_occurrence:
-                        logger.info('End occurrence: ' + end_occurrence)
+                        if end_occurrence == '1':
+                            msg += ', ends after {0} occurrence'.format(
+                                end_occurrence)
+                        else:
+                            msg += ', ends after {0} occurrences'.format(
+                                end_occurrence)
 
-            return {'status': True, 'msg': 'Data received'}
+            # Prepare datetime format
+            datetime += ':00'
+
+            if not predefined_recurrence and not interval_num:
+                # No repeat
+                self.sched.add_job(
+                    self.play, 'date', run_date=datetime, id=process_name, args=[process_name])
+            elif predefined_recurrence:
+                # Repeat on predefined recurrence
+                if predefined_recurrence == 'immediate':
+                    self.sched.add_job(
+                        self.repeat, 'date', run_date=datetime, id=process_name, args=[process_name])
+                elif predefined_recurrence == 'every_min':
+                    self.sched.add_job(
+                        self.play, 'interval', minutes=1, start_date=datetime, id=process_name, args=[process_name])
+                elif predefined_recurrence == 'every_hr':
+                    self.sched.add_job(
+                        self.play, 'interval', hours=1, start_date=datetime, id=process_name, args=[process_name])
+                elif predefined_recurrence == 'every_day':
+                    self.sched.add_job(
+                        self.play, 'interval', days=1, start_date=datetime, id=process_name, args=[process_name])
+                elif predefined_recurrence == 'every_wk':
+                    self.sched.add_job(
+                        self.play, 'interval', weeks=1, start_date=datetime, id=process_name, args=[process_name])
+                elif predefined_recurrence == 'every_mo' or predefined_recurrence == 'every_yr':
+                    day = int(datetime.split(' ')[
+                              0].split('-')[-1].lstrip('0'))
+                    hour = int(datetime.split(' ')[
+                               1].split(':')[0].lstrip('0'))
+                    minute = int(datetime.split(' ')[
+                                 1].split(':')[1].lstrip('0'))
+                    if predefined_recurrence == 'every_mo':
+                        self.sched.add_job(
+                            self.play, 'cron', day=day, hour=hour, minute=minute, id=process_name, args=[process_name])
+                    elif predefined_recurrence == 'every_yr':
+                        month = int(datetime.split(' ')[
+                            0].split('-')[1].lstrip('0'))
+                        self.sched.add_job(
+                            self.play, 'cron', month=month, day=day, hour=hour, minute=minute, id=process_name, args=[process_name])
+            else:
+                # Repeat on custom recurrence
+                if interval_unit == 'min':
+                    self.sched.add_job(
+                        self.play, 'interval', minutes=int(interval_num), start_date=datetime, id=process_name, args=[process_name])
+                elif interval_unit == 'hr':
+                    self.sched.add_job(
+                        self.play, 'interval', hours=int(interval_num), start_date=datetime, id=process_name, args=[process_name])
+                elif interval_unit == 'day':
+                    self.sched.add_job(
+                        self.play, 'interval', days=int(interval_num), start_date=datetime, id=process_name, args=[process_name])
+                elif interval_unit == 'wk':
+                    self.sched.add_job(self.play, 'cron', week='*/{0}'.format(interval_num), day_of_week=','.join(
+                        wk_settings), start_date=datetime, id=process_name, args=[process_name])
+                elif interval_unit == 'mo':
+                    if mo_settings == 'sameDayEachMo':
+                        day = datetime.split(' ')[0].split('-')[-1].lstrip('0')
+                        self.sched.add_job(self.play, 'cron', month='*/{0}'.format(
+                            interval_num), day=day, start_date=datetime, id=process_name, args=[process_name])
+                    else:
+                        day_of_wk = datetime.strptime(
+                            datetime, '%Y-%m-%d %H:%M:%S').strftime('%a').lower()
+                        self.sched.add_job(self.play, 'cron', month='*/{0}'.format(
+                            interval_num), day='{0} {1}'.format(day_of_wk_ordinal_num, day_of_wk), start_date=datetime, id=process_name, args=[process_name])
+                elif interval_unit == 'yr':
+                    self.sched.add_job(self.play, 'cron', year='*/{0}'.format(interval_num),
+                                       start_date=datetime, id=process_name, args=[process_name])
+
+            logger.info(msg)
+
+            return {'status': True, 'msg': msg}
         except Exception as e:
             logger.error('schedule() error: {0}'.format(str(e)))
 
             return {'status': False, 'msg': str(e)}
+
+    def cancel_scheduled_task(self, process_name):
+        try:
+            try:
+                self.sched.remove_job(process_name)
+            except:
+                self.stop_repeat()
+
+            msg = 'Scheduled task cancelled'
+
+            logger.info(msg)
+
+            return {'status': True, 'msg': msg}
+        except Exception as e:
+            logger.error('cancel_scheduled_task() error: {0}'.format(str(e)))
+
+            return {'status': False, 'msg': str(e)}
+
+    def is_schedule_on(self, process_name):
+        job = self.sched.get_job(process_name)
+
+        while job or self.is_repeating:
+            sleep(1)
+            job = self.sched.get_job(process_name)
+
+        logger.info('Revert schedule btn to normal')
 
 
 if __name__ == '__main__':
