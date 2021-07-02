@@ -61,6 +61,7 @@ class Api:
         self.is_recording = False
         self.is_playing = False
         self.is_repeating = False
+        self.schedule_repeat_msg = ''
         if pathlib.Path('{0}/Chrono.json'.format(app_file_path)).exists():
             with open('{0}/Chrono.json'.format(app_file_path)) as f:
                 app = json.load(f)
@@ -1000,6 +1001,7 @@ class Api:
                 if predefined_recurrence == 'immediate':
                     self.sched.add_job(
                         self.repeat, 'date', run_date=date_time, id=process_name, args=[process_name], name=msg)
+                    self.schedule_repeat_msg = msg
                 elif predefined_recurrence == 'every_min':
                     self.sched.add_job(
                         self.play, 'interval', minutes=1, start_date=date_time, id=process_name, args=[process_name], name=msg)
@@ -1146,7 +1148,8 @@ class Api:
 
     def get_schedule_details(self, process_name):
         try:
-            msg = self.sched.get_job(process_name).name + '.'
+            job = self.sched.get_job(process_name)
+            msg = '{0}.'.format(job.name if job else self.schedule_repeat_msg)
 
             logger.info('Retrieved schedule details: {0}'.format(msg))
 
