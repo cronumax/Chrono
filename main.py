@@ -979,7 +979,8 @@ class Api:
             day = date_time.split(' ')[0].split('-')[-1].lstrip('0')
             hour = date_time.split(' ')[1].split(':')[0].lstrip('0')
             minute = date_time.split(' ')[1].split(':')[1].lstrip('0')
-            end_occurrence = end_occurrence.replace(',', '')
+            if end == 'occurrence' and end_occurrence:
+                end_occurrence = end_occurrence.replace(',', '')
 
             if not predefined_recurrence and not interval_num:
                 # No repeat
@@ -1134,7 +1135,7 @@ class Api:
 
     def get_schedule_details(self, process_name):
         try:
-            msg = self.sched.get_job(process_name).name
+            msg = self.sched.get_job(process_name).name + '.'
 
             logger.info('Retrieved schedule details: {0}'.format(msg))
 
