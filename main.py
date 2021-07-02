@@ -882,14 +882,23 @@ class Api:
 
         self.sched.shutdown(wait=False)
 
-    def repeat(self, process_name):
-        self.is_repeating = True
+    def repeat(self, process_name, msg=None):
+        try:
+            if msg:
+                logger.info(msg)
 
-        while self.is_repeating:
-            self.play(process_name, 'Repeat {0}'.format(process_name))
+            self.is_repeating = True
 
-    def stop_repeat(self):
-        logger.info('Stop repeat')
+            while self.is_repeating:
+                self.play(process_name, 'Repeat {0}'.format(process_name))
+        except Exception as e:
+            logger.error('repeat() error: {0}'.format(str(e)))
+
+    def stop_repeat(self, msg=None):
+        if msg:
+            logger.info('{0}, stop repeat'.format(msg))
+        else:
+            logger.info('Stop repeat')
 
         self.is_playing = False
         self.is_repeating = False
@@ -1116,8 +1125,10 @@ class Api:
 
             return {'status': False, 'msg': str(e)}
 
-    def cancel_scheduled_task(self, process_name):
+    def cancel_scheduled_task(self, process_name, msg):
         try:
+            logger.info(msg)
+
             try:
                 self.sched.remove_job(process_name)
             except:

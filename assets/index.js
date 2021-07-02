@@ -40,6 +40,30 @@ $(window).on('pywebviewready', function() {
     }
   })
 
+  $('#repeatBtn').click(function() {
+    var msg = 'Repeat btn clicked'
+    var processName = $('#processList tr.selected td:first').html()
+    if ($(this).hasClass('running')) {
+      window.pywebview.api.stop_repeat(msg)
+    } else if ($('.running').length > 0) {
+      simpleWarningPopUp(trafficWarningMsg)
+    } else {
+      if (processName) {
+        $(this).addClass('running')
+        $.when(window.pywebview.api.repeat(processName, msg)).done(function() {
+          $('#repeatBtn').removeClass('running')
+        })
+      } else {
+        Swal.fire({
+          title: 'Error',
+          html: 'Please select a process.',
+          icon: 'error',
+          confirmButtonText: 'Ok'
+        })
+      }
+    }
+  })
+
   $('#processList tbody').on('click', 'tr', function() {
     $(this).addClass('selected').siblings().removeClass('selected')
   })
@@ -66,7 +90,7 @@ $(window).on('pywebviewready', function() {
       }).then(res => {
         if (res.isConfirmed) {
           // Disable scheduled run
-          window.pywebview.api.cancel_scheduled_task(processName).then(res => {
+          window.pywebview.api.cancel_scheduled_task(processName, 'Schedule btn clicked').then(res => {
             if (res['status']) {
               $(this).removeClass('running')
             } else {
