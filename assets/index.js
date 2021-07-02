@@ -1,8 +1,12 @@
 $(window).on('pywebviewready', function() {
+  var trafficWarningMsg = 'Chrono is in action. To proceed, please turn off other process.'
+
   $('#recordBtn').click(function() {
     var msg = 'Record btn clicked'
     if ($(this).hasClass('running')) {
       window.pywebview.api.stop_record(msg)
+    } else if ($('.running').length > 0) {
+      simpleWarningPopUp(trafficWarningMsg)
     } else {
       $(this).addClass('running')
       $.when(window.pywebview.api.record(msg)).done(function() {
@@ -17,6 +21,8 @@ $(window).on('pywebviewready', function() {
     var processName = $('#processList tr.selected td:first').html()
     if ($(this).hasClass('running')) {
       window.pywebview.api.stop_play(msg)
+    } else if ($('.running').length > 0) {
+      simpleWarningPopUp(trafficWarningMsg)
     } else {
       if (processName) {
         $(this).addClass('running')
@@ -69,6 +75,8 @@ $(window).on('pywebviewready', function() {
           })
         }
       })
+    } else if ($('.running').length > 0) {
+      simpleWarningPopUp(trafficWarningMsg)
     } else {
       // Prompt to let user set date, time & recurrence for scheduling replay
       Swal.fire({

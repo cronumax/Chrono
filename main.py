@@ -381,6 +381,9 @@ class Api:
             self.kb_event_handler(key, 'up', time())
 
         if key == self.escape_key:
+            if self.is_recording or self.is_playing or self.is_repeating:
+                logger.info('Escape key hit')
+
             self.is_recording = False
             self.is_playing = False
             self.is_repeating = False
@@ -900,9 +903,6 @@ class Api:
     def schedule(self, process_name, date_time, predefined_recurrence=None, interval_num=None, interval_unit=None, wk_settings=None, mo_settings=None, day_of_wk_ordinal_num=None, end=None, end_date=None, end_occurrence=None):
         try:
             msg = 'Schedule run of {0} at {1}'.format(process_name, date_time)
-
-            if len(self.sched.get_jobs()) != 0:
-                raise Exception('Another process is scheduled.')
 
             day_of_wk = datetime.strptime(date_time, '%Y-%m-%d %H:%M').strftime('%a')
 
