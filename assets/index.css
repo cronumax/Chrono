@@ -14,16 +14,20 @@ html {
   box-shadow: unset;
 }
 
-#recordBtn, #playBtn {
+#recordBtn, #playBtn, #repeatBtn {
   position: absolute;
   margin-top: 14px;
 }
 
 #recordBtn {
-  right: 45px;
+  right: 8rem;
 }
 
 #playBtn {
+  right: 4rem;
+}
+
+#repeatBtn {
   right: 0;
 }
 
