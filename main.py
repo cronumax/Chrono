@@ -60,6 +60,7 @@ class Api:
         self.access_token = {}
         self.is_recording = False
         self.is_playing = False
+        self.last_played_event = None
         self.is_repeating = False
         self.schedule_repeat_msg = ''
         if pathlib.Path('{0}/Chrono.json'.format(app_file_path)).exists():
@@ -297,8 +298,11 @@ class Api:
         except Exception as e:
             logger.error('record() error: {0}'.format(str(e)))
 
-    def stop_record(self, msg):
-        logger.info('{0}, stop recording'.format(msg))
+    def stop_record(self, msg=None):
+        if msg:
+            logger.info('{0}, stop recording'.format(msg))
+        else:
+            logger.info('Stop recording')
 
         self.is_recording = False
 
@@ -312,42 +316,7 @@ class Api:
                 self.is_playing = True
                 events = self.load(process_name)
 
-                last_time = None
-                for event in events:
-                    if not self.is_playing:
-                        break
-
-                    logger.info(event)
-
-                    if last_time and not self.god_speed:
-                        sleep(event['time'] - last_time)
-                    else:
-                        sleep(0.05)
-                    last_time = event['time']
-
-                    # Action
-                    if event['event_name'] == 'KeyboardEvent':
-                        if event['event_type'] == 'up':
-                            pag.keyUp(event['key'])
-                        else:
-                            pag.keyDown(event['key'])
-                    else:
-                        if event['event_name'] in ['TouchEvent', 'ClickEvent']:
-                            btn = event['button'] if 'button' in event else 'left'
-
-                            if event['event_type'] == 'up':
-                                pag.mouseUp(
-                                    button=btn, x=event['position'][0], y=event['position'][1])
-                            else:
-                                pag.mouseDown(
-                                    button=btn, x=event['position'][0], y=event['position'][1])
-                        elif event['event_name'] == 'WheelEvent':
-                            if event['event_type'] == 'up':
-                                pag.scroll(
-                                    1, x=event['position'][0], y=event['position'][1])
-                            else:
-                                pag.scroll(-1, x=event['position']
-                                           [0], y=event['position'][1])
+                self.do_play(events)
 
                 logger.info('Replay finished')
                 if platform.system() == 'Darwin':
@@ -364,10 +333,61 @@ class Api:
         except Exception as e:
             logger.error('play() error: {0}'.format(str(e)))
 
-    def stop_play(self, msg):
-        logger.info('{0}, stop playing'.format(msg))
+    def do_play(self, events, force=False):
+        try:
+            last_time = None
+            for event in events:
+                if not self.is_playing and not force:
+                    break
+
+                logger.info(event)
+                self.last_played_event = event
+
+                if last_time and not self.god_speed:
+                    sleep(event['time'] - last_time)
+                else:
+                    sleep(0.05)
+                last_time = event['time']
+
+                # Action
+                if event['event_name'] == 'KeyboardEvent':
+                    if event['event_type'] == 'up':
+                        pag.keyUp(event['key'])
+                    else:
+                        pag.keyDown(event['key'])
+                else:
+                    if event['event_name'] in ['TouchEvent', 'ClickEvent']:
+                        btn = event['button'] if 'button' in event else 'left'
+
+                        if event['event_type'] == 'up':
+                            pag.mouseUp(
+                                button=btn, x=event['position'][0], y=event['position'][1])
+                        else:
+                            pag.mouseDown(
+                                button=btn, x=event['position'][0], y=event['position'][1])
+                    elif event['event_name'] == 'WheelEvent':
+                        if event['event_type'] == 'up':
+                            pag.scroll(
+                                1, x=event['position'][0], y=event['position'][1])
+                        else:
+                            pag.scroll(-1, x=event['position']
+                                       [0], y=event['position'][1])
+        except Exception as e:
+            logger.error('do_play() error: {0}'.format(str(e)))
+
+    def stop_play(self, msg=None):
+        if msg:
+            logger.info('{0}, stop playing'.format(msg))
+        else:
+            logger.info('Stop playing')
 
         self.is_playing = False
+
+        event = self.last_played_event
+        if event['event_name'] != 'WheelEvent' and event['event_type'] == 'down':
+            event['event_type'] = 'up'
+            event['time'] += 0.05
+            self.do_play([event], True)
 
     def on_press(self, key):
         if self.is_recording:
@@ -385,9 +405,12 @@ class Api:
             if self.is_recording or self.is_playing or self.is_repeating:
                 logger.info('Escape key hit')
 
-            self.is_recording = False
-            self.is_playing = False
-            self.is_repeating = False
+                if self.is_recording:
+                    self.stop_record()
+                elif self.is_repeating:
+                    self.stop_repeat()
+                elif self.is_playing:
+                    self.stop_play()
 
     def on_touch(self, x, y):
         if self.touch_mode and self.is_recording:
@@ -897,12 +920,12 @@ class Api:
 
     def stop_repeat(self, msg=None):
         if msg:
-            logger.info('{0}, stop repeat'.format(msg))
+            logger.info('{0}, stop repeating'.format(msg))
         else:
-            logger.info('Stop repeat')
+            logger.info('Stop repeating')
 
-        self.is_playing = False
         self.is_repeating = False
+        self.stop_play()
 
     def sched_listener(self, event):
         if event.exception:
