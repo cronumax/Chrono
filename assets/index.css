@@ -402,6 +402,7 @@ tbody {
   text-decoration: line-through;
 }
 
-a {
+a, a:hover {
+  color: #df2176;
   text-decoration: none;
 }

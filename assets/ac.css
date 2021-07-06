@@ -61,6 +61,7 @@ hr {
 #registerEmailVerifyLn {
   width: 20%;
   padding: .5rem 0;
+  margin: auto;
 }
 
 #pswd_info ul, #pswd_info li {
@@ -112,4 +113,9 @@ hr {
 
 #pswd_info p {
   margin: 0;
+}
+
+a, a:hover {
+  color: #df2176;
+  text-decoration: none;
 }
