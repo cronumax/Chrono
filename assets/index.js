@@ -64,6 +64,23 @@ $(window).on('pywebviewready', function() {
     }
   })
 
+  $('#escapeKey').click(function() {
+    $(this).toggleClass('running')
+    if ($(this).hasClass('running')) {
+      $(document).keydown(function() {
+        window.pywebview.api.set_escape_key().then(res => {
+          if (res['status']) {
+            $('#escapeKey').text(res['key'])
+          } else {
+            simpleWarningPopUp(res['msg'])
+          }
+        })
+      })
+    } else {
+      $(document).off('keydown')
+    }
+  })
+
   $('#processList tbody').on('click', 'tr', function() {
     $(this).addClass('selected').siblings().removeClass('selected')
   })
@@ -846,6 +863,12 @@ $(window).on('pywebviewready', function() {
       $('#timezoneSelection').val(timezone).attr('selected', 'selected')
     })
   }, 80)
+
+  setTimeout(function() {
+    window.pywebview.api.get_escape_key().then(key => {
+      $('#escapeKey').text(key)
+    })
+  }, 90)
 
   refreshProcessList()
 })

@@ -269,7 +269,7 @@ hr {
   width: 70%;
 }
 
-.form-select {
+.form-select, #escapeKey {
   float: right;
 }
 
