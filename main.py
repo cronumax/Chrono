@@ -63,6 +63,7 @@ class Api:
         self.last_played_event = None
         self.is_repeating = False
         self.schedule_repeat_msg = ''
+        self.last_key = ''
         if pathlib.Path('{0}/Chrono.json'.format(app_file_path)).exists():
             with open('{0}/Chrono.json'.format(app_file_path)) as f:
                 app = json.load(f)
@@ -82,10 +83,10 @@ class Api:
         '''
         Defaults
         '''
-        self.escape_key = Key.esc
         self.touch_mode = False
         self.god_speed = False
         self.timezone = 'Asia/Hong_Kong'
+        self.escape_key = Key.esc
 
     def register_or_update_app_version_info(self, app, endpt):
         app['version'] = self.version
@@ -200,6 +201,11 @@ class Api:
                 self.god_speed = user_settings[field]
             elif field == 'timezone':
                 self.timezone = user_settings[field]
+            elif field == 'escape_key':
+                try:
+                    self.escape_key = Key[user_settings[field]]
+                except:
+                    self.escape_key = KeyCode.from_char(user_settings[field])
         except:
             logger.warning('{0} missing in user settings file'.format(field))
 
@@ -209,6 +215,8 @@ class Api:
                 self.update_settings_file(field, self.god_speed)
             elif field == 'timezone':
                 self.update_settings_file(field, self.timezone)
+            elif field == 'escape_key':
+                self.update_settings_file(field, self.escape_key.name)
 
     def load_or_save_app_config_on_login(self, email):
         # Create local directory for storing user's process JSON files
@@ -227,10 +235,10 @@ class Api:
             self.load_settings(user_settings, 'touch_mode')
             self.load_settings(user_settings, 'god_speed')
             self.load_settings(user_settings, 'timezone')
+            self.load_settings(user_settings, 'escape_key')
         else:
-            user_settings = {'touch_mode': self.touch_mode,
-                             'god_speed': self.god_speed,
-                             'timezone': self.timezone}
+            user_settings = {'touch_mode': self.touch_mode, 'god_speed': self.god_speed,
+                             'timezone': self.timezone, 'escape_key': self.escape_key.name}
 
             with open(user_settings_path, 'w') as f:
                 json.dump(user_settings, f)
@@ -394,6 +402,11 @@ class Api:
             logger.info('Pressed {0}'.format(key))
 
             self.kb_event_handler(key, 'down', time())
+        else:
+            try:
+                self.last_key = key.name
+            except:
+                self.last_key = key.char
 
     def on_release(self, key):
         if self.is_recording:
@@ -738,16 +751,18 @@ class Api:
             return {'status': False, 'msg': str(e)}
 
     def update_settings_file(self, key, value):
-        logger.info(
-            'Update {0} to {1} in user settings file'.format(key, value))
+        try:
+            logger.info('Update {0} to {1} in user settings file'.format(key, value))
 
-        user_settings_path = '{0}/settings/{1}.json'.format(
-            app_file_path, self.current_user_email)
-        with open(user_settings_path) as f:
-            user_settings = json.load(f)
-        user_settings[key] = value
-        with open(user_settings_path, 'w') as f:
-            json.dump(user_settings, f)
+            user_settings_path = '{0}/settings/{1}.json'.format(
+                app_file_path, self.current_user_email)
+            with open(user_settings_path) as f:
+                user_settings = json.load(f)
+            user_settings[key] = value
+            with open(user_settings_path, 'w') as f:
+                json.dump(user_settings, f)
+        except Exception as e:
+            logger.error('update_settings_file() error: {0}'.format(str(e)))
 
     def enable_touch_mode(self):
         try:
@@ -816,7 +831,7 @@ class Api:
         return common_timezones
 
     def get_timezone(self):
-        logger.info('Timezone {0}'.format(self.timezone))
+        logger.info('Timezone: {0}'.format(self.timezone))
 
         return self.timezone
 
@@ -834,6 +849,35 @@ class Api:
                 raise Exception('Invalid timezone.')
         except Exception as e:
             logger.error('set_timezone() error: {0}'.format(str(e)))
+
+            return {'status': False, 'msg': str(e)}
+
+    def get_escape_key(self):
+        try:
+            key = self.escape_key.name
+        except:
+            key = self.escape_key.char
+
+        logger.info('Retrieved escape key: {0}'.format(key))
+
+        return key
+
+    def set_escape_key(self):
+        try:
+            logger.info('Set escape key to {0}'.format(self.last_key))
+
+            # Update esc key
+            try:
+                self.escape_key = Key[self.last_key]
+            except:
+                self.escape_key = KeyCode.from_char(self.last_key)
+
+            # Update settings file
+            self.update_settings_file('escape_key', self.last_key)
+
+            return {'status': True, 'key': self.last_key}
+        except Exception as e:
+            logger.error('set_escape_key() error: {0}'.format(str(e)))
 
             return {'status': False, 'msg': str(e)}
 
