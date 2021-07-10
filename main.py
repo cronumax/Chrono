@@ -345,7 +345,7 @@ class Api:
         try:
             last_time = None
             for event in events:
-                if (not self.is_playing and not force) or (not self.touch_mode and event['event_name'] == 'TouchEvent') or (self.touch_mode and event['event_name'] in ['ClickEvent', 'MoveEvent', 'WheelEvent']):
+                if (not self.is_playing and not force) or (not self.touch_mode and event['event_name'] == 'TouchEvent') or (self.touch_mode and event['event_name'] in ['ClickEvent', 'WheelEvent']):
                     break
 
                 logger.info(event)
@@ -378,13 +378,17 @@ class Api:
                             btn = event['button'] if 'button' in event else 'left'
 
                             if event['event_type'] == 'up':
-                                pag.mouseUp(
-                                    button=btn, x=event['position'][0], y=event['position'][1])
+                                if event['position'] != last_cursor_pos:
+                                    pag.dragTo(event['position'][0],
+                                               event['position'][1], 1, button=btn)
+                                else:
+                                    pag.mouseUp(
+                                        button=btn, x=event['position'][0], y=event['position'][1])
                             else:
                                 pag.mouseDown(
                                     button=btn, x=event['position'][0], y=event['position'][1])
-                        elif event['event_name'] == 'MoveEvent':
-                            pag.moveTo(event['position'][0], event['position'][1])
+
+                                last_cursor_pos = event['position']
                         elif event['event_name'] == 'WheelEvent':
                             if event['event_type'] == 'up':
                                 pag.scroll(
@@ -437,17 +441,12 @@ class Api:
                 elif self.is_playing:
                     self.stop_play()
 
-    def on_touch_or_move(self, x, y):
-        if self.is_recording:
-            if self.touch_mode:
-                logger.info('Touched at {0}'.format((x, y)))
+    def on_touch(self, x, y):
+        if self.touch_mode and self.is_recording:
+            logger.info('Touched at {0}'.format((x, y)))
 
-                self.m_event_handler('down', (x, y), time())
-                self.m_event_handler('up', (x, y), time())
-            else:
-                logger.info('Moved to {0}'.format((x, y)))
-
-                self.m_event_handler('move', (x, y), time())
+            self.m_event_handler('down', (x, y), time())
+            self.m_event_handler('up', (x, y), time())
 
     def on_click(self, x, y, button, pressed):
         if self.is_recording and not self.touch_mode:
@@ -539,8 +538,6 @@ class Api:
             if button:
                 m_event_dict['event_name'] = 'ClickEvent'
                 m_event_dict['button'] = button.name
-            elif event_type == 'move':
-                m_event_dict['event_name'] = 'MoveEvent'
             else:
                 m_event_dict['event_name'] = 'WheelEvent'
 
@@ -947,7 +944,7 @@ class Api:
         try:
             pag.keyUp('esc')  # Hot fix for macOS thread issue
 
-            with kb_lstner(on_press=self.on_press, on_release=self.on_release) as self.kl, m_lstner(on_move=self.on_touch_or_move, on_click=self.on_click, on_scroll=self.on_scroll) as self.ml:
+            with kb_lstner(on_press=self.on_press, on_release=self.on_release) as self.kl, m_lstner(on_move=self.on_touch, on_click=self.on_click, on_scroll=self.on_scroll) as self.ml:
                 self.kl.join()
                 self.ml.join()
         except Exception as e:
