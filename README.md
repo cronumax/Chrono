@@ -47,6 +47,12 @@ pip install -r windows_requirements.txt
 
 ## Distribute
 
+### Universal
+
+```bash
+pyinstaller Chrono.spec
+```
+
 ### Linux
 
 ```bash
@@ -71,4 +77,4 @@ pyinstaller --onefile --windowed --add-data 'assets;assets' --hidden-import plye
 
 2.  In JS, if there are more than 1 pywebview.api calls, we need to use <b>setTimeout()</b> to spread out them chronologically
 
-3. In macOS, need to open up certain privacy settings, e.g. Input Monitoring, to Chrono for it to work
+3.  In macOS, need to open up certain privacy settings, e.g. Input Monitoring, to Chrono for it to work
