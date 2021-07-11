@@ -1066,6 +1066,7 @@ class Api:
 
             # Prepare date_time format
             date_time += ':00'
+            end_date += ' 23:59:59'
             month = date_time.split(' ')[0].split('-')[1].lstrip('0')
             day_of_wk = day_of_wk.lower()
             day = date_time.split(' ')[0].split('-')[-1].lstrip('0')
@@ -1112,7 +1113,7 @@ class Api:
                             self.play, 'interval', minutes=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                     elif end == 'occurrence' and end_occurrence:
                         end_date = (date_time_dt +
-                                    timedelta(minutes=(int(interval_num) * int(end_occurrence)))).strftime('%Y-%m-%d')
+                                    timedelta(minutes=(int(interval_num) * (int(end_occurrence) - 1)))).strftime('%Y-%m-%d %H:%M:%S')
 
                         self.sched.add_job(
                             self.play, 'interval', minutes=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
@@ -1125,7 +1126,7 @@ class Api:
                             self.play, 'interval', hours=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                     elif end == 'occurrence' and end_occurrence:
                         end_date = (date_time_dt +
-                                    timedelta(hours=(int(interval_num) * int(end_occurrence)))).strftime('%Y-%m-%d')
+                                    timedelta(hours=(int(interval_num) * (int(end_occurrence) - 1)))).strftime('%Y-%m-%d %H:%M:%S')
 
                         self.sched.add_job(
                             self.play, 'interval', hours=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
@@ -1138,7 +1139,7 @@ class Api:
                             self.play, 'interval', days=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                     elif end == 'occurrence' and end_occurrence:
                         end_date = (date_time_dt + timedelta(days=(int(interval_num)
-                                                                   * int(end_occurrence)))).strftime('%Y-%m-%d')
+                                                                   * (int(end_occurrence) - 1)))).strftime('%Y-%m-%d %H:%M:%S')
 
                         self.sched.add_job(
                             self.play, 'interval', days=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
@@ -1151,7 +1152,7 @@ class Api:
                             wk_settings), hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                     elif end == 'occurrence' and end_occurrence:
                         end_date = (date_time_dt + timedelta(weeks=(int(interval_num)
-                                                                    * int(end_occurrence)))).strftime('%Y-%m-%d')
+                                                                    * (int(end_occurrence) - 1)))).strftime('%Y-%m-%d %H:%M:%S')
 
                         self.sched.add_job(self.play, 'cron', week='*/{0}'.format(interval_num), day_of_week=','.join(
                             wk_settings), hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
@@ -1167,7 +1168,7 @@ class Api:
                                 interval_num), day=day, hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                         elif end == 'occurrence' and end_occurrence:
                             end_date = (date_time_dt + relativedelta(months=(int(interval_num)
-                                                                             * int(end_occurrence)))).strftime('%Y-%m-%d')
+                                                                             * (int(end_occurrence) - 1)))).strftime('%Y-%m-%d %H:%M:%S')
 
                             self.sched.add_job(self.play, 'cron', month='*/{0}'.format(
                                 interval_num), day=day, hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
@@ -1180,7 +1181,7 @@ class Api:
                                 interval_num), day='{0} {1}'.format(day_of_wk_ordinal_num, day_of_wk), hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                         elif end == 'occurrence' and end_occurrence:
                             end_date = (date_time_dt + relativedelta(months=(int(interval_num)
-                                                                             * int(end_occurrence)))).strftime('%Y-%m-%d')
+                                                                             * (int(end_occurrence) - 1)))).strftime('%Y-%m-%d %H:%M:%S')
 
                             self.sched.add_job(self.play, 'cron', month='*/{0}'.format(
                                 interval_num), day='{0} {1}'.format(day_of_wk_ordinal_num, day_of_wk), hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
@@ -1193,7 +1194,7 @@ class Api:
                                            hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
                     elif end == 'occurrence' and end_occurrence:
                         end_date = (date_time_dt + relativedelta(years=(int(interval_num)
-                                                                        * int(end_occurrence)))).strftime('%Y-%m-%d')
+                                                                        * (int(end_occurrence) - 1)))).strftime('%Y-%m-%d %H:%M:%S')
 
                         self.sched.add_job(self.play, 'cron', year='*/{0}'.format(interval_num), month=month, day=day,
                                            hour=hour, minute=minute, start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
