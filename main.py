@@ -379,13 +379,8 @@ class Api:
 
                             if event['event_type'] == 'up':
                                 if event['position'] != last_cursor_pos:
-                                    if platform.system() == 'Windows':
-                                        # Offset for Windows inaccuracy
-                                        pag.dragTo(event['position'][0] + 10,
-                                                   event['position'][1], 1, button=btn)
-                                    else:
-                                        pag.dragTo(event['position'][0],
-                                                   event['position'][1], 1, button=btn)
+                                    pag.dragTo(event['position'][0],
+                                               event['position'][1], 1, button=btn)
                                 else:
                                     pag.mouseUp(
                                         button=btn, x=event['position'][0], y=event['position'][1])
