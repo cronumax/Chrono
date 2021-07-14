@@ -54,7 +54,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '1.0.3'
+        self.version = '1.0.4'
         self.host = platform.node()
         self.host_os = platform.system()
         self.host_username = getpass.getuser()
@@ -712,8 +712,7 @@ class Api:
                 local_process_names = [n[:-5] for n in filenames]
 
                 for p in process_list:
-                    # if p['name'] in local_process_names and p['date'] == datetime.fromtimestamp(pathlib.Path('{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, p['name'])).stat().st_mtime, timezone(self.timezone)) and p['location'] == '{0} - {1} - {2}'.format(self.host, self.host_os, self.host_username):
-                    if p['name'] in local_process_names and p['date'] == datetime.fromtimestamp(pathlib.Path('{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, p['name'])).stat().st_mtime, timezone(self.timezone)) and p['location'] == '{0} - {1}'.format(self.host, self.host_username):
+                    if p['name'] in local_process_names and p['date'] == datetime.fromtimestamp(pathlib.Path('{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, p['name'])).stat().st_mtime, timezone(self.timezone)) and p['location'] == '{0} - {1} - {2}'.format(self.host, self.host_os, self.host_username):
                         p['local'] = True
                     else:
                         p['local'] = False
