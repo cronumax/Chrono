@@ -56,7 +56,7 @@ pyinstaller Chrono.spec
 ### Linux
 
 ```bash
-pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import plyer.platforms.linux.notification main.py -n Chrono -i media/automation.png
+pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import plyer.platforms.linux.notification --hidden-import geocoder main.py -n Chrono -i media/automation.png
 ```
 
 ### macOS
@@ -68,7 +68,7 @@ pyinstaller --onefile --windowed --add-data 'assets:assets' main.py -n Chrono -i
 ### Windows
 
 ```bash
-pyinstaller --onefile --windowed --add-data 'assets;assets' --hidden-import plyer.platforms.win.notification --hidden-import apscheduler main.py -n Chrono -i media/automation.ico
+pyinstaller --onefile --windowed --add-data 'assets;assets' --hidden-import plyer.platforms.win.notification --hidden-import apscheduler --hidden-import geocoder main.py -n Chrono -i media/automation.ico
 ```
 
 ## Remarks
