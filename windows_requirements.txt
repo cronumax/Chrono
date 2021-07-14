@@ -2,7 +2,11 @@ altgraph==0.17
 APScheduler==3.7.0
 certifi==2020.12.5
 chardet==4.0.0
+click==8.0.1
+colorama==0.4.4
+decorator==5.0.9
 future==0.18.2
+geocoder==1.38.1
 gobject==0.1.0
 idna==2.10
 macholib==1.14
@@ -27,6 +31,7 @@ PyTweening==1.0.3
 pytz==2021.1
 pywebview==3.4
 pywin32-ctypes==0.2.0
+ratelim==0.1.6
 requests==2.25.1
 six==1.15.0
 tzlocal==2.1
