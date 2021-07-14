@@ -1,6 +1,11 @@
 $(window).on('pywebviewready', function() {
   var trafficWarningMsg = 'Chrono is in action. To proceed, please turn off other process.'
 
+  $('#refreshBtn').click(function() {
+    var msg = 'Refresh btn clicked'
+    refreshProcessList(msg)
+  })
+
   $('#recordBtn').click(function() {
     var msg = 'Record btn clicked'
     if ($(this).hasClass('running')) {
@@ -17,6 +22,9 @@ $(window).on('pywebviewready', function() {
   })
 
   $('#playBtn').click(function() {
+    if ($('#processList tr.selected').hasClass('disabled')) {
+      return
+    }
     var msg = 'Play btn clicked'
     var processName = $('#processList tr.selected td:first').html()
     if ($(this).hasClass('running')) {
@@ -41,6 +49,9 @@ $(window).on('pywebviewready', function() {
   })
 
   $('#repeatBtn').click(function() {
+    if ($('#processList tr.selected').hasClass('disabled')) {
+      return
+    }
     var msg = 'Repeat btn clicked'
     var processName = $('#processList tr.selected td:first').html()
     if ($(this).hasClass('running')) {
@@ -86,6 +97,9 @@ $(window).on('pywebviewready', function() {
   })
 
   $('#processList tbody').on('click', '#scheduleBtn', function() {
+    if ($(this).parent().parent().hasClass('disabled')) {
+      return
+    }
     var processName = $(this).parent().parent().find('td:first').html()
     if ($(this).hasClass('running')) {
       Swal.fire({
@@ -698,10 +712,16 @@ $(window).on('pywebviewready', function() {
   })
 
   $('#processList tbody').on('click', '#renameBtn', function() {
+    if ($(this).parent().parent().hasClass('disabled')) {
+      return
+    }
     promptForProcessName(true, $(this).parent().parent().find('td:first').html())
   })
 
   $('#processList tbody').on('click', '#delBtn', function() {
+    if ($(this).parent().parent().hasClass('disabled')) {
+      return
+    }
     Swal.fire({
       title: 'Remove process ' + $(this).parent().parent().find('td:first').html() + '?',
       html: 'You will not be able to revert this.',
@@ -971,11 +991,17 @@ $(document).ready(function() {
   pwTip('#resetPwWithOldPwNewPw')
 })
 
-function refreshProcessList() {
-  $.when(window.pywebview.api.load_process_list()).then(processList => {
+function refreshProcessList(msg = null) {
+  $.when(window.pywebview.api.load_process_list(msg)).then(processList => {
     $('#processList tbody').empty()
     $.each(processList, function(i, process) {
-      var row = "<tr class='table-dark'>"
+      var row = "<tr class='table-dark"
+      if (process.local) {
+        row += "'>"
+      } else {
+        row += " disabled'>"
+      }
+      delete process.local
       $.each(process, function(j, data) {
         row += '<td>' + data + '</td>'
       })
@@ -984,6 +1010,8 @@ function refreshProcessList() {
       $('#processList tbody').append(row)
     })
   })
+  $('th.sorttable_sorted > span').remove()
+  $('th.sorttable_sorted').removeClass('sorttable_sorted')
 }
 
 function promptForProcessName(rename = false, oldName = null) {

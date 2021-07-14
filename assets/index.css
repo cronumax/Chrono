@@ -14,9 +14,13 @@ html {
   box-shadow: unset;
 }
 
-#recordBtn, #playBtn, #repeatBtn {
+#refreshBtn, #recordBtn, #playBtn, #repeatBtn {
   position: absolute;
   margin-top: 14px;
+}
+
+#refreshBtn {
+  right: 12rem;
 }
 
 #recordBtn {
@@ -75,15 +79,19 @@ h1 {
 }
 
 #nameCol {
-  width: 45%;
+  width: 35%;
 }
 
 #createdCol {
-  width: 30%;
+  width: 20%;
+}
+
+#locatedCol {
+  width: 25%;
 }
 
 #actionCol {
-  width: 25%;
+  width: 20%;
 }
 
 #logoutBtn {
@@ -405,4 +413,16 @@ tbody {
 a, a:hover {
   color: #df2176;
   text-decoration: none;
+}
+
+tr.table-dark.disabled>td, tr.table-dark.disabled i {
+  color: #666;
+}
+
+.table-hover>tbody>tr.table-dark:active, .table-hover>tbody>tr.table-dark:hover {
+  --bs-table-accent-bg: #444;
+}
+
+.table-hover>tbody>tr.table-dark.disabled:active, .table-hover>tbody>tr.table-dark.disabled:hover {
+  --bs-table-accent-bg: unset;
 }

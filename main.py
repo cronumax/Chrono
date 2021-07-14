@@ -1,5 +1,5 @@
 import os
-import requests
+from requests import get, post
 import webview
 import logging
 from time import time, sleep
@@ -21,6 +21,8 @@ from logging.handlers import TimedRotatingFileHandler
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 from dateutil.relativedelta import relativedelta
+import getpass
+import geocoder
 
 
 if platform.system() == 'Windows':
@@ -53,6 +55,13 @@ class Api:
         logger.info('Chrono started')
 
         self.version = '1.0.3'
+        self.host = platform.node()
+        self.host_os = platform.system()
+        self.host_username = getpass.getuser()
+        self.ip = get('https://api.ipify.org').text
+        location_keys = ['address', 'lat', 'lng', 'hostname', 'org']
+        self.location = {k: geocoder.ip('me').json[k]
+                         for k in location_keys if k in geocoder.ip('me').json}
         self.window = None
         self.api_url = 'https://chrono.cronumax.com/'
         self.current_user_email = None
@@ -68,13 +77,13 @@ class Api:
             with open('{0}/Chrono.json'.format(app_file_path)) as f:
                 app = json.load(f)
 
-            self.app_id = app['id']
+            self.id = app['id']
 
-            if app['version'] != self.version:
+            if any(not k in app for k in ['version', 'host', 'host_os', 'host_username', 'ip', 'location']) or app['version'] != self.version or app['host'] != self.host or app['host_os'] != self.host_os or app['host_username'] != self.host_username or app['ip'] != self.ip or app['location'] != self.location:
                 self.register_or_update_app_version_info(app, 'update-app')
         else:
             app = {}
-            self.app_id = app['id'] = secrets.token_urlsafe()
+            self.id = app['id'] = secrets.token_urlsafe()
             self.register_or_update_app_version_info(app, 'register-app')
         self.sched = BackgroundScheduler()
         self.sched.add_listener(self.sched_listener,
@@ -90,20 +99,24 @@ class Api:
 
     def register_or_update_app_version_info(self, app, endpt):
         app['version'] = self.version
+        app['host'] = self.host
+        app['host_os'] = self.host_os
+        app['host_username'] = self.host_username
+        app['ip'] = self.ip
+        app['location'] = self.location
 
         with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
             json.dump(app, f)
 
-        res = requests.post(
-            self.api_url + endpt, {'app_id': self.app_id, 'version': self.version}).json()
+        res = post(self.api_url + endpt, app).json()
 
         logger.info(res['msg']) if res['status'] else logger.error(res['msg'])
 
     def renew_token(self):
         while self.logged_in:
             if datetime.strptime(self.access_token['expiry_date'], '%Y-%m-%d %H:%M:%S.%f%z').astimezone(timezone(self.timezone)) - datetime.now(timezone(self.timezone)) < timedelta(minutes=3) and self.access_token['email'] == self.current_user_email:
-                res = requests.post(self.api_url + 'renew-token',
-                                    {'code': self.access_token['code'], 'email': self.current_user_email, 'app_id': self.app_id}).json()
+                res = post(self.api_url + 'renew-token',
+                           {'code': self.access_token['code'], 'email': self.current_user_email, 'id': self.id}).json()
 
                 if res['status']:
                     logger.info(res['msg'])
@@ -115,11 +128,11 @@ class Api:
             sleep(60)
 
     def send_email(self, type, email):
-        return requests.post(self.api_url + 'send-email', {'type': type, 'email': email, 'app_id': self.app_id}).json()
+        return post(self.api_url + 'send-email', {'type': type, 'email': email, 'id': self.id}).json()
 
     def login(self, email, pw):
-        res = requests.post(self.api_url + 'login',
-                            {'email': email, 'pw': pw, 'app_id': self.app_id}).json()
+        res = post(self.api_url + 'login',
+                   {'email': email, 'pw': pw, 'id': self.id}).json()
 
         if res['status']:
             logger.info(res['msg'])
@@ -129,8 +142,8 @@ class Api:
 
             self.load_or_save_app_config_on_login(email)
 
-            response = requests.post(
-                self.api_url + 'access-token', {'email': email, 'pw': pw, 'app_id': self.app_id}).json()
+            response = post(
+                self.api_url + 'access-token', {'email': email, 'pw': pw, 'id': self.id}).json()
 
             if response['status']:
                 logger.info(response['msg'])
@@ -157,8 +170,8 @@ class Api:
 
     def register(self, first_name, last_name, email, code, pw, referrer, agree_privacy_n_terms, send_update):
         try:
-            response = requests.post(self.api_url + 'register', {'1st_name': first_name, 'last_name': last_name, 'email': email,
-                                                                 'code': code, 'pw': pw, 'referrer': referrer, 'agree_privacy_n_terms': agree_privacy_n_terms, 'send_update': send_update, 'app_id': self.app_id}).json()
+            response = post(self.api_url + 'register', {'1st_name': first_name, 'last_name': last_name, 'email': email,
+                                                        'code': code, 'pw': pw, 'referrer': referrer, 'agree_privacy_n_terms': agree_privacy_n_terms, 'send_update': send_update, 'id': self.id}).json()
 
             if response['status']:
                 logger.info(response['msg'])
@@ -168,8 +181,8 @@ class Api:
 
                 self.load_or_save_app_config_on_login(email)
 
-                res = requests.post(
-                    self.api_url + 'access-token', {'email': email, 'pw': pw, 'app_id': self.app_id}).json()
+                res = post(
+                    self.api_url + 'access-token', {'email': email, 'pw': pw, 'id': self.id}).json()
 
                 if res['status']:
                     logger.info(res['msg'])
@@ -253,14 +266,14 @@ class Api:
 
     def reset_pw(self, new_pw, old_pw=None, code=None):
         if old_pw:
-            res = requests.post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'old_pw': old_pw,
-                                                            'email': self.current_user_email, 'app_id': self.app_id, 'code': self.access_token['code']}).json()
+            res = post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'old_pw': old_pw,
+                                                   'email': self.current_user_email, 'id': self.id, 'code': self.access_token['code']}).json()
 
             logger.info(res['msg']) if res['status'] else logger.error(
                 res['msg'])
         else:
-            res = requests.post(self.api_url + 'reset-pw',
-                                {'new_pw': new_pw, 'code': code, 'app_id': self.app_id}).json()
+            res = post(self.api_url + 'reset-pw',
+                       {'new_pw': new_pw, 'code': code, 'id': self.id}).json()
 
             if res['status']:
                 logger.info(res['msg'])
@@ -272,7 +285,7 @@ class Api:
         return res
 
     def forgot_pw(self, email):
-        return requests.post(self.api_url + 'forgot-pw', {'email': email, 'app_id': self.app_id}).json()
+        return post(self.api_url + 'forgot-pw', {'email': email, 'id': self.id}).json()
 
     def navigate_to_dashboard(self):
         self.window.load_url('assets/index.html')
@@ -574,8 +587,8 @@ class Api:
                 date = timezone(self.timezone).localize(datetime.fromtimestamp(pathlib.Path(
                     '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, process)).stat().st_mtime))
 
-                response = requests.post(self.api_url + 'upload-process-meta-data', {
-                    'email': self.current_user_email, 'name': process, 'date': date.strftime('%Y-%m-%d %H:%M:%S.%f%z'), 'app_id': self.app_id, 'code': self.access_token['code']}).json()
+                response = post(self.api_url + 'upload-process-meta-data', {
+                    'email': self.current_user_email, 'name': process, 'date': date.strftime('%Y-%m-%d %H:%M:%S.%f%z'), 'id': self.id, 'code': self.access_token['code']}).json()
 
                 if response['status']:
                     logger.info(response['log_msg'])
@@ -618,8 +631,8 @@ class Api:
                     'msg': 'Process {0} already exists locally.'.format(new_name)
                 }
 
-            response = requests.post(self.api_url + 'rename-process', {
-                'email': self.current_user_email, 'old_name': old_name, 'new_name': new_name, 'app_id': self.app_id, 'code': self.access_token['code']}).json()
+            response = post(self.api_url + 'rename-process', {
+                'email': self.current_user_email, 'old_name': old_name, 'new_name': new_name, 'id': self.id, 'code': self.access_token['code']}).json()
 
             if response['status']:
                 # Update local process name
@@ -640,8 +653,8 @@ class Api:
 
     def del_process(self, process):
         try:
-            response = requests.post(
-                self.api_url + 'del-process', {'email': self.current_user_email, 'name': process, 'app_id': self.app_id, 'code': self.access_token['code']}).json()
+            response = post(
+                self.api_url + 'del-process', {'email': self.current_user_email, 'name': process, 'id': self.id, 'code': self.access_token['code']}).json()
 
             if response['status']:
                 # Del local process
@@ -667,10 +680,12 @@ class Api:
 
             return {'status': False, 'msg': str(e)}
 
-    def load_process_list(self):
+    def load_process_list(self, msg=None):
         try:
-            res = requests.post(
-                self.api_url + 'retrieve-process', {'email': self.current_user_email, 'app_id': self.app_id, 'code': self.access_token['code']}).json()
+            logger.info(msg)
+
+            res = post(
+                self.api_url + 'retrieve-process', {'email': self.current_user_email, 'id': self.id, 'code': self.access_token['code']}).json()
 
             if res['status']:
                 logger.info(res['msg'])
@@ -696,10 +711,15 @@ class Api:
                         filenames.remove(n)
                 local_process_names = [n[:-5] for n in filenames]
 
-                process_list = [p for p in process_list if p['name'] in local_process_names and p['date'] == datetime.fromtimestamp(pathlib.Path(
-                    '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, p['name'])).stat().st_mtime, timezone(self.timezone))]
+                for p in process_list:
+                    # if p['name'] in local_process_names and p['date'] == datetime.fromtimestamp(pathlib.Path('{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, p['name'])).stat().st_mtime, timezone(self.timezone)) and p['location'] == '{0} - {1} - {2}'.format(self.host, self.host_os, self.host_username):
+                    if p['name'] in local_process_names and p['date'] == datetime.fromtimestamp(pathlib.Path('{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, p['name'])).stat().st_mtime, timezone(self.timezone)) and p['location'] == '{0} - {1}'.format(self.host, self.host_username):
+                        p['local'] = True
+                    else:
+                        p['local'] = False
             else:
-                return []
+                for p in process_list:
+                    p['local'] = False
 
             present = datetime.now(timezone(self.timezone))
             for p in process_list:
@@ -715,6 +735,14 @@ class Api:
                 else:
                     p['date'] = p['date'].strftime('%H:%M')
 
+                if p['local']:
+                    p['location'] = 'Local'
+
+            # Reorder process list
+            local_process_list = [p for p in process_list if p['local']]
+            remote_process_list = [p for p in process_list if not p['local']]
+            process_list = local_process_list + remote_process_list
+
             logger.info(process_list)
 
             return process_list
@@ -727,8 +755,8 @@ class Api:
         try:
             logger.info('Check app version')
 
-            return requests.post(self.api_url + 'check-app-version',
-                                 {'app_id': self.app_id, 'app_version': self.version}).json()
+            return post(self.api_url + 'check-app-version',
+                        {'id': self.id, 'app_version': self.version}).json()
         except Exception as e:
             logger.error('check_app_version() error: {0}'.format(str(e)))
 
@@ -893,8 +921,8 @@ class Api:
 
     def get_user_name(self):
         try:
-            res = requests.post(self.api_url + 'get-user-name',
-                                {'app_id': self.app_id, 'email': self.current_user_email}).json()
+            res = post(self.api_url + 'get-user-name',
+                       {'id': self.id, 'email': self.current_user_email}).json()
 
             logger.info(res['msg']) if res['status'] else logger.error(
                 res['msg'])
@@ -918,8 +946,8 @@ class Api:
 
     def get_user_license(self):
         try:
-            res = requests.post(self.api_url + 'get-user-license', {
-                'app_id': self.app_id, 'code': self.access_token['code'], 'email': self.current_user_email}).json()
+            res = post(self.api_url + 'get-user-license', {
+                'id': self.id, 'code': self.access_token['code'], 'email': self.current_user_email}).json()
 
             logger.info(res['msg']) if res['status'] else logger.error(
                 res['msg'])
