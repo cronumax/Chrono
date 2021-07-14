@@ -4,6 +4,12 @@ $(window).on('pywebviewready', function() {
   $('#refreshBtn').click(function() {
     var msg = 'Refresh btn clicked'
     refreshProcessList(msg)
+    var processName = $('#scheduleBtn.running').parent().parent().find('td:first').html()
+    window.pywebview.api.cancel_scheduled_task(processName, msg).then(res => {
+      if (!res['status']) {
+        simpleWarningPopUp(res['msg'])
+      }
+    })
   })
 
   $('#recordBtn').click(function() {
@@ -163,7 +169,7 @@ $(window).on('pywebviewready', function() {
             if (res['status']) {
               $(this).addClass('running')
               $.when(window.pywebview.api.is_schedule_on(processName)).done(function() {
-                $('td:contains(' + processName + ')').next().next().find('#scheduleBtn').removeClass('running')
+                $('td:contains(' + processName + ')').next().next().next().find('#scheduleBtn').removeClass('running')
               })
             } else {
               simpleWarningPopUp(res['msg'])
@@ -216,7 +222,7 @@ $(window).on('pywebviewready', function() {
                 if (res['status']) {
                   $(this).addClass('running')
                   $.when(window.pywebview.api.is_schedule_on(processName)).done(function() {
-                    $('td:contains(' + processName + ')').next().next().find('#scheduleBtn').removeClass('running')
+                    $('td:contains(' + processName + ')').next().next().next().find('#scheduleBtn').removeClass('running')
                   })
                 } else {
                   simpleWarningPopUp(res['msg'])
@@ -696,7 +702,7 @@ $(window).on('pywebviewready', function() {
                     if (res['status']) {
                       $(this).addClass('running')
                       $.when(window.pywebview.api.is_schedule_on(processName)).done(function() {
-                        $('td:contains(' + processName + ')').next().next().find('#scheduleBtn').removeClass('running')
+                        $('td:contains(' + processName + ')').next().next().next().find('#scheduleBtn').removeClass('running')
                       })
                     } else {
                       simpleWarningPopUp(res['msg'])

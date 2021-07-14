@@ -1089,7 +1089,8 @@ class Api:
 
             # Prepare date_time format
             date_time += ':00'
-            end_date += ' 23:59:59'
+            if end_date:
+                end_date += ' 23:59:59'
             month = date_time.split(' ')[0].split('-')[1].lstrip('0')
             day_of_wk = day_of_wk.lower()
             day = date_time.split(' ')[0].split('-')[-1].lstrip('0')
