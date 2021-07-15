@@ -3,14 +3,17 @@ $(window).on('pywebviewready', function() {
 
   $('#refreshBtn').click(function() {
     var msg = 'Refresh btn clicked'
-    refreshProcessList(msg)
     var processName = $('#scheduleBtn.running').parent().parent().find('td:first').html()
     if (processName) {
-      window.pywebview.api.cancel_scheduled_task(processName, msg).then(res => {
+      window.pywebview.api.cancel_scheduled_task(processName).then(res => {
         if (!res['status']) {
           simpleWarningPopUp(res['msg'])
+        } else {
+          refreshProcessList(msg)
         }
       })
+    } else {
+      refreshProcessList(msg)
     }
   })
 

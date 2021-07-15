@@ -1233,9 +1233,10 @@ class Api:
 
             return {'status': False, 'msg': str(e)}
 
-    def cancel_scheduled_task(self, process_name, msg):
+    def cancel_scheduled_task(self, process_name, msg=None):
         try:
-            logger.info(msg)
+            if msg:
+                logger.info(msg)
 
             try:
                 self.sched.remove_job(process_name)
