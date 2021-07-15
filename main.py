@@ -421,7 +421,7 @@ class Api:
         self.is_playing = False
 
         event = self.last_played_event
-        if event['event_name'] != 'WheelEvent' and event['event_type'] == 'down':
+        if event and event['event_name'] != 'WheelEvent' and event['event_type'] == 'down':
             event['event_type'] = 'up'
             event['time'] += 0.05
             self.do_play([event], True)
