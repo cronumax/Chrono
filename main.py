@@ -712,7 +712,7 @@ class Api:
                 local_process_names = [n[:-5] for n in filenames]
 
                 for p in process_list:
-                    if p['name'] in local_process_names and p['date'] == datetime.fromtimestamp(pathlib.Path('{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, p['name'])).stat().st_mtime, timezone(self.timezone)) and p['location'] == '{0} - {1} - {2}'.format(self.host, self.host_os, self.host_username):
+                    if p['name'] in local_process_names and p['date'] == datetime.fromtimestamp(pathlib.Path('{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, p['name'])).stat().st_mtime, timezone(self.timezone)):
                         p['local'] = True
                     else:
                         p['local'] = False
@@ -738,8 +738,21 @@ class Api:
                     p['location'] = 'Local'
 
             # Reorder process list
-            local_process_list = [p for p in process_list if p['local']]
-            remote_process_list = [p for p in process_list if not p['local']]
+            local_process_list = remote_process_list = []
+            for p in process_list:
+                if p['local']:
+                    local_process_list.append(p)
+
+                    if not p['location']:
+                        res = post(self.api_url + 'update-process-meta-data', {
+                                   'email': self.current_user_email, 'id': self.id, 'code': self.access_token['code'], 'name': p['name']}).json()
+
+                        if res['status']:
+                            logger.info(res['msg'])
+                        else:
+                            logger.error(res['msg'])
+                else:
+                    remote_process_list.append(p)
             process_list = local_process_list + remote_process_list
 
             logger.info(process_list)
