@@ -734,23 +734,24 @@ class Api:
                 else:
                     p['date'] = p['date'].strftime('%H:%M')
 
-                if p['local']:
-                    p['location'] = 'Local'
-
             # Reorder process list
-            local_process_list = remote_process_list = []
+            local_process_list = []
+            remote_process_list = []
             for p in process_list:
                 if p['local']:
                     local_process_list.append(p)
 
+                    p_name = p['name']
                     if not p['location']:
                         res = post(self.api_url + 'update-process-meta-data', {
-                                   'email': self.current_user_email, 'id': self.id, 'code': self.access_token['code'], 'name': p['name']}).json()
+                                   'email': self.current_user_email, 'id': self.id, 'code': self.access_token['code'], 'name': p_name}).json()
 
                         if res['status']:
                             logger.info(res['msg'])
                         else:
                             logger.error(res['msg'])
+
+                    p['location'] = 'Local'
                 else:
                     remote_process_list.append(p)
             process_list = local_process_list + remote_process_list
