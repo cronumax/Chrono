@@ -62,7 +62,7 @@ pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import plye
 ### macOS
 
 ```bash
-pyinstaller --onefile --windowed --add-data 'assets:assets' main.py -n Chrono -i media/automation.png
+pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import geocoder main.py -n Chrono -i media/automation.png
 ```
 
 ### Windows
