@@ -108,6 +108,9 @@ class Api:
         with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
             json.dump(app, f)
 
+        # Serialization for API data transfer
+        app['location'] = json.dumps(app['location'])
+
         res = post(self.api_url + endpt, app).json()
 
         logger.info(res['msg']) if res['status'] else logger.error(res['msg'])
