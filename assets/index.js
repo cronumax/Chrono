@@ -901,6 +901,14 @@ $(window).on('pywebviewready', function() {
     })
   }, 90)
 
+  setTimeout(function() {
+    window.pywebview.api.get_outbox().then(res => {
+      if (res != null) {
+        window.pywebview.api.send_email(res['type'], res['email'])
+      }
+    })
+  }, 100)
+
   refreshProcessList()
 })
 

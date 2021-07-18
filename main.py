@@ -89,6 +89,7 @@ class Api:
         self.sched.add_listener(self.sched_listener,
                                 EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
         self.sched.start()
+        self.outbox = None
         '''
         Defaults
         '''
@@ -130,7 +131,14 @@ class Api:
 
             sleep(60)
 
+    def get_outbox(self):
+        return self.outbox
+
+    def set_outbox(self, type, email):
+        self.outbox = {'type': type, 'email': email}
+
     def send_email(self, type, email):
+        logger.info('Send {0} email to {1}'.format(type, email))
         return post(self.api_url + 'send-email', {'type': type, 'email': email, 'id': self.id}).json()
 
     def login(self, email, pw):
@@ -142,8 +150,6 @@ class Api:
 
             self.logged_in = True
             self.current_user_email = email
-
-            self.send_email('login', email)
 
             self.load_or_save_app_config_on_login(email)
 
@@ -296,6 +302,7 @@ class Api:
         self.window.load_url('assets/index.html')
 
     def navigate_to_login(self):
+        self.outbox = None
         self.window.load_url('assets/ac.html')
 
     def record(self, msg):

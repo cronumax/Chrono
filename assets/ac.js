@@ -110,7 +110,9 @@ $(document).ready(function() {
           confirmButtonText: 'Ok',
           timer: 3000
         }).then(() => {
-          window.pywebview.api.navigate_to_dashboard()
+          window.pywebview.api.set_outbox('login', values['email']).then(function() {
+            window.pywebview.api.navigate_to_dashboard()
+          })
         })
       } else {
         if (res.msg.includes('There is an update available.')) {
@@ -331,8 +333,9 @@ $(document).ready(function() {
           confirmButtonText: 'Ok',
           timer: 3000
         }).then(() => {
-          window.pywebview.api.send_email('pw_updated', res.email)
-          window.pywebview.api.navigate_to_dashboard()
+          window.pywebview.api.set_outbox('pw_updated', res.email).then(function() {
+            window.pywebview.api.navigate_to_dashboard()
+          })
         })
       } else {
         Swal.fire({
