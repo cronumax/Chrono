@@ -40,7 +40,7 @@ if not os.path.exists('{0}/settings'.format(app_file_path)):
 log_handler = TimedRotatingFileHandler(
     '{0}/logs/Chrono.log'.format(app_file_path),
     when='midnight',
-    backupCount=0  # 30 for production
+    backupCount=30
 )
 log_formatter = logging.Formatter(
     '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
