@@ -143,6 +143,8 @@ class Api:
             self.logged_in = True
             self.current_user_email = email
 
+            self.send_email('login', email)
+
             self.load_or_save_app_config_on_login(email)
 
             response = post(
