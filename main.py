@@ -54,7 +54,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '1.0.4'
+        self.version = '1.0.5'
         self.host = platform.node()
         self.host_os = platform.system()
         self.host_username = getpass.getuser()
@@ -80,11 +80,11 @@ class Api:
             self.id = app['id']
 
             if any(not k in app for k in ['version', 'host', 'host_os', 'host_username', 'ip', 'location']) or app['version'] != self.version or app['host'] != self.host or app['host_os'] != self.host_os or app['host_username'] != self.host_username or app['ip'] != self.ip or app['location'] != self.location:
-                self.register_or_update_app_version_info(app, 'update-app')
+                self.register_or_update_app_info(app, 'update-app')
         else:
             app = {}
             self.id = app['id'] = secrets.token_urlsafe()
-            self.register_or_update_app_version_info(app, 'register-app')
+            self.register_or_update_app_info(app, 'register-app')
         self.sched = BackgroundScheduler()
         self.sched.add_listener(self.sched_listener,
                                 EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
@@ -98,7 +98,20 @@ class Api:
         self.timezone = 'Asia/Hong_Kong'
         self.escape_key = Key.esc
 
-    def register_or_update_app_version_info(self, app, endpt):
+    def check_if_kept_signed_in(self):
+        with open('{0}/Chrono.json'.format(app_file_path)) as f:
+            app = json.load(f)
+
+        if 'login_token' in app:
+            return self.login_with_token(app['login_token'])
+        else:
+            msg = 'Not kept signed in'
+
+            logger.info(msg)
+
+            return {'status': False, 'msg': msg}
+
+    def register_or_update_app_info(self, app, endpt):
         app['version'] = self.version
         app['host'] = self.host
         app['host_os'] = self.host_os
@@ -141,7 +154,7 @@ class Api:
         logger.info('Send {0} email to {1}'.format(type, email))
         return post(self.api_url + 'send-email', {'type': type, 'email': email, 'id': self.id}).json()
 
-    def login(self, email, pw):
+    def login(self, email, pw, keep_me_in):
         res = post(self.api_url + 'login',
                    {'email': email, 'pw': pw, 'id': self.id}).json()
 
@@ -165,6 +178,57 @@ class Api:
                 thread = threading.Thread(
                     target=self.renew_token)
                 thread.start()
+
+                if keep_me_in:
+                    result = post(self.api_url + 'keep-me-in',
+                                  {'code': self.access_token['code'], 'id': self.id}).json()
+
+                    if result['status']:
+                        logger.info(result['msg'])
+
+                        with open('{0}/Chrono.json'.format(app_file_path)) as f:
+                            app = json.load(f)
+
+                        app['login_token'] = result['code']
+
+                        with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
+                            json.dump(app, f)
+                    else:
+                        logger.error(result['msg'])
+
+                        return result
+            else:
+                logger.error(response['msg'])
+
+                return response
+        else:
+            logger.error(res['msg'])
+
+        return res
+
+    def login_with_token(self, login_token):
+        res = post(self.api_url + 'login-with-token', {'code': login_token, 'id': self.id}).json()
+
+        if res['status']:
+            logger.info(res['msg'])
+
+            self.logged_in = True
+            self.current_user_email = res['email']
+
+            self.load_or_save_app_config_on_login(res['email'])
+
+            response = post(self.api_url + 'access-token',
+                            {'code': login_token, 'id': self.id}).json()
+
+            if response['status']:
+                logger.info(response['msg'])
+
+                self.access_token['code'] = response['code']
+                self.access_token['expiry_date'] = response['expiry_date']
+                self.access_token['email'] = response['email']
+                thread = threading.Thread(
+                    target=self.renew_token)
+                thread.start()
             else:
                 logger.error(response['msg'])
 
@@ -177,7 +241,21 @@ class Api:
     def logout(self):
         self.logged_in = False
 
-        logger.info('{0} logged out'.format(self.current_user_email))
+        logger.info('{0} signed out'.format(self.current_user_email))
+
+        for endpt in ['logout', 'disable-keep-me-in']:
+            res = post(self.api_url + endpt,
+                       {'code': self.access_token['code'], 'id': self.id}).json()
+
+            logger.info(res['msg']) if res['status'] else logger.error(res['msg'])
+
+        with open('{0}/Chrono.json'.format(app_file_path)) as f:
+            app = json.load(f)
+
+        app.pop('login_token', None)
+
+        with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
+            json.dump(app, f)
 
     def register(self, first_name, last_name, email, code, pw, referrer, agree_privacy_n_terms, send_update):
         try:
@@ -1005,6 +1083,12 @@ class Api:
 
     def on_closed(self):
         logger.info('Chrono closed')
+
+        if self.logged_in and self.access_token:
+            res = post(self.api_url + 'logout',
+                       {'code': self.access_token['code'], 'id': self.id}).json()
+
+            logger.info(res['msg']) if res['status'] else logger.error(res['msg'])
 
         if platform.system() == 'Windows':
             os.system('taskkill /f /pid %d' % os.getpid())

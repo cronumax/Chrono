@@ -3,16 +3,26 @@ $(window).on('pywebviewready', function() {
     $(this).removeClass('active')
   })
 
-  window.pywebview.api.check_app_version().then(res => {
-    if (!res['status']) {
-      Swal.fire({
-        title: 'New Version Available',
-        html: res.msg,
-        icon: 'warning',
-        confirmButtonText: 'Ok'
-      })
-    }
-  })
+  setTimeout(function() {
+    window.pywebview.api.check_app_version().then(res => {
+      if (!res['status']) {
+        Swal.fire({
+          title: 'New Version Available',
+          html: res.msg,
+          icon: 'warning',
+          confirmButtonText: 'Ok'
+        })
+      }
+    })
+  }, 10)
+
+  setTimeout(function() {
+    window.pywebview.api.check_if_kept_signed_in().then(res => {
+      if (res['status']) {
+        window.pywebview.api.navigate_to_dashboard()
+      }
+    })
+  }, 20)
 })
 
 $(document).ready(function() {
@@ -78,9 +88,10 @@ $(document).ready(function() {
     var inputs = $('#signInForm :input')
     var values = {}
     inputs.each(function() {
-      values[this.id] = $(this).val()
+      values[this.id] = (this.type === 'checkbox') ? $(this).is(':checked') : $(this).val()
     })
     $('#signInForm :input').val('')
+    $('#signInForm :input[type=checkbox]').prop('checked', false)
 
     // Form validation
     if (values['email'].length === 0) {
@@ -101,7 +112,7 @@ $(document).ready(function() {
       return false
     }
 
-    window.pywebview.api.login(values['email'], values['pw']).then(res => {
+    window.pywebview.api.login(values['email'], values['pw'], values['keepMeIn']).then(res => {
       if (res['status']) {
         Swal.fire({
           title: 'Done',

@@ -921,8 +921,9 @@ $(document).ready(function() {
   })
 
   $('#logoutBtn').click(function() {
-    window.pywebview.api.logout()
-    window.pywebview.api.navigate_to_login()
+    window.pywebview.api.logout().then(function() {
+      window.pywebview.api.navigate_to_login()
+    })
   })
 
   $('#profileChangePwLn').click(function() {
