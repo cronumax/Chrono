@@ -90,8 +90,6 @@ $(document).ready(function() {
     inputs.each(function() {
       values[this.id] = (this.type === 'checkbox') ? $(this).is(':checked') : $(this).val()
     })
-    $('#signInForm :input').val('')
-    $('#signInForm :input[type=checkbox]').prop('checked', false)
 
     // Form validation
     if (values['email'].length === 0) {
@@ -121,6 +119,8 @@ $(document).ready(function() {
           confirmButtonText: 'Ok',
           timer: 3000
         }).then(() => {
+          $('#signInForm :input').val('')
+          $('#signInForm :input[type=checkbox]').prop('checked', false)
           window.pywebview.api.set_outbox('login', values['email']).then(function() {
             window.pywebview.api.navigate_to_dashboard()
           })
@@ -153,8 +153,6 @@ $(document).ready(function() {
     inputs.each(function() {
       values[this.id] = (this.type === 'checkbox') ? $(this).is(':checked') : $(this).val()
     })
-    $('#registerForm :input').val('')
-    $('#registerForm :input[type=checkbox]').prop('checked', false)
 
     // Form validation
     if (values['1stName'].length === 0) {
@@ -198,6 +196,8 @@ $(document).ready(function() {
           confirmButtonText: 'Ok',
           timer: 3000
         }).then(() => {
+          $('#registerForm :input').val('')
+          $('#registerForm :input[type=checkbox]').prop('checked', false)
           window.pywebview.api.navigate_to_dashboard()
         })
       } else {
@@ -230,7 +230,6 @@ $(document).ready(function() {
     inputs.each(function() {
       values[this.id] = $(this).val()
     })
-    $('#forgotPwForm :input').val('')
 
     // Form validation
     if (values['resetPwEmail'].length === 0) {
@@ -262,6 +261,7 @@ $(document).ready(function() {
               confirmButtonText: 'Ok',
               timer: 3000
             }).then(() => {
+              $('#forgotPwForm :input').val('')
               $('#sendEmailBtn').html("SEND")
               $('#forgotPwResetPwWithTokenLn').click()
             })
@@ -363,10 +363,12 @@ $(document).ready(function() {
 
   $('#forgotPwLn').click(function() {
     $('#signInForm :input').val('')
+    $('#signInForm :input[type=checkbox]').prop('checked', false)
   })
 
   $('#registerLn').click(function() {
     $('#signInForm :input').val('')
+    $('#signInForm :input[type=checkbox]').prop('checked', false)
   })
 
   $('#forgotPwSignInLn').click(function() {

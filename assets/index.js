@@ -943,7 +943,6 @@ $(document).ready(function() {
     inputs.each(function() {
       values[this.id] = $(this).val()
     })
-    $('#resetPwWithOldPwForm :input').val('')
 
     // Form validation
     if (values['oldPw'].length === 0) {
@@ -985,6 +984,7 @@ $(document).ready(function() {
           confirmButtonText: 'Ok',
           timer: 3000
         }).then(() => {
+          $('#resetPwWithOldPwForm :input').val('')
           $('.nav-link').first().click()
         })
       } else {
