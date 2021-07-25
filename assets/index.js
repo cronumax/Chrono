@@ -17,6 +17,11 @@ $(window).on('pywebviewready', function() {
     }
   })
 
+  $('#sessionRefreshBtn').click(function() {
+    var msg = 'Session refresh btn clicked'
+    refreshSessionList(msg)
+  })
+
   $('#recordBtn').click(function() {
     var msg = 'Record btn clicked'
     if ($(this).hasClass('running')) {
@@ -909,6 +914,10 @@ $(window).on('pywebviewready', function() {
     })
   }, 100)
 
+  setTimeout(function() {
+    refreshSessionList()
+  }, 110)
+
   refreshProcessList()
 })
 
@@ -1034,8 +1043,26 @@ function refreshProcessList(msg = null) {
       $('#processList tbody').append(row)
     })
   })
-  $('th.sorttable_sorted > span').remove()
-  $('th.sorttable_sorted').removeClass('sorttable_sorted')
+  if ($('#processList th').hasClass('sorttable_sorted')) {
+    $('#processList th.sorttable_sorted > span').remove()
+    $('#processList th.sorttable_sorted').removeClass('sorttable_sorted')
+  } else if ($('#processList th').hasClass('sorttable_sorted_reverse')) {
+    $('#processList th.sorttable_sorted_reverse > span').remove()
+    $('#processList th.sorttable_sorted_reverse').removeClass('sorttable_sorted_reverse')
+  }
+}
+
+function refreshSessionList(msg = null) {
+  $.when(window.pywebview.api.load_session_list(msg)).then(sessionList => {
+    $('#sessionList tbody').empty()
+    $.each(sessionList, function(i, session) {
+      var row = "<tr class='table-dark'>"
+      row += '<td>' + session + '</td>'
+      row += "<td><button id='logoutSpecificBtn' class='btn'><i class='far fa-times-circle fa-lg'></i></button></td>"
+      row += '</tr>'
+      $('#sessionList tbody').append(row)
+    })
+  })
 }
 
 function promptForProcessName(rename = false, oldName = null) {

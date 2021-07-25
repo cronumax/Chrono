@@ -48,7 +48,7 @@
             <th scope="col">Name</th>
             <th scope="col">Created</th>
             <th scope="col">Located</th>
-            <th scope="col">Action</th>
+            <th scope="col" class="sorttable_nosort">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -63,6 +63,26 @@
         <span class='label'>License Expiry Date</span>
         <span id='userLicenseExpiryDate'></span>
       </div>
+      <hr class='page-divider'>
+      <div id="sessionCtrlPanel">
+        <h6>Login Sessions on Other Devices</h6>
+        <button id='sessionRefreshBtn' class='btn'><i class='fa fa-redo fa-lg'></i></button>
+        <button id='logoutAllOthersBtn' class='btn'><i class='fa fa-times-circle fa-lg'></i></button>
+      </div>
+      <table id='sessionList' class="table table-hover">
+        <colgroup>
+          <col id="sessionLocatedCol">
+          <col id="sessionActionCol">
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">Located</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
       <hr class='page-divider'>
       <a class='nav-link' data-toggle='tab' href="#changePw" id='profileChangePwLn'>CHANGE PASSWORD</a>
     </div>

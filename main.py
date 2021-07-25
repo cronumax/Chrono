@@ -854,6 +854,30 @@ class Api:
 
             return []
 
+    def load_session_list(self, msg=None):
+        try:
+            logger.info(msg)
+
+            res = post(
+                self.api_url + 'retrieve-session', {'email': self.current_user_email, 'id': self.id, 'code': self.access_token['code']}).json()
+
+            if res['status']:
+                logger.info(res['msg'])
+
+                session_list = res['session_list']
+            else:
+                logger.error(res['msg'])
+
+                return []
+
+            logger.info(session_list)
+
+            return session_list
+        except Exception as e:
+            logger.error('load_session_list() error: {0}'.format(str(e)))
+
+            return []
+
     def check_app_version(self):
         try:
             logger.info('Check app version')
