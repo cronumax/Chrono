@@ -770,6 +770,23 @@ class Api:
 
             return {'status': False, 'msg': str(e)}
 
+    def logout_remote_session(self, session):
+        try:
+            # Data massage for specific session logout
+            if isinstance(session, str):
+                session = [session]
+
+            res = post(self.api_url + 'logout-session', {'email': self.current_user_email,
+                                                         'session': session, 'id': self.id, 'code': self.access_token['code']}).json()
+
+            logger.info(res['msg']) if res['status'] else logger.error(res['msg'])
+
+            return res
+        except Exception as e:
+            logger.error('logout_remote_session() error: {0}'.format(str(e)))
+
+            return {'status': False, 'msg': str(e)}
+
     def load_process_list(self, msg=None):
         try:
             logger.info(msg)

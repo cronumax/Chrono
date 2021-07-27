@@ -108,6 +108,25 @@ $(window).on('pywebviewready', function() {
     }
   })
 
+  $('#logoutAllOthersBtn').click(function() {
+    Swal.fire({
+      title: 'Log out all other sessions?',
+      html: 'You will not be able to revert this.',
+      icon: 'warning',
+      confirmButtonText: 'Confirm',
+      showCancelButton: true,
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then(res => {
+      if (res.isConfirmed) {
+        var sessions = []
+        $('#sessionList tbody tr td:first').each(function() {
+          sessions.push($(this).html())
+        })
+        logoutRemoteSession(sessions)
+      }
+    })
+  })
+
   $('#processList tbody').on('click', 'tr', function() {
     $(this).addClass('selected').siblings().removeClass('selected')
   })
@@ -752,6 +771,21 @@ $(window).on('pywebviewready', function() {
     })
   })
 
+  $('#sessionList tbody').on('click', '#logoutSpecificBtn', function() {
+    Swal.fire({
+      title: 'Log out ' + $(this).parent().parent().find('td:eq(1)').html() + '?',
+      html: 'You will not be able to revert this.',
+      icon: 'warning',
+      confirmButtonText: 'Confirm',
+      showCancelButton: true,
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then(res => {
+      if (res.isConfirmed) {
+        logoutRemoteSession($(this).parent().parent().find('td:first').html())
+      }
+    })
+  })
+
   $('#timezoneSelection').change(function() {
     var timezone = $(this).children('option:selected').text()
 
@@ -1057,7 +1091,8 @@ function refreshSessionList(msg = null) {
     $('#sessionList tbody').empty()
     $.each(sessionList, function(i, session) {
       var row = "<tr class='table-dark'>"
-      row += '<td>' + session + '</td>'
+      row += '<td style="display:none;">' + session.id + '</td>'
+      row += '<td>' + session.location + '</td>'
       row += "<td><button id='logoutSpecificBtn' class='btn'><i class='far fa-times-circle fa-lg'></i></button></td>"
       row += '</tr>'
       $('#sessionList tbody').append(row)
@@ -1097,11 +1132,11 @@ function promptForProcessName(rename = false, oldName = null) {
       } else {
         if (rename) {
           window.pywebview.api.rename_process(oldName, result.value).then(res => {
-            backendValidation(res)
+            backendValidation('process', res)
           })
         } else {
           window.pywebview.api.save(result.value).then(res => {
-            backendValidation(res)
+            backendValidation('process', res)
           })
         }
       }
@@ -1109,16 +1144,13 @@ function promptForProcessName(rename = false, oldName = null) {
   })
 }
 
-function backendValidation(res) {
+function backendValidation(type, res) {
   if (res.status) {
-    Swal.fire({
-      title: 'Done',
-      html: res.msg,
-      icon: 'success',
-      confirmButtonText: 'Ok',
-      timer: 3000
-    })
-    refreshProcessList()
+    if (type == 'process') {
+      refreshProcessList()
+    } else {
+      refreshSessionList()
+    }
   } else {
     Swal.fire({
       title: 'Error',
@@ -1131,7 +1163,13 @@ function backendValidation(res) {
 
 function delProcess(process) {
   window.pywebview.api.del_process(process).then(res => {
-    backendValidation(res)
+    backendValidation('process', res)
+  })
+}
+
+function logoutRemoteSession(session) {
+  window.pywebview.api.logout_remote_session(session).then(res => {
+    backendValidation('session', res)
   })
 }
 
