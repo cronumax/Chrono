@@ -23,6 +23,7 @@ from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 from dateutil.relativedelta import relativedelta
 import getpass
 import geocoder
+import pika
 
 
 if platform.system() == 'Windows':
@@ -64,6 +65,7 @@ class Api:
                          for k in location_keys if k in geocoder.ip('me').json}
         self.window = None
         self.api_url = 'https://chrono.cronumax.com/'
+        # self.api_url = 'http://localhost:8000/'
         self.current_user_email = None
         self.logged_in = False
         self.access_token = {}
@@ -89,6 +91,8 @@ class Api:
         self.sched.add_listener(self.sched_listener,
                                 EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
         self.sched.start()
+        thread = threading.Thread(target=self.consume_server_msg)
+        thread.start()
         self.outbox = None
         '''
         Defaults
@@ -1428,6 +1432,25 @@ class Api:
             logger.info('Revert schedule btn to normal')
         except Exception as e:
             logger.error('is_schedule_on() error: {0}'.format(str(e)))
+
+    def mq_handler(self, channel, method, properties, body):
+        try:
+            logger.info(body.decode())
+            self.logout()
+            self.navigate_to_login()
+        except Exception as e:
+            logger.error('mq_handler() error: {0}'.format(str(e)))
+
+    def consume_server_msg(self):
+        try:
+            connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+            channel = connection.channel()
+            channel.queue_declare(queue=self.id)
+            channel.basic_consume(queue=self.id, on_message_callback=self.mq_handler, auto_ack=True)
+            logger.info('Listening to server msg')
+            channel.start_consuming()
+        except Exception as e:
+            logger.error('consume_server_msg() error: {0}'.format(str(e)))
 
 
 if __name__ == '__main__':
