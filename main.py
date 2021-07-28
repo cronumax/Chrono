@@ -781,7 +781,7 @@ class Api:
                 session = [session]
 
             res = post(self.api_url + 'logout-session', {'email': self.current_user_email,
-                                                         'session': session, 'id': self.id, 'code': self.access_token['code']}).json()
+                                                         'session': json.dumps(session), 'id': self.id, 'code': self.access_token['code']}).json()
 
             logger.info(res['msg']) if res['status'] else logger.error(res['msg'])
 
