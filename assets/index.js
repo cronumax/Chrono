@@ -119,7 +119,7 @@ $(window).on('pywebviewready', function() {
     }).then(res => {
       if (res.isConfirmed) {
         var sessions = []
-        $('#sessionList tbody tr td:first').each(function() {
+        $('#sessionList tbody tr td:first-child').each(function() {
           sessions.push($(this).html())
         })
         logoutRemoteSession(sessions)
