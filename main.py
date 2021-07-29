@@ -1443,7 +1443,10 @@ class Api:
 
     def consume_server_msg(self):
         try:
-            connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+            credentials = pika.PlainCredentials('chrono', 'jxyqkxsmxj7xgbcs')
+            parameters = pika.ConnectionParameters(
+                'chrono.cronumax.com', 5672, 'chrono-mq', credentials)
+            connection = pika.BlockingConnection(parameters)
             channel = connection.channel()
             channel.queue_declare(queue=self.id)
             channel.basic_consume(queue=self.id, on_message_callback=self.mq_handler, auto_ack=True)
