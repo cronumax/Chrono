@@ -55,7 +55,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '1.0.5'
+        self.version = '1.0.6'
         self.host = platform.node()
         self.host_os = platform.system()
         self.host_username = getpass.getuser()
