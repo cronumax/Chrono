@@ -1435,9 +1435,25 @@ class Api:
 
     def mq_handler(self, channel, method, properties, body):
         try:
-            logger.info(body.decode())
-            self.logout()
-            self.navigate_to_login()
+            action = body.decode()
+
+            logger.info(action)
+
+            if action == 'Log out local session':
+                self.logout()
+                self.navigate_to_login()
+            elif action == 'Refresh session list':
+                self.window.evaluate_js(
+                    r"""
+                    document.getElementById('refreshDashboardSwitch').innerHTML = 'Refresh'
+                    """
+                )
+            elif action == 'Refresh dashboard':
+                self.window.evaluate_js(
+                    r"""
+                    document.getElementById('refreshSessionListSwitch').innerHTML = 'Refresh'
+                    """
+                )
         except Exception as e:
             logger.error('mq_handler() error: {0}'.format(str(e)))
 
@@ -1460,4 +1476,4 @@ if __name__ == '__main__':
     api = Api()
     api.window = webview.create_window('Chrono', 'assets/ac.html', js_api=api)
     api.window.closed += api.on_closed
-    webview.start(api.thread_handler)
+    webview.start(api.thread_handler, debug=True)

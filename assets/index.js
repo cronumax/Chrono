@@ -865,6 +865,20 @@ $(window).on('pywebviewready', function() {
     }
   })
 
+  $('#refreshDashboardSwitch').change(function() {
+    if ($(this).text().length != 0) {
+      refreshProcessList()
+      $(this).empty()
+    }
+  })
+
+  $('#refreshSessionListSwitch').change(function() {
+    if ($(this).text().length != 0) {
+      refreshSessionList()
+      $(this).empty()
+    }
+  })
+
   setTimeout(function() {
     window.pywebview.api.get_touch_mode().then(res => {
       if (res['status']) {
