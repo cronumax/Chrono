@@ -865,14 +865,14 @@ $(window).on('pywebviewready', function() {
     }
   })
 
-  $('#refreshDashboardSwitch').change(function() {
+  $('#refreshDashboardSwitch').on('change', function() {
     if ($(this).text().length != 0) {
       refreshProcessList()
       $(this).empty()
     }
   })
 
-  $('#refreshSessionListSwitch').change(function() {
+  $('#refreshSessionListSwitch').on('change', function() {
     if ($(this).text().length != 0) {
       refreshSessionList()
       $(this).empty()

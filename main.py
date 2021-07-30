@@ -1445,13 +1445,19 @@ class Api:
             elif action == 'Refresh session list':
                 self.window.evaluate_js(
                     r"""
-                    document.getElementById('refreshDashboardSwitch').innerHTML = 'Refresh'
+                    var refreshSwitch = document.getElementById('refreshSessionListSwitch')
+                    refreshSwitch.textContent = 'Refresh'
+                    var refreshEvent = new Event('change')
+                    refreshSwitch.dispatchEvent(refreshEvent)
                     """
                 )
             elif action == 'Refresh dashboard':
                 self.window.evaluate_js(
                     r"""
-                    document.getElementById('refreshSessionListSwitch').innerHTML = 'Refresh'
+                    var refreshSwitch = document.getElementById('refreshDashboardSwitch')
+                    refreshSwitch.textContent = 'Refresh'
+                    var refreshEvent = new Event('change')
+                    refreshSwitch.dispatchEvent(refreshEvent)
                     """
                 )
         except Exception as e:
@@ -1476,4 +1482,4 @@ if __name__ == '__main__':
     api = Api()
     api.window = webview.create_window('Chrono', 'assets/ac.html', js_api=api)
     api.window.closed += api.on_closed
-    webview.start(api.thread_handler, debug=True)
+    webview.start(api.thread_handler)
