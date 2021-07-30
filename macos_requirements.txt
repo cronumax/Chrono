@@ -16,6 +16,7 @@ Jinja2==2.11.3
 macholib==1.14
 MarkupSafe==1.1.1
 MouseInfo==0.1.3
+pika==1.2.0
 Pillow==8.1.2
 PyAutoGUI==0.9.52
 pycairo==1.20.0
