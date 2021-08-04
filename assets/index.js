@@ -3,18 +3,25 @@ $(window).on('pywebviewready', function() {
 
   $('#refreshBtn').click(function() {
     var msg = 'Refresh btn clicked'
-    var processName = $('#scheduleBtn.running').parent().parent().find('td:first').html()
-    if (processName) {
-      window.pywebview.api.cancel_scheduled_task(processName).then(res => {
-        if (!res['status']) {
-          simpleWarningPopUp(res['msg'])
-        } else {
-          refreshProcessList(msg)
-        }
-      })
-    } else {
-      refreshProcessList(msg)
-    }
+    var interval = 10
+
+    $('#scheduleBtn.scheduling').each(function() {
+      var processName = $(this).parent().parent().find('td:first').html()
+
+      if (processName) {
+        setTimeout(function() {
+          window.pywebview.api.cancel_scheduled_task(processName).then(res => {
+            if (!res['status']) {
+              simpleWarningPopUp(res['msg'])
+            }
+          })
+        }, interval)
+
+        interval += 10
+      }
+    })
+
+    refreshProcessList(msg)
   })
 
   $('#sessionRefreshBtn').click(function() {
@@ -136,7 +143,7 @@ $(window).on('pywebviewready', function() {
       return
     }
     var processName = $(this).parent().parent().find('td:first').html()
-    if ($(this).hasClass('running')) {
+    if ($(this).hasClass('scheduling')) {
       Swal.fire({
         title: 'Disable scheduled run?',
         icon: 'warning',
@@ -158,15 +165,13 @@ $(window).on('pywebviewready', function() {
           // Disable scheduled run
           window.pywebview.api.cancel_scheduled_task(processName, 'Schedule btn clicked').then(res => {
             if (res['status']) {
-              $(this).removeClass('running')
+              $(this).removeClass('scheduling')
             } else {
               simpleWarningPopUp(res['msg'])
             }
           })
         }
       })
-    } else if ($('.running').length > 0) {
-      simpleWarningPopUp(trafficWarningMsg)
     } else {
       // Prompt to let user set date, time & recurrence for scheduling replay
       Swal.fire({
@@ -196,9 +201,9 @@ $(window).on('pywebviewready', function() {
         if (res.isConfirmed) {
           window.pywebview.api.schedule(processName, datetime).then(res => {
             if (res['status']) {
-              $(this).addClass('running')
+              $(this).addClass('scheduling')
               $.when(window.pywebview.api.is_schedule_on(processName)).done(function() {
-                $('td:contains(' + processName + ')').next().next().next().find('#scheduleBtn').removeClass('running')
+                $('td:contains(' + processName + ')').next().next().next().find('#scheduleBtn').removeClass('scheduling')
               })
             } else {
               simpleWarningPopUp(res['msg'])
@@ -249,9 +254,9 @@ $(window).on('pywebviewready', function() {
 
               window.pywebview.api.schedule(processName, datetime, predefinedRecurrence).then(res => {
                 if (res['status']) {
-                  $(this).addClass('running')
+                  $(this).addClass('scheduling')
                   $.when(window.pywebview.api.is_schedule_on(processName)).done(function() {
-                    $('td:contains(' + processName + ')').next().next().next().find('#scheduleBtn').removeClass('running')
+                    $('td:contains(' + processName + ')').next().next().next().find('#scheduleBtn').removeClass('scheduling')
                   })
                 } else {
                   simpleWarningPopUp(res['msg'])
@@ -729,9 +734,9 @@ $(window).on('pywebviewready', function() {
 
                   window.pywebview.api.schedule(processName, datetime, null, intervalNum, intervalUnit, wkSettings, moSettings, dOWON, end, endDate, endOccurrence).then(res => {
                     if (res['status']) {
-                      $(this).addClass('running')
+                      $(this).addClass('scheduling')
                       $.when(window.pywebview.api.is_schedule_on(processName)).done(function() {
-                        $('td:contains(' + processName + ')').next().next().next().find('#scheduleBtn').removeClass('running')
+                        $('td:contains(' + processName + ')').next().next().next().find('#scheduleBtn').removeClass('scheduling')
                       })
                     } else {
                       simpleWarningPopUp(res['msg'])
