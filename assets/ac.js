@@ -23,6 +23,10 @@ $(window).on('pywebviewready', function() {
       }
     })
   }, 20)
+
+  setTimeout(function() {
+    window.pywebview.api.check_if_opened()
+  }, 30)
 })
 
 $(document).ready(function() {

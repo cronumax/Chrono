@@ -67,6 +67,7 @@ class Api:
         self.api_url = 'https://chrono.cronumax.com/'
         # self.api_url = 'http://localhost:8000/'
         self.current_user_email = None
+        self.opened = False
         self.logged_in = False
         self.access_token = {}
         self.is_recording = False
@@ -80,6 +81,23 @@ class Api:
                 app = json.load(f)
 
             self.id = app['id']
+            if 'opened' in app and app['opened']:
+                if platform.system() == 'Darwin':
+                    title = 'Chrono'
+                    message = 'Chrono is already opened.'
+                    command = f'''
+                    osascript -e 'display notification "{message}" with title "{title}"'
+                    '''
+                    os.system(command)
+                else:
+                    notification.notify(title='Chrono', message='Chrono is already opened.')
+
+                self.opened = True
+            else:
+                app['opened'] = True
+
+            with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
+                json.dump(app, f)
 
             if any(not k in app for k in ['version', 'host', 'host_os', 'host_username', 'ip', 'location']) or app['version'] != self.version or app['host'] != self.host or app['host_os'] != self.host_os or app['host_username'] != self.host_username or app['ip'] != self.ip or app['location'] != self.location:
                 self.register_or_update_app_info(app, 'update-app')
@@ -103,17 +121,18 @@ class Api:
         self.escape_key = Key.esc
 
     def check_if_kept_signed_in(self):
-        with open('{0}/Chrono.json'.format(app_file_path)) as f:
-            app = json.load(f)
+        if not self.opened:
+            with open('{0}/Chrono.json'.format(app_file_path)) as f:
+                app = json.load(f)
 
-        if 'login_token' in app:
-            return self.login_with_token(app['login_token'])
-        else:
-            msg = 'Not kept signed in'
+            if 'login_token' in app:
+                return self.login_with_token(app['login_token'])
+            else:
+                msg = 'Not kept signed in'
 
-            logger.info(msg)
+                logger.info(msg)
 
-            return {'status': False, 'msg': msg}
+                return {'status': False, 'msg': msg}
 
     def register_or_update_app_info(self, app, endpt):
         app['version'] = self.version
@@ -122,6 +141,7 @@ class Api:
         app['host_username'] = self.host_username
         app['ip'] = self.ip
         app['location'] = self.location
+        app['opened'] = True
 
         with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
             json.dump(app, f)
@@ -408,8 +428,7 @@ class Api:
                     '''
                     os.system(command)
                 else:
-                    notification.notify(
-                        title='Chrono', message='Record finished.')
+                    notification.notify(title='Chrono', message='Record finished.')
         except Exception as e:
             logger.error('record() error: {0}'.format(str(e)))
 
@@ -442,8 +461,7 @@ class Api:
                     '''
                     os.system(command)
                 else:
-                    notification.notify(
-                        title='Chrono', message='Replay finished.')
+                    notification.notify(title='Chrono', message='Replay finished.')
                 self.is_playing = False
         except Exception as e:
             logger.error('play() error: {0}'.format(str(e)))
@@ -1129,6 +1147,15 @@ class Api:
     def on_closed(self):
         logger.info('Chrono closed')
 
+        with open('{0}/Chrono.json'.format(app_file_path)) as f:
+            app = json.load(f)
+
+        if not self.opened:
+            app['opened'] = False
+
+        with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
+            json.dump(app, f)
+
         if self.logged_in and self.access_token:
             res = post(self.api_url + 'logout',
                        {'code': self.access_token['code'], 'id': self.id}).json()
@@ -1476,6 +1503,10 @@ class Api:
             channel.start_consuming()
         except Exception as e:
             logger.error('consume_server_msg() error: {0}'.format(str(e)))
+
+    def check_if_opened(self):
+        if self.opened:
+            self.on_closed()
 
 
 if __name__ == '__main__':
