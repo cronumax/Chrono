@@ -504,15 +504,17 @@ class Api:
 
                             if event['event_type'] == 'up':
                                 if event['position'] != last_cursor_pos:
+                                    pag.moveTo(last_cursor_pos[0], last_cursor_pos[1])
+
                                     pag.dragTo(event['position'][0],
                                                event['position'][1], 1, button=btn)
                                 else:
+                                    pag.mouseDown(
+                                        button=btn, x=event['position'][0], y=event['position'][1])
+
                                     pag.mouseUp(
                                         button=btn, x=event['position'][0], y=event['position'][1])
                             else:
-                                pag.mouseDown(
-                                    button=btn, x=event['position'][0], y=event['position'][1])
-
                                 last_cursor_pos = event['position']
                         elif event['event_name'] == 'WheelEvent':
                             if event['event_type'] == 'up':
