@@ -1147,6 +1147,8 @@ function promptForProcessName(rename = false, oldName = null) {
           html: errorTxt,
           icon: 'error',
           confirmButtonText: 'Ok'
+        }).then(res => {
+          window.pywebview.api.remove_tmp_regional_screenshots()
         })
       } else {
         if (rename) {
@@ -1159,6 +1161,8 @@ function promptForProcessName(rename = false, oldName = null) {
           })
         }
       }
+    } else {
+      window.pywebview.api.remove_tmp_regional_screenshots()
     }
   })
 }

@@ -345,37 +345,44 @@ class Api:
                 self.update_settings_file(field, self.escape_key.name)
 
     def load_or_save_app_config_on_login(self, email):
-        # Create local directory for storing user's process JSON files
-        user_processes_path = '{0}/processes/{1}'.format(
-            app_file_path, email)
-        if not os.path.exists(user_processes_path):
-            os.makedirs(user_processes_path)
+        try:
+            # Create local directory for storing user's processes' JSON files
+            user_processes_path = '{0}/processes/{1}'.format(app_file_path, email)
+            if not os.path.exists(user_processes_path):
+                os.makedirs(user_processes_path)
 
-        # Load or save user's settings
-        user_settings_path = '{0}/settings/{1}.json'.format(
-            app_file_path, email)
-        if os.path.exists(user_settings_path):
-            with open(user_settings_path) as f:
-                user_settings = json.load(f)
+            # Create local directory for storing user's processes' regional screenshots
+            user_img_path = '{0}/img/{1}'.format(app_file_path, email)
+            if not os.path.exists(user_img_path):
+                os.makedirs(user_img_path)
 
-            self.load_settings(user_settings, 'touch_mode')
-            self.load_settings(user_settings, 'god_speed')
-            self.load_settings(user_settings, 'timezone')
-            self.load_settings(user_settings, 'escape_key')
-        else:
-            user_settings = {'touch_mode': self.touch_mode, 'god_speed': self.god_speed,
-                             'timezone': self.timezone, 'escape_key': self.escape_key.name}
+            # Load or save user's settings
+            user_settings_path = '{0}/settings/{1}.json'.format(
+                app_file_path, email)
+            if os.path.exists(user_settings_path):
+                with open(user_settings_path) as f:
+                    user_settings = json.load(f)
 
-            with open(user_settings_path, 'w') as f:
-                json.dump(user_settings, f)
+                self.load_settings(user_settings, 'touch_mode')
+                self.load_settings(user_settings, 'god_speed')
+                self.load_settings(user_settings, 'timezone')
+                self.load_settings(user_settings, 'escape_key')
+            else:
+                user_settings = {'touch_mode': self.touch_mode, 'god_speed': self.god_speed,
+                                 'timezone': self.timezone, 'escape_key': self.escape_key.name}
 
-        # Save app user info
-        app_info_path = '{0}/Chrono.json'.format(app_file_path)
-        with open(app_info_path) as f:
-            app = json.load(f)
-        app['user'] = email
-        with open(app_info_path, 'w') as f:
-            json.dump(app, f)
+                with open(user_settings_path, 'w') as f:
+                    json.dump(user_settings, f)
+
+            # Save app user info
+            app_info_path = '{0}/Chrono.json'.format(app_file_path)
+            with open(app_info_path) as f:
+                app = json.load(f)
+            app['user'] = email
+            with open(app_info_path, 'w') as f:
+                json.dump(app, f)
+        except Exception as e:
+            logger.error('load_or_save_app_config_on_login() error: {0}'.format(str(e)))
 
     def reset_pw(self, new_pw, old_pw=None, code=None):
         if old_pw:
@@ -569,26 +576,35 @@ class Api:
                     self.stop_play()
 
     def on_touch(self, x, y):
-        if self.touch_mode and self.is_recording:
-            logger.info('Touched at {0}'.format((x, y)))
+        try:
+            if self.touch_mode and self.is_recording:
+                logger.info('Touched at {0}'.format((x, y)))
 
-            self.m_event_handler('down', (x, y), time())
-            self.m_event_handler('up', (x, y), time())
+                self.m_event_handler('down', (x, y), time())
+                self.m_event_handler('up', (x, y), time())
+        except Exception as e:
+            logger.error('on_touch() error: {0}'.format(str(e)))
 
     def on_click(self, x, y, button, pressed):
-        if self.is_recording and not self.touch_mode:
-            logger.info('{0} {1} at {2}'.format(
-                'Pressed' if pressed else 'Released', button, (x, y)))
+        try:
+            if self.is_recording and not self.touch_mode:
+                logger.info('{0} {1} at {2}'.format(
+                    'Pressed' if pressed else 'Released', button, (x, y)))
 
-            event_type = 'down' if pressed else 'up'
-            self.m_event_handler(event_type, (x, y), time(), button)
+                event_type = 'down' if pressed else 'up'
+                self.m_event_handler(event_type, (x, y), time(), button)
+        except Exception as e:
+            logger.error('on_click() error: {0}'.format(str(e)))
 
     def on_scroll(self, x, y, dx, dy):
-        if self.is_recording and not self.touch_mode:
-            event_type = 'down' if dy < 0 else 'up'
-            logger.info('Scrolled {0} at {1}'.format(event_type, (x, y)))
+        try:
+            if self.is_recording and not self.touch_mode:
+                event_type = 'down' if dy < 0 else 'up'
+                logger.info('Scrolled {0} at {1}'.format(event_type, (x, y)))
 
-            self.m_event_handler(event_type, (x, y), time())
+                self.m_event_handler(event_type, (x, y), time())
+        except Exception as e:
+            logger.error('on_scroll() error: {0}'.format(str(e)))
 
     def special_key_handler(self, key):
         try:
@@ -657,22 +673,48 @@ class Api:
             self.kb_events.append(kb_event_dict)
 
     def m_event_handler(self, event_type, position, time, button=None):
-        m_event_dict = {}
+        try:
+            m_event_dict = {}
 
-        if self.touch_mode:
-            m_event_dict['event_name'] = 'TouchEvent'
-        else:
-            if button:
-                m_event_dict['event_name'] = 'ClickEvent'
-                m_event_dict['button'] = button.name
+            if self.touch_mode:
+                m_event_dict['event_name'] = 'TouchEvent'
             else:
-                m_event_dict['event_name'] = 'WheelEvent'
+                if button:
+                    m_event_dict['event_name'] = 'ClickEvent'
+                    m_event_dict['button'] = button.name
+                else:
+                    m_event_dict['event_name'] = 'WheelEvent'
 
-        m_event_dict['event_type'] = event_type
-        m_event_dict['position'] = position
-        m_event_dict['time'] = time
+            m_event_dict['event_type'] = event_type
+            m_event_dict['position'] = position
+            m_event_dict['time'] = time
 
-        self.m_events.append(m_event_dict)
+            self.m_events.append(m_event_dict)
+            self.save_regional_screenshot(position, time)
+        except Exception as e:
+            logger.error('m_event_handler() error: {0}'.format(str(e)))
+
+    def save_regional_screenshot(self, position, time):
+        try:
+            filename = str(time).replace('.', '_')
+            path = '{0}/img/{1}/{2}.png'.format(app_file_path, self.current_user_email, filename)
+            area = (position[0] - 25, position[1] - 25, 50, 50)
+
+            pag.screenshot(path, area)
+
+            logger.info('Regional screenshot {0} saved'.format(filename))
+        except Exception as e:
+            logger.error('save_regional_screenshot() error: {0}'.format(str(e)))
+
+    def remove_tmp_regional_screenshots(self):
+        try:
+            for e in self.m_events:
+                filename = str(e['time']).replace('.', '_')
+                img_path = '{0}/img/{1}/{2}.png'.format(app_file_path,
+                                                        self.current_user_email, filename)
+                os.remove(img_path)
+        except Exception as e:
+            logger.error('remove_tmp_regional_screenshots() error: {0}'.format(str(e)))
 
     def save(self, process):
         try:
@@ -683,9 +725,8 @@ class Api:
 
             events.insert(0, {'owner': self.current_user_email})
 
-            # To do: check file path consistency across OSes
-            path = '{0}/processes/{1}/{2}.json'.format(
-                app_file_path, self.current_user_email, process)
+            path = '{0}/processes/{1}/{2}.json'.format(app_file_path,
+                                                       self.current_user_email, process)
             if pathlib.Path(path).exists():
                 logger.error('Process {0} for user {1} already exists locally.'.format(
                     process, self.current_user_email))
@@ -775,6 +816,15 @@ class Api:
                 path = '{0}/processes/{1}/{2}.json'.format(
                     app_file_path, self.current_user_email, process)
                 if pathlib.Path(path).exists():
+                    # Del process' regional screenshots
+                    events = self.load(process)
+                    for e in events:
+                        filename = str(e['time']).replace('.', '_')
+                        img_path = '{0}/img/{1}/{2}.png'.format(app_file_path,
+                                                                self.current_user_email, filename)
+                        os.remove(img_path)
+
+                    # Del process' JSON file
                     os.remove(path)
 
                     logger.info(response['msg'])
