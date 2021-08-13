@@ -496,6 +496,15 @@ class Api:
                     else:
                         pag.keyDown(event['key'])
                 else:
+                    # If screenshot exists & only 1 matched instance, use its pos
+                    filename = str(event['time']).replace('.', '_')
+                    img_path = '{0}/img/{1}/{2}.png'.format(app_file_path,
+                                                            self.current_user_email, filename)
+                    if os.path.exists(img_path):
+                        matched_instances = list(pag.locateAllOnScreen(img_path))
+                        if len(matched_instances) == 1:
+                            event['position'] = pag.center(matched_instances[0])
+
                     if self.touch_mode and event['event_name'] == 'TouchEvent':
                         btn = event['button'] if 'button' in event else 'left'
 
