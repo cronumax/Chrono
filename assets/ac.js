@@ -10,7 +10,12 @@ $(window).on('pywebviewready', function() {
           title: 'New Version Available',
           html: res.msg,
           icon: 'warning',
-          confirmButtonText: 'Ok'
+          confirmButtonText: 'Upgrade',
+          allowOutsideClick: () => !Swal.isLoading()
+        }).then(res => {
+          if (res.isConfirmed) {
+            window.pywebview.api.upgrade()
+          }
         })
       }
     })
@@ -55,7 +60,12 @@ $(document).ready(function() {
                 title: 'New Version Available',
                 html: res.msg,
                 icon: 'warning',
-                confirmButtonText: 'Ok'
+                confirmButtonText: 'Upgrade',
+                allowOutsideClick: () => !Swal.isLoading()
+              }).then(res => {
+                if (res.isConfirmed) {
+                  window.pywebview.api.upgrade()
+                }
               })
             } else {
               Swal.fire({
@@ -135,7 +145,12 @@ $(document).ready(function() {
             title: 'New Version Available',
             html: res.msg,
             icon: 'warning',
-            confirmButtonText: 'Ok'
+            confirmButtonText: 'Upgrade',
+            allowOutsideClick: () => !Swal.isLoading()
+          }).then(res => {
+            if (res.isConfirmed) {
+              window.pywebview.api.upgrade()
+            }
           })
         } else {
           Swal.fire({
@@ -212,7 +227,12 @@ $(document).ready(function() {
             title: 'New Version Available',
             html: res.msg,
             icon: 'warning',
-            confirmButtonText: 'Ok'
+            confirmButtonText: 'Upgrade',
+            allowOutsideClick: () => !Swal.isLoading()
+          }).then(res => {
+            if (res.isConfirmed) {
+              window.pywebview.api.upgrade()
+            }
           })
         } else {
           Swal.fire({
@@ -286,7 +306,12 @@ $(document).ready(function() {
             title: 'New Version Available',
             html: res.msg,
             icon: 'warning',
-            confirmButtonText: 'Ok'
+            confirmButtonText: 'Upgrade',
+            allowOutsideClick: () => !Swal.isLoading()
+          }).then(res => {
+            if (res.isConfirmed) {
+              window.pywebview.api.upgrade()
+            }
           })
         } else {
           Swal.fire({

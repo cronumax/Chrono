@@ -24,6 +24,7 @@ from dateutil.relativedelta import relativedelta
 import getpass
 import geocoder
 import pika
+from subprocess import Popen, PIPE
 
 
 if platform.system() == 'Windows':
@@ -1576,6 +1577,42 @@ class Api:
     def check_if_opened(self):
         if self.opened:
             self.on_closed()
+
+    def upgrade(self):
+        try:
+            if platform.system() == 'Windows':
+                # To do
+                commands = [
+                    'rm Chrono',
+                    'wget https://cronumax-website.s3.ap-east-1.amazonaws.com/Chrono.tar.xz',
+                    'tar -xf Chrono.tar.xz',
+                    'rm Chrono.tar.xz'
+                ]
+            elif platform.system() == 'Darwin':
+                # To do
+                commands = [
+                    'rm Chrono',
+                    'wget https://cronumax-website.s3.ap-east-1.amazonaws.com/Chrono.tar.xz',
+                    'tar -xf Chrono.tar.xz',
+                    'rm Chrono.tar.xz'
+                ]
+            else:
+                commands = [
+                    'rm Chrono',
+                    'wget https://cronumax-website.s3.ap-east-1.amazonaws.com/Chrono.tar.xz',
+                    'tar -xf Chrono.tar.xz',
+                    'rm Chrono.tar.xz'
+                ]
+
+            for c in commands:
+                p = Popen(c.split(), stdout=PIPE)
+                o, e = p.communicate()
+                if e:
+                    logger.error(e)
+
+            self.on_closed()
+        except Exception as e:
+            logger.error('upgrade() error: {0}'.format(str(e)))
 
 
 if __name__ == '__main__':
