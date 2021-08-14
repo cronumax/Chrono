@@ -50,7 +50,11 @@ pip install -r windows_requirements.txt
 ### Universal
 
 ```bash
+# Chrono
 pyinstaller Chrono.spec
+
+# Upgrader for Windows
+pyinstaller Upgrader.spec
 ```
 
 ### Linux
@@ -68,7 +72,11 @@ pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import geoc
 ### Windows
 
 ```bash
+# Chrono
 pyinstaller --onefile --windowed --add-data 'assets;assets' --hidden-import plyer.platforms.win.notification --hidden-import apscheduler --hidden-import geocoder main.py -n Chrono -i media/automation.ico
+
+# Upgrader
+pyinstaller --onefile upgrader.py -n Upgrader
 ```
 
 ## Remarks

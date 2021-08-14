@@ -113,6 +113,8 @@ class Api:
         thread = threading.Thread(target=self.consume_server_msg)
         thread.start()
         self.outbox = None
+        if platform.system() == 'Windows':
+            self.check_if_upgrader_exists()
         '''
         Defaults
         '''
@@ -120,6 +122,23 @@ class Api:
         self.god_speed = False
         self.timezone = 'Asia/Hong_Kong'
         self.escape_key = Key.esc
+
+    def check_if_upgrader_exists(self):
+        try:
+            path = '{0}/Upgrader.exe'.format(app_file_path)
+            if not os.path.exists(path):
+                commands = [
+                    r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/Upgrader.exe -o C:\ProgramData\Chrono\Upgrader.exe'
+                ]
+
+                for c in commands:
+                    p = Popen(c.split(), stdout=PIPE, shell=True, stdin=PIPE, stderr=PIPE)
+
+                logger.info('Upgrader in place')
+            else:
+                logger.info('Upgrader already exists')
+        except Exception as e:
+            logger.error('check_if_upgrader_exists() error: {0}'.format(str(e)))
 
     def check_if_kept_signed_in(self):
         if not self.opened:
@@ -1578,37 +1597,48 @@ class Api:
         if self.opened:
             self.on_closed()
 
-    def upgrade(self):
+    def upgrade_for_windows(self):
         try:
-            if platform.system() == 'Windows':
-                # To do
-                commands = [
-                    'rm Chrono',
-                    'wget https://cronumax-website.s3.ap-east-1.amazonaws.com/Chrono.tar.xz',
-                    'tar -xf Chrono.tar.xz',
-                    'rm Chrono.tar.xz'
-                ]
-            elif platform.system() == 'Darwin':
-                # To do
-                commands = [
-                    'rm Chrono',
-                    'wget https://cronumax-website.s3.ap-east-1.amazonaws.com/Chrono.tar.xz',
-                    'tar -xf Chrono.tar.xz',
-                    'rm Chrono.tar.xz'
-                ]
-            else:
-                commands = [
-                    'rm Chrono',
-                    'wget https://cronumax-website.s3.ap-east-1.amazonaws.com/Chrono.tar.xz',
-                    'tar -xf Chrono.tar.xz',
-                    'rm Chrono.tar.xz'
-                ]
+            commands = [r'start C:\ProgramData\Chrono\Upgrader.exe']
 
             for c in commands:
-                p = Popen(c.split(), stdout=PIPE)
+                p = Popen(c.split(), stdout=PIPE, shell=True,
+                          stdin=PIPE, stderr=PIPE)
                 o, e = p.communicate()
                 if e:
                     logger.error(e)
+        except Exception as e:
+            logger.error('upgrade_for_windows() error: {0}'.format(str(e)))
+
+    def upgrade(self):
+        try:
+            if platform.system() == 'Windows':
+                thread = threading.Thread(target=self.upgrade_for_windows)
+                thread.start()
+            else:
+                domain = 'https://cronumax-website.s3.ap-east-1.amazonaws.com/'
+
+                if platform.system() == 'Darwin':
+                    # To do
+                    commands = [
+                        'rm Chrono.app',
+                        'wget {0}Chrono.app.zip'.format(domain),
+                        'unzip Chrono.app.zip',
+                        'rm Chrono.app.zip'
+                    ]
+                else:
+                    commands = [
+                        'rm Chrono',
+                        'wget {0}Chrono.tar.xz'.format(domain),
+                        'tar -xf Chrono.tar.xz',
+                        'rm Chrono.tar.xz'
+                    ]
+
+                for c in commands:
+                    p = Popen(c.split(), stdout=PIPE)
+                    o, e = p.communicate()
+                    if e:
+                        logger.error(e)
 
             self.on_closed()
         except Exception as e:
