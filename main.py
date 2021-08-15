@@ -1,4 +1,5 @@
 import os
+import sys
 from requests import get, post
 import webview
 import logging
@@ -113,7 +114,7 @@ class Api:
         thread = threading.Thread(target=self.consume_server_msg)
         thread.start()
         self.outbox = None
-        if platform.system() == 'Windows':
+        if platform.system() == 'Windows' or platform.system() == 'Darwin':
             self.check_if_upgrader_exists()
         '''
         Defaults
@@ -125,16 +126,32 @@ class Api:
 
     def check_if_upgrader_exists(self):
         try:
-            path = '{0}/Upgrader.exe'.format(app_file_path)
+            if platform.system() == 'Windows':
+                path = '{0}/Upgrader.exe'.format(app_file_path)
+            elif platform.system() == 'Darwin':
+                path = '{0}/upgrader.sh'.format(app_file_path)
+
             if not os.path.exists(path):
-                commands = [
-                    r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/Upgrader.exe -o C:\ProgramData\Chrono\Upgrader.exe'
-                ]
+                logger.info('Upgrader missing')
+
+                if platform.system() == 'Windows':
+                    commands = [
+                        r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/Upgrader.exe -o C:\ProgramData\Chrono\Upgrader.exe'
+                    ]
+                elif platform.system() == 'Darwin':
+                    commands = [
+                        r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/upgrader.sh -o {0}/upgrader.sh'.format(
+                            app_file_path)
+                    ]
 
                 for c in commands:
-                    p = Popen(c.split(), stdout=PIPE, shell=True, stdin=PIPE, stderr=PIPE)
+                    logger.info(c)
+                    if platform.system() == 'Windows':
+                        p = Popen(c.split(), stdout=PIPE, shell=True, stdin=PIPE, stderr=PIPE)
+                    elif platform.system() == 'Darwin':
+                        p = Popen(c.split(), stdout=PIPE)
 
-                logger.info('Upgrader in place')
+                logger.info('Upgrader downloaded')
             else:
                 logger.info('Upgrader already exists')
         except Exception as e:
@@ -1616,25 +1633,24 @@ class Api:
                 thread = threading.Thread(target=self.upgrade_for_windows)
                 thread.start()
             else:
-                domain = 'https://cronumax-website.s3.ap-east-1.amazonaws.com/'
+                domain = 'https://cronumax-website.s3.ap-east-1.amazonaws.com'
 
                 if platform.system() == 'Darwin':
-                    # To do
+                    cwd = '/'.join(sys.argv[0].split('/')[:-4])
+
                     commands = [
-                        'rm Chrono.app',
-                        'wget {0}Chrono.app.zip'.format(domain),
-                        'unzip Chrono.app.zip',
-                        'rm Chrono.app.zip'
+                        'bash {0}/upgrader.sh {1} {2}'.format(app_file_path, domain, cwd)
                     ]
                 else:
                     commands = [
                         'rm Chrono',
-                        'wget {0}Chrono.tar.xz'.format(domain),
+                        'wget {0}/Chrono.tar.xz'.format(domain),
                         'tar -xf Chrono.tar.xz',
                         'rm Chrono.tar.xz'
                     ]
 
                 for c in commands:
+                    logger.info(c)
                     p = Popen(c.split(), stdout=PIPE)
                     o, e = p.communicate()
                     if e:
