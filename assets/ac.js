@@ -15,6 +15,12 @@ $(window).on('pywebviewready', function() {
         }).then(res => {
           if (res.isConfirmed) {
             window.pywebview.api.upgrade()
+            Swal.fire({
+              title: 'Upgrade in progress',
+              html: 'Keep Chrono open',
+              icon: 'success',
+              allowOutsideClick: () => !Swal.isLoading()
+            })
           }
         })
       }
@@ -65,6 +71,12 @@ $(document).ready(function() {
               }).then(res => {
                 if (res.isConfirmed) {
                   window.pywebview.api.upgrade()
+                  Swal.fire({
+                    title: 'Upgrade in progress',
+                    html: 'Keep Chrono open',
+                    icon: 'success',
+                    allowOutsideClick: () => !Swal.isLoading()
+                  })
                 }
               })
             } else {
@@ -150,6 +162,12 @@ $(document).ready(function() {
           }).then(res => {
             if (res.isConfirmed) {
               window.pywebview.api.upgrade()
+              Swal.fire({
+                title: 'Upgrade in progress',
+                html: 'Keep Chrono open',
+                icon: 'success',
+                allowOutsideClick: () => !Swal.isLoading()
+              })
             }
           })
         } else {
@@ -232,6 +250,12 @@ $(document).ready(function() {
           }).then(res => {
             if (res.isConfirmed) {
               window.pywebview.api.upgrade()
+              Swal.fire({
+                title: 'Upgrade in progress',
+                html: 'Keep Chrono open',
+                icon: 'success',
+                allowOutsideClick: () => !Swal.isLoading()
+              })
             }
           })
         } else {
@@ -311,6 +335,12 @@ $(document).ready(function() {
           }).then(res => {
             if (res.isConfirmed) {
               window.pywebview.api.upgrade()
+              Swal.fire({
+                title: 'Upgrade in progress',
+                html: 'Keep Chrono open',
+                icon: 'success',
+                allowOutsideClick: () => !Swal.isLoading()
+              })
             }
           })
         } else {
