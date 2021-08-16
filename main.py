@@ -537,11 +537,10 @@ class Api:
                     filename = str(event['time']).replace('.', '_')
                     img_path = '{0}/img/{1}/{2}.png'.format(app_file_path,
                                                             self.current_user_email, filename)
-                    raw_coordinates = None  # Default
+                    raw_coordinates = event['position']
                     if os.path.exists(img_path):
                         matched_instances = list(pag.locateAllOnScreen(img_path))
                         if len(matched_instances) == 1:
-                            raw_coordinates = event['position']
                             event['position'] = pag.center(matched_instances[0])
                             logger.info('Pos by img: {0}'.format(event['position']))
 
@@ -575,8 +574,7 @@ class Api:
                                         button=btn, x=event['position'][0], y=event['position'][1])
                             else:
                                 last_cursor_pos = event['position']
-                                if raw_coordinates:
-                                    last_raw_coordinates = raw_coordinates
+                                last_raw_coordinates = raw_coordinates
                         elif event['event_name'] == 'WheelEvent':
                             if event['event_type'] == 'up':
                                 pag.scroll(
