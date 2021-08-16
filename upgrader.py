@@ -1,4 +1,5 @@
-from subprocess import Popen, PIPE
+from time import sleep
+from subprocess import run, DEVNULL
 
 
 commands = [
@@ -6,5 +7,7 @@ commands = [
     'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/Chrono.exe -o Chrono.exe'
 ]
 
+sleep(3)
+
 for c in commands:
-    p = Popen(c.split(), stdout=PIPE, shell=True, stdin=PIPE, stderr=PIPE)
+    run(c.split(), stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL, shell=True)

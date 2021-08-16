@@ -25,7 +25,7 @@ from dateutil.relativedelta import relativedelta
 import getpass
 import geocoder
 import pika
-from subprocess import Popen, PIPE
+from subprocess import run, DEVNULL
 
 
 if platform.system() == 'Windows':
@@ -114,7 +114,7 @@ class Api:
         thread = threading.Thread(target=self.consume_server_msg)
         thread.start()
         self.outbox = None
-        if platform.system() == 'Windows' or platform.system() == 'Darwin':
+        if platform.system() in ['Windows', 'Darwin']:
             self.check_if_upgrader_exists()
         '''
         Defaults
@@ -1612,24 +1612,10 @@ class Api:
         if self.opened:
             self.on_closed()
 
-    def upgrade_for_windows(self):
-        try:
-            commands = [r'start C:\ProgramData\Chrono\Upgrader.exe']
-
-            for c in commands:
-                p = Popen(c.split(), stdout=PIPE, shell=True,
-                          stdin=PIPE, stderr=PIPE)
-                o, e = p.communicate()
-                if e:
-                    logger.error(e)
-        except Exception as e:
-            logger.error('upgrade_for_windows() error: {0}'.format(str(e)))
-
     def upgrade(self):
         try:
             if platform.system() == 'Windows':
-                thread = threading.Thread(target=self.upgrade_for_windows)
-                thread.start()
+                commands = [r'start C:\ProgramData\Chrono\Upgrader.exe']
             else:
                 domain = 'https://cronumax-website.s3.ap-east-1.amazonaws.com'
 
@@ -1647,12 +1633,12 @@ class Api:
                         'rm Chrono.tar.xz'
                     ]
 
-                for c in commands:
-                    logger.info(c)
-                    p = Popen(c.split(), stdout=PIPE)
-                    o, e = p.communicate()
-                    if e:
-                        logger.error(e)
+            for c in commands:
+                logger.info(c)
+                if platform.system() == 'Windows':
+                    run(c.split(), stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL, shell=True)
+                elif platform.system() in ['Darwin', 'Linux']:
+                    run(c.split())
 
             self.on_closed()
         except Exception as e:
