@@ -147,9 +147,9 @@ class Api:
                 for c in commands:
                     logger.info(c)
                     if platform.system() == 'Windows':
-                        p = Popen(c.split(), stdout=PIPE, shell=True, stdin=PIPE, stderr=PIPE)
+                        run(c.split(), stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL, shell=True)
                     elif platform.system() == 'Darwin':
-                        p = Popen(c.split(), stdout=PIPE)
+                        run(c.split())
 
                 logger.info('Upgrader downloaded')
             else:
