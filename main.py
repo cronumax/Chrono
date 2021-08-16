@@ -115,7 +115,7 @@ class Api:
         thread.start()
         self.outbox = None
         if platform.system() in ['Windows', 'Darwin']:
-            self.check_if_upgrader_exists()
+            self.download_upgrader()
         '''
         Defaults
         '''
@@ -124,38 +124,26 @@ class Api:
         self.timezone = 'Asia/Hong_Kong'
         self.escape_key = Key.esc
 
-    def check_if_upgrader_exists(self):
+    def download_upgrader(self):
         try:
             if platform.system() == 'Windows':
-                path = '{0}/Upgrader.exe'.format(app_file_path)
+                commands = [
+                    r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/Upgrader.exe -o C:\ProgramData\Chrono\Upgrader.exe'
+                ]
             elif platform.system() == 'Darwin':
-                path = '{0}/upgrader.sh'.format(app_file_path)
+                commands = [
+                    r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/upgrader.sh -o {0}/upgrader.sh'.format(
+                        app_file_path)
+                ]
 
-            if not os.path.exists(path):
-                logger.info('Upgrader missing')
-
+            for c in commands:
+                logger.info(c)
                 if platform.system() == 'Windows':
-                    commands = [
-                        r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/Upgrader.exe -o C:\ProgramData\Chrono\Upgrader.exe'
-                    ]
+                    run(c.split(), stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL, shell=True)
                 elif platform.system() == 'Darwin':
-                    commands = [
-                        r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/upgrader.sh -o {0}/upgrader.sh'.format(
-                            app_file_path)
-                    ]
-
-                for c in commands:
-                    logger.info(c)
-                    if platform.system() == 'Windows':
-                        run(c.split(), stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL, shell=True)
-                    elif platform.system() == 'Darwin':
-                        run(c.split())
-
-                logger.info('Upgrader downloaded')
-            else:
-                logger.info('Upgrader already exists')
+                    run(c.split())
         except Exception as e:
-            logger.error('check_if_upgrader_exists() error: {0}'.format(str(e)))
+            logger.error('download_upgrader() error: {0}'.format(str(e)))
 
     def check_if_kept_signed_in(self):
         if not self.opened:
