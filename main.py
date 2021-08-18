@@ -862,7 +862,8 @@ class Api:
                         filename = str(e['time']).replace('.', '_')
                         img_path = '{0}/img/{1}/{2}.png'.format(app_file_path,
                                                                 self.current_user_email, filename)
-                        os.remove(img_path)
+                        if pathlib.Path(img_path).exists():
+                            os.remove(img_path)
 
                     # Del process' JSON file
                     os.remove(path)
