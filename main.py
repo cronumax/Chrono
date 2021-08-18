@@ -529,7 +529,7 @@ class Api:
                     if os.path.exists(img_path):
                         matched_instances = list(pag.locateAllOnScreen(img_path))
                         if len(matched_instances) == 1:
-                            event['position'] = pag.center(matched_instances[0])
+                            event['position'] = list(pag.center(matched_instances[0]))
                             logger.info('Pos by img: {0}'.format(event['position']))
 
                     if self.touch_mode and event['event_name'] == 'TouchEvent':
