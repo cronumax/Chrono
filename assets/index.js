@@ -1119,8 +1119,8 @@ function refreshSessionList(msg = null) {
   })
 }
 
-function promptForProcessName(rename = false, oldName = null) {
-  Swal.fire({
+async function promptForProcessName(rename = false, oldName = null) {
+  const result = await Swal.fire({
     title: rename ? 'New name?' : 'Process name?',
     icon: 'question',
     input: 'text',
@@ -1129,42 +1129,36 @@ function promptForProcessName(rename = false, oldName = null) {
     },
     showCancelButton: true,
     confirmButtonText: 'Confirm',
-    allowOutsideClick: () => !Swal.isLoading()
-  }).then(result => {
-    // Frontend validation
-    if (!result.value) {
-      var errorTxt = 'Process name cannot be empty.'
-    } else if (!(/^\w+( \w+)*$/.test(result.value))) {
-      var errorTxt = 'Process name can only contain alphanumeric (a-z, A-Z, 0-9) or underscore (_), and only one space between words.'
-    } else if (result.value === oldName) {
-      var errorTxt = 'New process name cannot be the same as the old name.'
-    }
-
-    if (result.isConfirmed) {
-      if (errorTxt) {
-        Swal.fire({
-          title: 'Error',
-          html: errorTxt,
-          icon: 'error',
-          confirmButtonText: 'Ok'
-        }).then(res => {
-          window.pywebview.api.remove_tmp_regional_screenshots()
-        })
-      } else {
-        if (rename) {
-          window.pywebview.api.rename_process(oldName, result.value).then(res => {
-            backendValidation('process', res)
-          })
+    allowOutsideClick: () => !Swal.isLoading(),
+    inputValidator: name => {
+      return new Promise(resolve => {
+        // Frontend validation
+        if (!name) {
+          resolve('Process name cannot be empty.')
+        } else if (!(/^\w+( \w+)*$/.test(name))) {
+          resolve('Process name can only contain alphanumeric (a-z, A-Z, 0-9) or underscore (_), and only one space between words.')
+        } else if (name === oldName) {
+          resolve('New process name cannot be the same as the old name.')
         } else {
-          window.pywebview.api.save(result.value).then(res => {
-            backendValidation('process', res)
-          })
+          resolve()
         }
-      }
-    } else {
-      window.pywebview.api.remove_tmp_regional_screenshots()
+      })
     }
   })
+
+  if (result.isConfirmed) {
+    if (rename) {
+      window.pywebview.api.rename_process(oldName, result.value).then(res => {
+        backendValidation('process', res)
+      })
+    } else {
+      window.pywebview.api.save(result.value).then(res => {
+        backendValidation('process', res)
+      })
+    }
+  } else {
+    window.pywebview.api.remove_tmp_regional_screenshots()
+  }
 }
 
 function backendValidation(type, res) {
@@ -1181,6 +1175,9 @@ function backendValidation(type, res) {
       icon: 'error',
       confirmButtonText: 'Ok'
     })
+    if (type == 'process') {
+      window.pywebview.api.remove_tmp_regional_screenshots()
+    }
   }
 }
 
