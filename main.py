@@ -748,11 +748,13 @@ class Api:
 
     def remove_tmp_regional_screenshots(self):
         try:
-            for e in self.m_events:
-                filename = str(e['time']).replace('.', '_')
-                img_path = '{0}/img/{1}/{2}.png'.format(app_file_path,
-                                                        self.current_user_email, filename)
-                os.remove(img_path)
+            if hasattr(self, 'm_events'):
+                for e in self.m_events:
+                    filename = str(e['time']).replace('.', '_')
+                    img_path = '{0}/img/{1}/{2}.png'.format(app_file_path,
+                                                            self.current_user_email, filename)
+                    if pathlib.Path(img_path).exists():
+                        os.remove(img_path)
         except Exception as e:
             logger.error('remove_tmp_regional_screenshots() error: {0}'.format(str(e)))
 
