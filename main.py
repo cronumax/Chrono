@@ -26,6 +26,7 @@ import getpass
 import geocoder
 import pika
 from subprocess import run, DEVNULL
+import asyncio
 
 
 if platform.system() == 'Windows':
@@ -738,7 +739,7 @@ class Api:
         try:
             filename = str(time).replace('.', '_')
             path = '{0}/img/{1}/{2}.png'.format(app_file_path, self.current_user_email, filename)
-            area = (position[0] - 25, position[1] - 25, 50, 50)
+            area = (position[0] - 15, position[1] - 15, 30, 30)
 
             pag.screenshot(path, area)
 
@@ -1603,6 +1604,12 @@ class Api:
         if self.opened:
             self.on_closed()
 
+    async def upgrader_linux(self, cmd):
+        try:
+            proc = await asyncio.create_subprocess_shell(cmd)
+        except Exception as e:
+            logger.error('upgrader_linux() error: {0}'.format(str(e)))
+
     def upgrade(self):
         try:
             if platform.system() == 'Windows':
@@ -1617,19 +1624,19 @@ class Api:
                         'bash {0}/upgrader.sh {1} {2}'.format(app_file_path, domain, cwd)
                     ]
                 else:
-                    commands = [
-                        'rm Chrono',
-                        'wget {0}/Chrono.tar.xz'.format(domain),
-                        'tar -xf Chrono.tar.xz',
-                        'rm Chrono.tar.xz'
-                    ]
+                    cmd = 'bash {0}/upgrader_linux.sh {1}'.format(app_file_path, domain)
 
-            for c in commands:
-                logger.info(c)
-                if platform.system() == 'Windows':
-                    run(c.split(), stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL, shell=True)
-                elif platform.system() in ['Darwin', 'Linux']:
-                    run(c.split())
+                    logger.info(cmd)
+
+                    asyncio.run(self.upgrader_linux(cmd))
+
+            if platform.system() in ['Windows', 'Darwin']:
+                for c in commands:
+                    logger.info(c)
+                    if platform.system() == 'Windows':
+                        run(c.split(), stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL, shell=True)
+                    elif platform.system() == 'Darwin':
+                        run(c.split())
 
             self.on_closed()
         except Exception as e:
