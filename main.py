@@ -1607,39 +1607,33 @@ class Api:
         if self.opened:
             self.on_closed()
 
-    async def upgrader_linux(self, cmd):
+    async def async_upgrader(self, cmd):
         try:
             proc = await asyncio.create_subprocess_shell(cmd)
         except Exception as e:
-            logger.error('upgrader_linux() error: {0}'.format(str(e)))
+            logger.error('async_upgrader() error: {0}'.format(str(e)))
 
     def upgrade(self):
         try:
             if platform.system() == 'Windows':
                 commands = [r'start C:\ProgramData\Chrono\Upgrader.exe']
+
+                for c in commands:
+                    logger.info(c)
+                    run(c.split(), stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL, shell=True)
             else:
                 domain = 'https://cronumax-website.s3.ap-east-1.amazonaws.com'
 
                 if platform.system() == 'Darwin':
                     cwd = '/'.join(sys.argv[0].split('/')[:-4])
 
-                    commands = [
-                        'bash {0}/upgrader.sh {1} {2}'.format(app_file_path, domain, cwd)
-                    ]
+                    cmd = 'bash {0}/upgrader.sh {1} {2}'.format(app_file_path, domain, cwd)
                 else:
                     cmd = 'bash {0}/upgrader_linux.sh {1}'.format(app_file_path, domain)
 
-                    logger.info(cmd)
+                logger.info(cmd)
 
-                    asyncio.run(self.upgrader_linux(cmd))
-
-            if platform.system() in ['Windows', 'Darwin']:
-                for c in commands:
-                    logger.info(c)
-                    if platform.system() == 'Windows':
-                        run(c.split(), stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL, shell=True)
-                    elif platform.system() == 'Darwin':
-                        run(c.split())
+                asyncio.run(self.async_upgrader(cmd))
 
             self.on_closed()
         except Exception as e:
