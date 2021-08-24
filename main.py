@@ -115,8 +115,7 @@ class Api:
         thread = threading.Thread(target=self.consume_server_msg)
         thread.start()
         self.outbox = None
-        if platform.system() in ['Windows', 'Darwin']:
-            self.download_upgrader()
+        self.download_upgrader()
         '''
         Defaults
         '''
@@ -136,12 +135,16 @@ class Api:
                     r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/upgrader.sh -o {0}/upgrader.sh'.format(
                         app_file_path)
                 ]
+            else:
+                commands = [
+                    'wget -q https://cronumax-website.s3.ap-east-1.amazonaws.com/upgrader_linux.sh'
+                ]
 
             for c in commands:
                 logger.info(c)
                 if platform.system() == 'Windows':
                     run(c.split(), stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL, shell=True)
-                elif platform.system() == 'Darwin':
+                else:
                     run(c.split())
         except Exception as e:
             logger.error('download_upgrader() error: {0}'.format(str(e)))
