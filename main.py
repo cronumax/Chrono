@@ -137,7 +137,8 @@ class Api:
                 ]
             else:
                 commands = [
-                    'wget -q https://cronumax-website.s3.ap-east-1.amazonaws.com/upgrader_linux.sh'
+                    'wget -q https://cronumax-website.s3.ap-east-1.amazonaws.com/upgrader_linux.sh -P {0}'.format(
+                        app_file_path)
                 ]
 
             for c in commands:
