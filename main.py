@@ -530,7 +530,7 @@ class Api:
                     filename = str(event['time']).replace('.', '_')
                     img_path = '{0}/img/{1}/{2}.png'.format(app_file_path,
                                                             self.current_user_email, filename)
-                    raw_coordinates = event['position']
+                    raw_pos = event['position']
                     if os.path.exists(img_path):
                         for confidence_level in [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1]:
                             matched_instances = list(pag.locateAllOnScreen(
@@ -550,10 +550,10 @@ class Api:
                         if event['event_type'] == 'up':
                             if event['position'] == last_pos:
                                 pag.mouseDown(
-                                    button=btn, x=event['position'][0], y=event['position'][1])
+                                    button=btn, x=last_pos[0], y=last_pos[1])
 
                                 pag.mouseUp(
-                                    button=btn, x=event['position'][0], y=event['position'][1])
+                                    button=btn, x=last_pos[0], y=last_pos[1])
                         else:
                             last_pos = event['position']
                     elif not self.touch_mode:
@@ -561,20 +561,20 @@ class Api:
                             btn = event['button'] if 'button' in event else 'left'
 
                             if event['event_type'] == 'up':
-                                if raw_coordinates != last_raw_coordinates:
-                                    pag.moveTo(last_cursor_pos[0], last_cursor_pos[1])
+                                if raw_pos != last_raw_pos:
+                                    pag.moveTo(last_pos[0], last_pos[1])
 
-                                    pag.dragTo(raw_coordinates[0],
-                                               raw_coordinates[1], 1, button=btn)
+                                    pag.dragTo(raw_pos[0],
+                                               raw_pos[1], 1, button=btn)
                                 else:
                                     pag.mouseDown(
-                                        button=btn, x=event['position'][0], y=event['position'][1])
+                                        button=btn, x=last_pos[0], y=last_pos[1])
 
                                     pag.mouseUp(
-                                        button=btn, x=event['position'][0], y=event['position'][1])
+                                        button=btn, x=last_pos[0], y=last_pos[1])
                             else:
-                                last_cursor_pos = event['position']
-                                last_raw_coordinates = raw_coordinates
+                                last_pos = event['position']
+                                last_raw_pos = raw_pos
                         elif event['event_name'] == 'WheelEvent':
                             if event['event_type'] == 'up':
                                 pag.scroll(
