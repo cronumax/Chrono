@@ -116,6 +116,7 @@ class Api:
         thread.start()
         self.outbox = None
         self.download_upgrader()
+        self.confidence_levels = [1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5]
         '''
         Defaults
         '''
@@ -545,7 +546,7 @@ class Api:
                             break
 
                         if os.path.exists(img_path):
-                            for confidence_level in [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1]:
+                            for confidence_level in self.confidence_levels:
                                 if not self.is_playing and not force:
                                     break
 
@@ -562,19 +563,21 @@ class Api:
                                     found = True
 
                                     if 'fine' in filename:
-                                        event['accuracy'] = 1
+                                        event['accuracy'] = 2 + float(confidence_level)
                                     elif 'medium' in filename:
-                                        event['accuracy'] = 2
+                                        event['accuracy'] = 1 + float(confidence_level)
                                     elif 'crude' in filename:
-                                        event['accuracy'] = 3
+                                        event['accuracy'] = float(confidence_level)
 
+                                    break
+                                elif len(matched_instances) > 1:
                                     break
 
                             if found:
                                 break
                         elif os.path.exists(old_img_path):
                             # Backward compatible
-                            for confidence_level in [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1]:
+                            for confidence_level in self.confidence_levels:
                                 if not self.is_playing and not force:
                                     break
 
@@ -588,7 +591,9 @@ class Api:
                                     event['position'] = list(pag.center(matched_instances[0]))
                                     logger.info('Pos by img: {0}'.format(event['position']))
                                     found = True
-                                    event['accuracy'] = 1
+                                    event['accuracy'] = 2 + float(confidence_level)
+                                    break
+                                elif len(matched_instances) > 1:
                                     break
 
                             break
