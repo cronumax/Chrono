@@ -446,10 +446,10 @@ tr.table-dark.disabled>td, tr.table-dark.disabled i {
   color: #666;
 }
 
-.table-hover>tbody>tr.table-dark:active, .table-hover>tbody>tr.table-dark:hover {
+#processList>tbody>tr.selected, #processList>tbody>tr.selected:hover {
   --bs-table-accent-bg: #444;
 }
 
-.table-hover>tbody>tr.table-dark.disabled:active, .table-hover>tbody>tr.table-dark.disabled:hover {
+.table-hover>tbody>tr.table-dark:hover, .table-hover>tbody>tr.table-dark.disabled:active, .table-hover>tbody>tr.table-dark.disabled:hover {
   --bs-table-accent-bg: unset;
 }

@@ -58,7 +58,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '1.1.2'
+        self.version = '1.1.3'
         self.host = platform.node()
         self.host_os = platform.system()
         self.host_username = getpass.getuser()
@@ -507,7 +507,7 @@ class Api:
         try:
             last_time = None
             for event in events:
-                if (not self.is_playing and not force) or (not self.touch_mode and event['event_name'] == 'TouchEvent') or (self.touch_mode and event['event_name'] in ['ClickEvent', 'WheelEvent']):
+                if not self.is_playing and not force or not self.touch_mode and event['event_name'] == 'TouchEvent' or self.touch_mode and event['event_name'] in ['ClickEvent', 'WheelEvent']:
                     break
 
                 logger.info(event)
@@ -527,55 +527,130 @@ class Api:
                         pag.keyDown(event['key'])
                 else:
                     # If screenshot exists & only 1 matched instance, use its pos
-                    filename = str(event['time']).replace('.', '_')
-                    img_path = '{0}/img/{1}/{2}.png'.format(app_file_path,
-                                                            self.current_user_email, filename)
+                    filename_prefix = str(event['time']).replace('.', '_')
+                    path_prefix = '{0}/img/{1}/{2}'.format(app_file_path,
+                                                           self.current_user_email, filename_prefix)
+                    # Backward compatible
+                    old_img_path = '{0}/img/{1}/{2}.png'.format(
+                        app_file_path, self.current_user_email, filename_prefix)
+
+                    paths = ['{0}_fine.png'.format(path_prefix), '{0}_medium.png'.format(
+                        path_prefix), '{0}_crude.png'.format(path_prefix)]
+
                     raw_pos = event['position']
-                    if os.path.exists(img_path):
-                        for confidence_level in [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1]:
-                            matched_instances = list(pag.locateAllOnScreen(
-                                img_path, confidence=confidence_level))
+                    found = False  # Init
 
-                            logger.info('Number of matched instances at confidence level {0}: {1}'.format(
-                                str(confidence_level), str(len(matched_instances))))
+                    for img_path in paths:
+                        if not self.is_playing and not force:
+                            break
 
-                            if len(matched_instances) == 1:
-                                event['position'] = list(pag.center(matched_instances[0]))
-                                logger.info('Pos by img: {0}'.format(event['position']))
+                        if os.path.exists(img_path):
+                            for confidence_level in [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1]:
+                                if not self.is_playing and not force:
+                                    break
+
+                                matched_instances = list(pag.locateAllOnScreen(
+                                    img_path, confidence=confidence_level))
+                                filename = img_path.split('/')[-1]
+
+                                logger.info('Number of matched instances at confidence level {0} for {1}: {2}'.format(
+                                    str(confidence_level), filename, str(len(matched_instances))))
+
+                                if len(matched_instances) == 1:
+                                    event['position'] = list(pag.center(matched_instances[0]))
+                                    logger.info('Pos by img: {0}'.format(event['position']))
+                                    found = True
+
+                                    if 'fine' in filename:
+                                        event['accuracy'] = 1
+                                    elif 'medium' in filename:
+                                        event['accuracy'] = 2
+                                    elif 'crude' in filename:
+                                        event['accuracy'] = 3
+
+                                    break
+
+                            if found:
                                 break
+                        elif os.path.exists(old_img_path):
+                            # Backward compatible
+                            for confidence_level in [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1]:
+                                if not self.is_playing and not force:
+                                    break
+
+                                matched_instances = list(pag.locateAllOnScreen(
+                                    old_img_path, confidence=confidence_level))
+
+                                logger.info('Number of matched instances at confidence level {0} for {1}: {2}'.format(
+                                    str(confidence_level), old_img_path.split('/')[-1], str(len(matched_instances))))
+
+                                if len(matched_instances) == 1:
+                                    event['position'] = list(pag.center(matched_instances[0]))
+                                    logger.info('Pos by img: {0}'.format(event['position']))
+                                    found = True
+                                    event['accuracy'] = 1
+                                    break
+
+                            break
+
+                    if not found:
+                        event['accuracy'] = 0
 
                     if self.touch_mode and event['event_name'] == 'TouchEvent':
                         btn = event['button'] if 'button' in event else 'left'
 
                         if event['event_type'] == 'up':
-                            if event['position'] == last_pos:
+                            if 'last_pos' in locals():
+                                if event['accuracy'] <= last_accuracy:
+                                    pos = last_pos
+                                else:
+                                    pos = event['position']
+
+                                logger.info('Touch on {0}'.format(str(pos)))
+
                                 pag.mouseDown(
-                                    button=btn, x=last_pos[0], y=last_pos[1])
+                                    button=btn, x=pos[0], y=pos[1])
 
                                 pag.mouseUp(
-                                    button=btn, x=last_pos[0], y=last_pos[1])
+                                    button=btn, x=pos[0], y=pos[1])
                         else:
                             last_pos = event['position']
+                            last_accuracy = event['accuracy']
                     elif not self.touch_mode:
                         if event['event_name'] == 'ClickEvent':
                             btn = event['button'] if 'button' in event else 'left'
 
                             if event['event_type'] == 'up':
-                                if raw_pos != last_raw_pos:
-                                    pag.moveTo(last_pos[0], last_pos[1])
+                                if 'last_pos' in locals():
+                                    if event['accuracy'] <= last_accuracy:
+                                        pos = last_pos
+                                    else:
+                                        pos = event['position']
 
-                                    pag.dragTo(raw_pos[0],
-                                               raw_pos[1], 1, button=btn)
-                                else:
-                                    pag.mouseDown(
-                                        button=btn, x=last_pos[0], y=last_pos[1])
+                                    if raw_pos != last_raw_pos:
+                                        logger.info('Drag from {0} to {1} with button {2}'.format(
+                                            str(pos), str(raw_pos), btn))
 
-                                    pag.mouseUp(
-                                        button=btn, x=last_pos[0], y=last_pos[1])
+                                        pag.moveTo(pos[0], pos[1])
+
+                                        pag.dragTo(raw_pos[0], raw_pos[1], 1, button=btn)
+                                    else:
+                                        logger.info('Click on {0} with button {1}'.format(
+                                            str(pos), btn))
+
+                                        pag.mouseDown(
+                                            button=btn, x=pos[0], y=pos[1])
+
+                                        pag.mouseUp(
+                                            button=btn, x=pos[0], y=pos[1])
                             else:
                                 last_pos = event['position']
                                 last_raw_pos = raw_pos
+                                last_accuracy = event['accuracy']
                         elif event['event_name'] == 'WheelEvent':
+                            logger.info('Scroll {0} at {1}'.format(
+                                event['event_type'], str(event['position'])))
+
                             if event['event_type'] == 'up':
                                 pag.scroll(
                                     1, x=event['position'][0], y=event['position'][1])
@@ -594,7 +669,7 @@ class Api:
         self.is_playing = False
 
         event = self.last_played_event
-        if event and event['event_name'] != 'WheelEvent' and event['event_type'] == 'down':
+        if event and event['event_name'] == 'KeyboardEvent' and event['event_type'] == 'down':
             event['event_type'] = 'up'
             event['time'] += 0.05
             self.do_play([event], True)
@@ -748,13 +823,18 @@ class Api:
 
     def save_regional_screenshot(self, position, time):
         try:
-            filename = str(time).replace('.', '_')
-            path = '{0}/img/{1}/{2}.png'.format(app_file_path, self.current_user_email, filename)
-            area = (position[0] - 15, position[1] - 15, 30, 30)
+            filename_prefix = str(time).replace('.', '_')
+            path_prefix = '{0}/img/{1}/{2}'.format(app_file_path,
+                                                   self.current_user_email, filename_prefix)
+            paths = ['{0}_fine.png'.format(path_prefix), '{0}_medium.png'.format(
+                path_prefix), '{0}_crude.png'.format(path_prefix)]
+            areas = [(position[0] - 15, position[1] - 15, 30, 30), (position[0] - 30,
+                                                                    position[1] - 30, 60, 60), (position[0] - 45, position[1] - 45, 90, 90)]
 
-            pag.screenshot(path, area)
+            for i in range(3):
+                pag.screenshot(paths[i], areas[i])
 
-            logger.info('Regional screenshot {0} saved'.format(filename))
+            logger.info('Regional screenshots at {0} saved'.format(filename_prefix))
         except Exception as e:
             logger.error('save_regional_screenshot() error: {0}'.format(str(e)))
 
@@ -763,10 +843,16 @@ class Api:
             if hasattr(self, 'm_events'):
                 for e in self.m_events:
                     filename = str(e['time']).replace('.', '_')
-                    img_path = '{0}/img/{1}/{2}.png'.format(app_file_path,
-                                                            self.current_user_email, filename)
-                    if pathlib.Path(img_path).exists():
-                        os.remove(img_path)
+                    path_prefix = '{0}/img/{1}/{2}'.format(app_file_path,
+                                                           self.current_user_email, filename)
+                    # Backward compatible
+                    paths = ['{0}_fine.png'.format(path_prefix), '{0}_medium.png'.format(
+                        path_prefix), '{0}_crude.png'.format(path_prefix), '{0}.png'.format(path_prefix)]
+                    # paths = ['{0}_fine.png'.format(path_prefix), '{0}_medium.png'.format(path_prefix), '{0}_crude.png'.format(path_prefix)]
+
+                    for p in paths:
+                        if pathlib.Path(p).exists():
+                            os.remove(p)
         except Exception as e:
             logger.error('remove_tmp_regional_screenshots() error: {0}'.format(str(e)))
 
@@ -874,10 +960,16 @@ class Api:
                     events = self.load(process)
                     for e in events:
                         filename = str(e['time']).replace('.', '_')
-                        img_path = '{0}/img/{1}/{2}.png'.format(app_file_path,
-                                                                self.current_user_email, filename)
-                        if pathlib.Path(img_path).exists():
-                            os.remove(img_path)
+                        img_path_prefix = '{0}/img/{1}/{2}'.format(app_file_path,
+                                                                   self.current_user_email, filename)
+                        # Backward compatible
+                        img_paths = ['{0}_fine.png'.format(img_path_prefix), '{0}_medium.png'.format(
+                            img_path_prefix), '{0}_crude.png'.format(img_path_prefix), '{0}.png'.format(img_path_prefix)]
+                        # paths = ['{0}_fine.png'.format(img_path_prefix), '{0}_medium.png'.format(img_path_prefix), '{0}_crude.png'.format(img_path_prefix)]
+
+                        for i_p in img_paths:
+                            if pathlib.Path(i_p).exists():
+                                os.remove(i_p)
 
                     # Del process' JSON file
                     os.remove(path)

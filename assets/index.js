@@ -135,7 +135,9 @@ $(window).on('pywebviewready', function() {
   })
 
   $('#processList tbody').on('click', 'tr', function() {
-    $(this).addClass('selected').siblings().removeClass('selected')
+    if (!$(this).hasClass('disabled')) {
+      $(this).addClass('selected').siblings().removeClass('selected')
+    }
   })
 
   $('#processList tbody').on('click', '#scheduleBtn', function() {
