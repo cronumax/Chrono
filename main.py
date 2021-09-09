@@ -58,7 +58,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '1.1.3'
+        self.version = '1.1.4'
         self.host = platform.node()
         self.host_os = platform.system()
         self.host_username = getpass.getuser()
@@ -149,168 +149,245 @@ class Api:
                 else:
                     run(c.split())
         except Exception as e:
-            logger.error('download_upgrader() error: {0}'.format(str(e)))
+            msg = 'download_upgrader() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def check_if_kept_signed_in(self):
-        if not self.opened:
+        try:
+            if not self.opened:
+                with open('{0}/Chrono.json'.format(app_file_path)) as f:
+                    app = json.load(f)
+
+                if 'login_token' in app:
+                    return self.login_with_token(app['login_token'])
+                else:
+                    msg = 'Not kept signed in'
+
+                    logger.info(msg)
+
+                    return {'status': False, 'msg': msg}
+        except Exception as e:
+            msg = 'check_if_kept_signed_in() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+    def register_or_update_app_info(self, app, endpt):
+        try:
+            app['version'] = self.version
+            app['host'] = self.host
+            app['host_os'] = self.host_os
+            app['host_username'] = self.host_username
+            app['ip'] = self.ip
+            app['location'] = self.location
+            app['opened'] = True
+
+            with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
+                json.dump(app, f)
+
+            # Serialization for API data transfer
+            app['location'] = json.dumps(app['location'])
+
+            res = post(self.api_url + endpt, app).json()
+
+            logger.info(res['msg']) if res['status'] else logger.error(res['msg'])
+        except Exception as e:
+            msg = 'register_or_update_app_info() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+    def renew_token(self):
+        try:
+            while self.logged_in:
+                if datetime.strptime(self.access_token['expiry_date'], '%Y-%m-%d %H:%M:%S.%f%z').astimezone(timezone(self.timezone)) - datetime.now(timezone(self.timezone)) < timedelta(minutes=3) and self.access_token['email'] == self.current_user_email:
+                    res = post(self.api_url + 'renew-token',
+                               {'code': self.access_token['code'], 'email': self.current_user_email, 'id': self.id}).json()
+
+                    if res['status']:
+                        logger.info(res['msg'])
+
+                        self.access_token['expiry_date'] = res['expiry_date']
+                    else:
+                        logger.error(res['msg'])
+
+                sleep(60)
+        except Exception as e:
+            msg = 'renew_token() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+    def get_outbox(self):
+        try:
+            return self.outbox
+        except Exception as e:
+            msg = 'get_outbox() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+    def set_outbox(self, type, email):
+        try:
+            self.outbox = {'type': type, 'email': email}
+        except Exception as e:
+            msg = 'set_outbox() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+    def send_email(self, type, email):
+        try:
+            logger.info('Send {0} email to {1}'.format(type, email))
+
+            return post(self.api_url + 'send-email', {'type': type, 'email': email, 'id': self.id}).json()
+        except Exception as e:
+            msg = 'send_email() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+    def send_exception_email(self, msg):
+        try:
+            logger.info('Send exception email')
+
+            return post(self.api_url + 'send-email', {'type': 'exception', 'msg': msg, 'id': self.id}).json()
+        except Exception as e:
+            logger.error('send_exception_email() error: {0}'.format(str(e)))
+
+    def login(self, email, pw, keep_me_in):
+        try:
+            res = post(self.api_url + 'login',
+                       {'email': email, 'pw': pw, 'id': self.id}).json()
+
+            if res['status']:
+                logger.info(res['msg'])
+
+                self.logged_in = True
+                self.current_user_email = email
+
+                self.load_or_save_app_config_on_login(email)
+
+                response = post(
+                    self.api_url + 'access-token', {'email': email, 'pw': pw, 'id': self.id}).json()
+
+                if response['status']:
+                    logger.info(response['msg'])
+
+                    self.access_token['code'] = response['code']
+                    self.access_token['expiry_date'] = response['expiry_date']
+                    self.access_token['email'] = response['email']
+                    thread = threading.Thread(
+                        target=self.renew_token)
+                    thread.start()
+
+                    if keep_me_in:
+                        result = post(self.api_url + 'keep-me-in',
+                                      {'code': self.access_token['code'], 'id': self.id}).json()
+
+                        if result['status']:
+                            logger.info(result['msg'])
+
+                            with open('{0}/Chrono.json'.format(app_file_path)) as f:
+                                app = json.load(f)
+
+                            app['login_token'] = result['code']
+
+                            with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
+                                json.dump(app, f)
+                        else:
+                            logger.error(result['msg'])
+
+                            return result
+                else:
+                    logger.error(response['msg'])
+
+                    return response
+            else:
+                logger.error(res['msg'])
+
+            return res
+        except Exception as e:
+            msg = 'login() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+    def login_with_token(self, login_token):
+        try:
+            res = post(self.api_url + 'login-with-token',
+                       {'code': login_token, 'id': self.id}).json()
+
+            if res['status']:
+                logger.info(res['msg'])
+
+                self.logged_in = True
+                self.current_user_email = res['email']
+
+                self.load_or_save_app_config_on_login(res['email'])
+
+                response = post(self.api_url + 'access-token',
+                                {'code': login_token, 'id': self.id}).json()
+
+                if response['status']:
+                    logger.info(response['msg'])
+
+                    self.access_token['code'] = response['code']
+                    self.access_token['expiry_date'] = response['expiry_date']
+                    self.access_token['email'] = response['email']
+                    thread = threading.Thread(
+                        target=self.renew_token)
+                    thread.start()
+                else:
+                    logger.error(response['msg'])
+
+                    return response
+            else:
+                logger.error(res['msg'])
+
+            return res
+        except Exception as e:
+            msg = 'login_with_token() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+    def logout(self):
+        try:
+            self.logged_in = False
+
+            logger.info('{0} signed out'.format(self.current_user_email))
+
+            for endpt in ['logout', 'disable-keep-me-in']:
+                res = post(self.api_url + endpt,
+                           {'code': self.access_token['code'], 'id': self.id}).json()
+
+                logger.info(res['msg']) if res['status'] else logger.error(res['msg'])
+
             with open('{0}/Chrono.json'.format(app_file_path)) as f:
                 app = json.load(f)
 
-            if 'login_token' in app:
-                return self.login_with_token(app['login_token'])
-            else:
-                msg = 'Not kept signed in'
+            app.pop('login_token', None)
 
-                logger.info(msg)
+            with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
+                json.dump(app, f)
+        except Exception as e:
+            msg = 'logout() error: {0}'.format(str(e))
 
-                return {'status': False, 'msg': msg}
+            logger.error(msg)
 
-    def register_or_update_app_info(self, app, endpt):
-        app['version'] = self.version
-        app['host'] = self.host
-        app['host_os'] = self.host_os
-        app['host_username'] = self.host_username
-        app['ip'] = self.ip
-        app['location'] = self.location
-        app['opened'] = True
-
-        with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
-            json.dump(app, f)
-
-        # Serialization for API data transfer
-        app['location'] = json.dumps(app['location'])
-
-        res = post(self.api_url + endpt, app).json()
-
-        logger.info(res['msg']) if res['status'] else logger.error(res['msg'])
-
-    def renew_token(self):
-        while self.logged_in:
-            if datetime.strptime(self.access_token['expiry_date'], '%Y-%m-%d %H:%M:%S.%f%z').astimezone(timezone(self.timezone)) - datetime.now(timezone(self.timezone)) < timedelta(minutes=3) and self.access_token['email'] == self.current_user_email:
-                res = post(self.api_url + 'renew-token',
-                           {'code': self.access_token['code'], 'email': self.current_user_email, 'id': self.id}).json()
-
-                if res['status']:
-                    logger.info(res['msg'])
-
-                    self.access_token['expiry_date'] = res['expiry_date']
-                else:
-                    logger.error(res['msg'])
-
-            sleep(60)
-
-    def get_outbox(self):
-        return self.outbox
-
-    def set_outbox(self, type, email):
-        self.outbox = {'type': type, 'email': email}
-
-    def send_email(self, type, email):
-        logger.info('Send {0} email to {1}'.format(type, email))
-        return post(self.api_url + 'send-email', {'type': type, 'email': email, 'id': self.id}).json()
-
-    def login(self, email, pw, keep_me_in):
-        res = post(self.api_url + 'login',
-                   {'email': email, 'pw': pw, 'id': self.id}).json()
-
-        if res['status']:
-            logger.info(res['msg'])
-
-            self.logged_in = True
-            self.current_user_email = email
-
-            self.load_or_save_app_config_on_login(email)
-
-            response = post(
-                self.api_url + 'access-token', {'email': email, 'pw': pw, 'id': self.id}).json()
-
-            if response['status']:
-                logger.info(response['msg'])
-
-                self.access_token['code'] = response['code']
-                self.access_token['expiry_date'] = response['expiry_date']
-                self.access_token['email'] = response['email']
-                thread = threading.Thread(
-                    target=self.renew_token)
-                thread.start()
-
-                if keep_me_in:
-                    result = post(self.api_url + 'keep-me-in',
-                                  {'code': self.access_token['code'], 'id': self.id}).json()
-
-                    if result['status']:
-                        logger.info(result['msg'])
-
-                        with open('{0}/Chrono.json'.format(app_file_path)) as f:
-                            app = json.load(f)
-
-                        app['login_token'] = result['code']
-
-                        with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
-                            json.dump(app, f)
-                    else:
-                        logger.error(result['msg'])
-
-                        return result
-            else:
-                logger.error(response['msg'])
-
-                return response
-        else:
-            logger.error(res['msg'])
-
-        return res
-
-    def login_with_token(self, login_token):
-        res = post(self.api_url + 'login-with-token', {'code': login_token, 'id': self.id}).json()
-
-        if res['status']:
-            logger.info(res['msg'])
-
-            self.logged_in = True
-            self.current_user_email = res['email']
-
-            self.load_or_save_app_config_on_login(res['email'])
-
-            response = post(self.api_url + 'access-token',
-                            {'code': login_token, 'id': self.id}).json()
-
-            if response['status']:
-                logger.info(response['msg'])
-
-                self.access_token['code'] = response['code']
-                self.access_token['expiry_date'] = response['expiry_date']
-                self.access_token['email'] = response['email']
-                thread = threading.Thread(
-                    target=self.renew_token)
-                thread.start()
-            else:
-                logger.error(response['msg'])
-
-                return response
-        else:
-            logger.error(res['msg'])
-
-        return res
-
-    def logout(self):
-        self.logged_in = False
-
-        logger.info('{0} signed out'.format(self.current_user_email))
-
-        for endpt in ['logout', 'disable-keep-me-in']:
-            res = post(self.api_url + endpt,
-                       {'code': self.access_token['code'], 'id': self.id}).json()
-
-            logger.info(res['msg']) if res['status'] else logger.error(res['msg'])
-
-        with open('{0}/Chrono.json'.format(app_file_path)) as f:
-            app = json.load(f)
-
-        app.pop('login_token', None)
-
-        with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
-            json.dump(app, f)
+            self.send_exception_email(msg)
 
     def register(self, first_name, last_name, email, code, pw, referrer, agree_privacy_n_terms, send_update):
         try:
@@ -346,34 +423,45 @@ class Api:
 
             return response
         except Exception as e:
-            logger.error('register() error: {0}'.format(str(e)))
+            msg = 'register() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def load_settings(self, user_settings, field):
-        logger.info('Load {0} from user settings file'.format(field))
-
         try:
-            if field == 'touch_mode':
-                self.touch_mode = user_settings[field]
-            elif field == 'god_speed':
-                self.god_speed = user_settings[field]
-            elif field == 'timezone':
-                self.timezone = user_settings[field]
-            elif field == 'escape_key':
-                try:
-                    self.escape_key = Key[user_settings[field]]
-                except:
-                    self.escape_key = KeyCode.from_char(user_settings[field])
-        except:
-            logger.warning('{0} missing in user settings file'.format(field))
+            logger.info('Load {0} from user settings file'.format(field))
 
-            if field == 'touch_mode':
-                self.update_settings_file(field, self.touch_mode)
-            elif field == 'god_speed':
-                self.update_settings_file(field, self.god_speed)
-            elif field == 'timezone':
-                self.update_settings_file(field, self.timezone)
-            elif field == 'escape_key':
-                self.update_settings_file(field, self.escape_key.name)
+            try:
+                if field == 'touch_mode':
+                    self.touch_mode = user_settings[field]
+                elif field == 'god_speed':
+                    self.god_speed = user_settings[field]
+                elif field == 'timezone':
+                    self.timezone = user_settings[field]
+                elif field == 'escape_key':
+                    try:
+                        self.escape_key = Key[user_settings[field]]
+                    except:
+                        self.escape_key = KeyCode.from_char(user_settings[field])
+            except:
+                logger.warning('{0} missing in user settings file'.format(field))
+
+                if field == 'touch_mode':
+                    self.update_settings_file(field, self.touch_mode)
+                elif field == 'god_speed':
+                    self.update_settings_file(field, self.god_speed)
+                elif field == 'timezone':
+                    self.update_settings_file(field, self.timezone)
+                elif field == 'escape_key':
+                    self.update_settings_file(field, self.escape_key.name)
+        except Exception as e:
+            msg = 'load_settings() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def load_or_save_app_config_on_login(self, email):
         try:
@@ -413,37 +501,69 @@ class Api:
             with open(app_info_path, 'w') as f:
                 json.dump(app, f)
         except Exception as e:
-            logger.error('load_or_save_app_config_on_login() error: {0}'.format(str(e)))
+            msg = 'load_or_save_app_config_on_login() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def reset_pw(self, new_pw, old_pw=None, code=None):
-        if old_pw:
-            res = post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'old_pw': old_pw,
-                                                   'email': self.current_user_email, 'id': self.id, 'code': self.access_token['code']}).json()
+        try:
+            if old_pw:
+                res = post(self.api_url + 'reset-pw', {'new_pw': new_pw, 'old_pw': old_pw,
+                                                       'email': self.current_user_email, 'id': self.id, 'code': self.access_token['code']}).json()
 
-            logger.info(res['msg']) if res['status'] else logger.error(
-                res['msg'])
-        else:
-            res = post(self.api_url + 'reset-pw',
-                       {'new_pw': new_pw, 'code': code, 'id': self.id}).json()
-
-            if res['status']:
-                logger.info(res['msg'])
-
-                self.login(res['email'], new_pw)
+                logger.info(res['msg']) if res['status'] else logger.error(
+                    res['msg'])
             else:
-                logger.error(res['msg'])
+                res = post(self.api_url + 'reset-pw',
+                           {'new_pw': new_pw, 'code': code, 'id': self.id}).json()
 
-        return res
+                if res['status']:
+                    logger.info(res['msg'])
+
+                    self.login(res['email'], new_pw)
+                else:
+                    logger.error(res['msg'])
+
+            return res
+        except Exception as e:
+            msg = 'reset_pw() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def forgot_pw(self, email):
-        return post(self.api_url + 'forgot-pw', {'email': email, 'id': self.id}).json()
+        try:
+            return post(self.api_url + 'forgot-pw', {'email': email, 'id': self.id}).json()
+        except Exception as e:
+            msg = 'forgot_pw() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def navigate_to_dashboard(self):
-        self.window.load_url('assets/index.html')
+        try:
+            self.window.load_url('assets/index.html')
+        except Exception as e:
+            msg = 'navigate_to_dashboard() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def navigate_to_login(self):
-        self.outbox = None
-        self.window.load_url('assets/ac.html')
+        try:
+            self.outbox = None
+            self.window.load_url('assets/ac.html')
+        except Exception as e:
+            msg = 'navigate_to_login() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def record(self, msg):
         try:
@@ -468,15 +588,26 @@ class Api:
                 else:
                     notification.notify(title='Chrono', message='Record finished.')
         except Exception as e:
-            logger.error('record() error: {0}'.format(str(e)))
+            msg = 'record() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def stop_record(self, msg=None):
-        if msg:
-            logger.info('{0}, stop recording'.format(msg))
-        else:
-            logger.info('Stop recording')
+        try:
+            if msg:
+                logger.info('{0}, stop recording'.format(msg))
+            else:
+                logger.info('Stop recording')
 
-        self.is_recording = False
+            self.is_recording = False
+        except Exception as e:
+            msg = 'stop_record() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def play(self, process_name, msg=None):
         try:
@@ -502,7 +633,11 @@ class Api:
                     notification.notify(title='Chrono', message='Replay finished.')
                 self.is_playing = False
         except Exception as e:
-            logger.error('play() error: {0}'.format(str(e)))
+            msg = 'play() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def do_play(self, events, force=False):
         try:
@@ -632,22 +767,20 @@ class Api:
                                     else:
                                         pos = event['position']
 
-                                    if raw_pos != last_raw_pos:
+                                    if raw_pos[0] in range(last_raw_pos[0] - 10, last_raw_pos[0] + 10) and raw_pos[1] in range(last_raw_pos[1] - 10, last_raw_pos[1] + 10):
+                                        logger.info(
+                                            'Click on {0} with button {1}'.format(str(pos), btn))
+
+                                        pag.mouseDown(button=btn, x=pos[0], y=pos[1])
+
+                                        pag.mouseUp(button=btn, x=pos[0], y=pos[1])
+                                    else:
                                         logger.info('Drag from {0} to {1} with button {2}'.format(
                                             str(pos), str(raw_pos), btn))
 
                                         pag.moveTo(pos[0], pos[1])
 
                                         pag.dragTo(raw_pos[0], raw_pos[1], 1, button=btn)
-                                    else:
-                                        logger.info('Click on {0} with button {1}'.format(
-                                            str(pos), btn))
-
-                                        pag.mouseDown(
-                                            button=btn, x=pos[0], y=pos[1])
-
-                                        pag.mouseUp(
-                                            button=btn, x=pos[0], y=pos[1])
                             else:
                                 last_pos = event['position']
                                 last_raw_pos = raw_pos
@@ -663,49 +796,74 @@ class Api:
                                 pag.scroll(-1, x=event['position']
                                            [0], y=event['position'][1])
         except Exception as e:
-            logger.error('do_play() error: {0}'.format(str(e)))
+            msg = 'do_play() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def stop_play(self, msg=None):
-        if msg:
-            logger.info('{0}, stop playing'.format(msg))
-        else:
-            logger.info('Stop playing')
+        try:
+            if msg:
+                logger.info('{0}, stop playing'.format(msg))
+            else:
+                logger.info('Stop playing')
 
-        self.is_playing = False
+            self.is_playing = False
 
-        event = self.last_played_event
-        if event and event['event_name'] == 'KeyboardEvent' and event['event_type'] == 'down':
-            event['event_type'] = 'up'
-            event['time'] += 0.05
-            self.do_play([event], True)
+            event = self.last_played_event
+            if event and event['event_name'] == 'KeyboardEvent' and event['event_type'] == 'down':
+                event['event_type'] = 'up'
+                event['time'] += 0.05
+                self.do_play([event], True)
+        except Exception as e:
+            msg = 'stop_play() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def on_press(self, key):
-        if self.is_recording:
-            logger.info('Pressed {0}'.format(key))
+        try:
+            if self.is_recording:
+                logger.info('Pressed {0}'.format(key))
 
-            self.kb_event_handler(key, 'down', time())
-        else:
-            try:
-                self.last_key = key.name
-            except:
-                self.last_key = key.char
+                self.kb_event_handler(key, 'down', time())
+            else:
+                try:
+                    self.last_key = key.name
+                except:
+                    self.last_key = key.char
+        except Exception as e:
+            msg = 'on_press() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def on_release(self, key):
-        if self.is_recording:
-            logger.info('Released {0}'.format(key))
+        try:
+            if self.is_recording:
+                logger.info('Released {0}'.format(key))
 
-            self.kb_event_handler(key, 'up', time())
+                self.kb_event_handler(key, 'up', time())
 
-        if key == self.escape_key:
-            if self.is_recording or self.is_playing or self.is_repeating:
-                logger.info('Escape key hit')
+            if key == self.escape_key:
+                if self.is_recording or self.is_playing or self.is_repeating:
+                    logger.info('Escape key hit')
 
-                if self.is_recording:
-                    self.stop_record()
-                elif self.is_repeating:
-                    self.stop_repeat()
-                elif self.is_playing:
-                    self.stop_play()
+                    if self.is_recording:
+                        self.stop_record()
+                    elif self.is_repeating:
+                        self.stop_repeat()
+                    elif self.is_playing:
+                        self.stop_play()
+        except Exception as e:
+            msg = 'on_release() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def on_touch(self, x, y):
         try:
@@ -715,7 +873,11 @@ class Api:
                 self.m_event_handler('down', (x, y), time())
                 self.m_event_handler('up', (x, y), time())
         except Exception as e:
-            logger.error('on_touch() error: {0}'.format(str(e)))
+            msg = 'on_touch() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def on_click(self, x, y, button, pressed):
         try:
@@ -726,7 +888,11 @@ class Api:
                 event_type = 'down' if pressed else 'up'
                 self.m_event_handler(event_type, (x, y), time(), button)
         except Exception as e:
-            logger.error('on_click() error: {0}'.format(str(e)))
+            msg = 'on_click() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def on_scroll(self, x, y, dx, dy):
         try:
@@ -736,7 +902,11 @@ class Api:
 
                 self.m_event_handler(event_type, (x, y), time())
         except Exception as e:
-            logger.error('on_scroll() error: {0}'.format(str(e)))
+            msg = 'on_scroll() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def special_key_handler(self, key):
         try:
@@ -791,18 +961,29 @@ class Api:
 
             return key
         except Exception as e:
-            logger.error('special_key_handler() error: {0}'.format(str(e)))
+            msg = 'special_key_handler() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def kb_event_handler(self, key, event_type, time):
-        kb_event_dict = {}
+        try:
+            kb_event_dict = {}
 
-        kb_event_dict['event_name'] = 'KeyboardEvent'
-        kb_event_dict['event_type'] = event_type
-        kb_event_dict['key'] = self.special_key_handler(key)
-        kb_event_dict['time'] = time
+            kb_event_dict['event_name'] = 'KeyboardEvent'
+            kb_event_dict['event_type'] = event_type
+            kb_event_dict['key'] = self.special_key_handler(key)
+            kb_event_dict['time'] = time
 
-        if kb_event_dict['key']:
-            self.kb_events.append(kb_event_dict)
+            if kb_event_dict['key']:
+                self.kb_events.append(kb_event_dict)
+        except Exception as e:
+            msg = 'kb_event_handler() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def m_event_handler(self, event_type, position, time, button=None):
         try:
@@ -824,7 +1005,11 @@ class Api:
             self.m_events.append(m_event_dict)
             self.save_regional_screenshot(position, time)
         except Exception as e:
-            logger.error('m_event_handler() error: {0}'.format(str(e)))
+            msg = 'm_event_handler() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def save_regional_screenshot(self, position, time):
         try:
@@ -841,7 +1026,11 @@ class Api:
 
             logger.info('Regional screenshots at {0} saved'.format(filename_prefix))
         except Exception as e:
-            logger.error('save_regional_screenshot() error: {0}'.format(str(e)))
+            msg = 'save_regional_screenshot() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def remove_tmp_regional_screenshots(self):
         try:
@@ -859,7 +1048,11 @@ class Api:
                         if pathlib.Path(p).exists():
                             os.remove(p)
         except Exception as e:
-            logger.error('remove_tmp_regional_screenshots() error: {0}'.format(str(e)))
+            msg = 'remove_tmp_regional_screenshots() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def save(self, process):
         try:
@@ -899,7 +1092,11 @@ class Api:
 
                 return response
         except Exception as e:
-            logger.error('save() error: {0}'.format(str(e)))
+            msg = 'save() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def load(self, process):
         try:
@@ -912,7 +1109,11 @@ class Api:
 
             return events
         except Exception as e:
-            logger.error('load() error: {0}'.format(str(e)))
+            msg = 'load() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def rename_process(self, old_name, new_name):
         try:
@@ -947,9 +1148,13 @@ class Api:
 
                 return response
         except Exception as e:
-            logger.error('rename_process() error: {0}'.format(str(e)))
+            msg = 'rename_process() error: {0}'.format(str(e))
 
-            return {'status': False, 'msg': str(e)}
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
 
     def del_process(self, process):
         try:
@@ -992,9 +1197,13 @@ class Api:
 
                 return response
         except Exception as e:
-            logger.error('del_process() error: {0}'.format(str(e)))
+            msg = 'del_process() error: {0}'.format(str(e))
 
-            return {'status': False, 'msg': str(e)}
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
 
     def logout_remote_session(self, session):
         try:
@@ -1009,13 +1218,18 @@ class Api:
 
             return res
         except Exception as e:
-            logger.error('logout_remote_session() error: {0}'.format(str(e)))
+            msg = 'logout_remote_session() error: {0}'.format(str(e))
 
-            return {'status': False, 'msg': str(e)}
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
 
     def load_process_list(self, msg=None):
         try:
-            logger.info(msg)
+            if msg:
+                logger.info(msg)
 
             res = post(
                 self.api_url + 'retrieve-process', {'email': self.current_user_email, 'id': self.id, 'code': self.access_token['code']}).json()
@@ -1089,17 +1303,22 @@ class Api:
                     remote_process_list.append(p)
             process_list = local_process_list + remote_process_list
 
-            logger.info(process_list)
+            logger.info('Process list: {0}'.format(str(process_list)))
 
             return process_list
         except Exception as e:
-            logger.error('load_process_list() error: {0}'.format(str(e)))
+            msg = 'load_process_list() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
             return []
 
     def load_session_list(self, msg=None):
         try:
-            logger.info(msg)
+            if msg:
+                logger.info(msg)
 
             res = post(
                 self.api_url + 'retrieve-session', {'email': self.current_user_email, 'id': self.id, 'code': self.access_token['code']}).json()
@@ -1113,11 +1332,15 @@ class Api:
 
                 return []
 
-            logger.info(session_list)
+            logger.info('Session list: {0}'.format(str(session_list)))
 
             return session_list
         except Exception as e:
-            logger.error('load_session_list() error: {0}'.format(str(e)))
+            msg = 'load_session_list() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
             return []
 
@@ -1128,7 +1351,11 @@ class Api:
             return post(self.api_url + 'check-app-version',
                         {'id': self.id, 'app_version': self.version}).json()
         except Exception as e:
-            logger.error('check_app_version() error: {0}'.format(str(e)))
+            msg = 'check_app_version() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def get_touch_mode(self):
         try:
@@ -1139,10 +1366,13 @@ class Api:
 
             return {'status': True, 'msg': msg, 'touch_mode': self.touch_mode}
         except Exception as e:
-            logger.error(
-                'get_touch_mode() error: {0}'.formst(str(e)))
+            msg = 'get_touch_mode() error: {0}'.formst(str(e))
 
-            return {'status': False, 'msg': str(e)}
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
 
     def get_god_speed(self):
         try:
@@ -1153,10 +1383,13 @@ class Api:
 
             return {'status': True, 'msg': msg, 'god_speed': self.god_speed}
         except Exception as e:
-            logger.error(
-                'get_god_speed() error: {0}'.formst(str(e)))
+            msg = 'get_god_speed() error: {0}'.formst(str(e))
 
-            return {'status': False, 'msg': str(e)}
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
 
     def update_settings_file(self, key, value):
         try:
@@ -1170,7 +1403,11 @@ class Api:
             with open(user_settings_path, 'w') as f:
                 json.dump(user_settings, f)
         except Exception as e:
-            logger.error('update_settings_file() error: {0}'.format(str(e)))
+            msg = 'update_settings_file() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def enable_touch_mode(self):
         try:
@@ -1189,9 +1426,13 @@ class Api:
 
                 return {'status': True, 'msg': msg}
         except Exception as e:
-            logger.error('enable_touch_mode() error: {0}'.format(str(e)))
+            msg = 'enable_touch_mode() error: {0}'.format(str(e))
 
-            return {'status': False, 'msg': str(e)}
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
 
     def disable_touch_mode(self):
         try:
@@ -1203,9 +1444,13 @@ class Api:
 
             return {'status': True, 'msg': msg}
         except Exception as e:
-            logger.error('disable_touch_mode() error: {0}'.format(str(e)))
+            msg = 'disable_touch_mode() error: {0}'.format(str(e))
 
-            return {'status': False, 'msg': str(e)}
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
 
     def enable_god_speed(self):
         try:
@@ -1217,9 +1462,13 @@ class Api:
 
             return {'status': True, 'msg': msg}
         except Exception as e:
-            logger.error('enable_god_speed() error: {0}'.format(str(e)))
+            msg = 'enable_god_speed() error: {0}'.format(str(e))
 
-            return {'status': False, 'msg': str(e)}
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
 
     def disable_god_speed(self):
         try:
@@ -1231,17 +1480,35 @@ class Api:
 
             return {'status': True, 'msg': msg}
         except Exception as e:
-            logger.error('disable_touch_mode() error: {0}'.format(str(e)))
+            msg = 'disable_god_speed() error: {0}'.format(str(e))
 
-            return {'status': False, 'msg': str(e)}
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
 
     def get_timezone_list(self):
-        return common_timezones
+        try:
+            return common_timezones
+        except Exception as e:
+            msg = 'get_timezone_list() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def get_timezone(self):
-        logger.info('Timezone: {0}'.format(self.timezone))
+        try:
+            logger.info('Timezone: {0}'.format(self.timezone))
 
-        return self.timezone
+            return self.timezone
+        except Exception as e:
+            msg = 'get_timezone() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def set_timezone(self, timezone):
         try:
@@ -1256,19 +1523,30 @@ class Api:
             else:
                 raise Exception('Invalid timezone.')
         except Exception as e:
-            logger.error('set_timezone() error: {0}'.format(str(e)))
+            msg = 'set_timezone() error: {0}'.format(str(e))
 
-            return {'status': False, 'msg': str(e)}
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
 
     def get_escape_key(self):
         try:
-            key = self.escape_key.name
-        except:
-            key = self.escape_key.char
+            try:
+                key = self.escape_key.name
+            except:
+                key = self.escape_key.char
 
-        logger.info('Retrieved escape key: {0}'.format(key))
+            logger.info('Retrieved escape key: {0}'.format(key))
 
-        return key
+            return key
+        except Exception as e:
+            msg = 'get_escape_key() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def set_escape_key(self):
         try:
@@ -1285,9 +1563,13 @@ class Api:
 
             return {'status': True, 'key': self.last_key}
         except Exception as e:
-            logger.error('set_escape_key() error: {0}'.format(str(e)))
+            msg = 'set_escape_key() error: {0}'.format(str(e))
 
-            return {'status': False, 'msg': str(e)}
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
 
     def get_user_name(self):
         try:
@@ -1299,9 +1581,13 @@ class Api:
 
             return res
         except Exception as e:
-            logger.error(str(e))
+            msg = 'get_user_name() error: {0}'.format(str(e))
 
-            return {'status': False, 'msg': str(e)}
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
 
     def get_user_email(self):
         try:
@@ -1310,9 +1596,13 @@ class Api:
 
             return {'status': True, 'user_email': self.current_user_email}
         except Exception as e:
-            logger.error(str(e))
+            msg = 'get_user_email() error: {0}'.format(str(e))
 
-            return {'status': False, 'msg': str(e)}
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
 
     def get_user_license(self):
         try:
@@ -1324,9 +1614,13 @@ class Api:
 
             return res
         except Exception as e:
-            logger.error(str(e))
+            msg = 'get_user_license() error: {0}'.format(str(e))
 
-            return {'status': False, 'msg': str(e)}
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
 
     def get_app_info(self):
         try:
@@ -1334,9 +1628,13 @@ class Api:
 
             return {'status': True, 'version': self.version}
         except Exception as e:
-            logger.error(str(e))
+            msg = 'get_app_info() error: {0}'.format(str(e))
 
-            return {'status': False, 'msg': str(e)}
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
 
     def thread_handler(self):
         try:
@@ -1346,32 +1644,43 @@ class Api:
                 self.kl.join()
                 self.ml.join()
         except Exception as e:
-            logger.error('thread_handler() error: {0}'.format(str(e)))
+            msg = 'thread_handler() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def on_closed(self):
-        logger.info('Chrono closed')
+        try:
+            logger.info('Chrono closed')
 
-        with open('{0}/Chrono.json'.format(app_file_path)) as f:
-            app = json.load(f)
+            with open('{0}/Chrono.json'.format(app_file_path)) as f:
+                app = json.load(f)
 
-        if not self.opened:
-            app['opened'] = False
+            if not self.opened:
+                app['opened'] = False
 
-        with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
-            json.dump(app, f)
+            with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
+                json.dump(app, f)
 
-        if self.logged_in and self.access_token:
-            res = post(self.api_url + 'logout',
-                       {'code': self.access_token['code'], 'id': self.id}).json()
+            if self.logged_in and self.access_token:
+                res = post(self.api_url + 'logout',
+                           {'code': self.access_token['code'], 'id': self.id}).json()
 
-            logger.info(res['msg']) if res['status'] else logger.error(res['msg'])
+                logger.info(res['msg']) if res['status'] else logger.error(res['msg'])
 
-        if platform.system() == 'Windows':
-            os.system('taskkill /f /pid %d' % os.getpid())
-        else:
-            os.system('kill %d' % os.getpid())
+            if platform.system() == 'Windows':
+                os.system('taskkill /f /pid %d' % os.getpid())
+            else:
+                os.system('kill %d' % os.getpid())
 
-        self.sched.shutdown(wait=False)
+            self.sched.shutdown(wait=False)
+        except Exception as e:
+            msg = 'on_closed() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def repeat(self, process_name, msg=None):
         try:
@@ -1383,20 +1692,35 @@ class Api:
             while self.is_repeating:
                 self.play(process_name, 'Repeat {0}'.format(process_name))
         except Exception as e:
-            logger.error('repeat() error: {0}'.format(str(e)))
+            msg = 'repeat() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def stop_repeat(self, msg=None):
-        if msg:
-            logger.info('{0}, stop repeating'.format(msg))
-        else:
-            logger.info('Stop repeating')
+        try:
+            if msg:
+                logger.info('{0}, stop repeating'.format(msg))
+            else:
+                logger.info('Stop repeating')
 
-        self.is_repeating = False
-        self.stop_play()
+            self.is_repeating = False
+            self.stop_play()
+        except Exception as e:
+            msg = 'stop_repeat() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def sched_listener(self, event):
         if event.exception:
-            logger.error('{0} {1}'.format(event.exception, event.traceback))
+            msg = '{0} {1}'.format(event.exception, event.traceback)
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
         else:
             logger.info('Scheduled run of {0} finished'.format(event.job_id))
 
@@ -1615,9 +1939,13 @@ class Api:
 
             return {'status': True, 'msg': msg}
         except Exception as e:
-            logger.error('schedule() error: {0}'.format(str(e)))
+            msg = 'schedule() error: {0}'.format(str(e))
 
-            return {'status': False, 'msg': str(e)}
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
 
     def cancel_scheduled_task(self, process_name, msg=None):
         try:
@@ -1635,9 +1963,13 @@ class Api:
 
             return {'status': True, 'msg': msg}
         except Exception as e:
-            logger.error('cancel_scheduled_task() error: {0}'.format(str(e)))
+            msg = 'cancel_scheduled_task() error: {0}'.format(str(e))
 
-            return {'status': False, 'msg': str(e)}
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
 
     def get_schedule_details(self, process_name):
         try:
@@ -1648,9 +1980,13 @@ class Api:
 
             return {'status': True, 'msg': msg}
         except Exception as e:
-            logger.error('get_schedule_details() error: {0}'.format(str(e)))
+            msg = 'get_schedule_details() error: {0}'.format(str(e))
 
-            return {'status': False, 'msg': str(e)}
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
 
     def is_schedule_on(self, process_name):
         try:
@@ -1662,7 +1998,11 @@ class Api:
 
             logger.info('Revert schedule btn to normal')
         except Exception as e:
-            logger.error('is_schedule_on() error: {0}'.format(str(e)))
+            msg = 'is_schedule_on() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def mq_handler(self, channel, method, properties, body):
         try:
@@ -1692,7 +2032,11 @@ class Api:
                     """
                 )
         except Exception as e:
-            logger.error('mq_handler() error: {0}'.format(str(e)))
+            msg = 'mq_handler() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def consume_server_msg(self):
         try:
@@ -1706,17 +2050,32 @@ class Api:
             logger.info('Listening to server msg')
             channel.start_consuming()
         except Exception as e:
-            logger.error('consume_server_msg() error: {0}'.format(str(e)))
+            msg = 'consume_server_msg() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def check_if_opened(self):
-        if self.opened:
-            self.on_closed()
+        try:
+            if self.opened:
+                self.on_closed()
+        except Exception as e:
+            msg = 'check_if_opened() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     async def async_upgrader(self, cmd):
         try:
             proc = await asyncio.create_subprocess_shell(cmd)
         except Exception as e:
-            logger.error('async_upgrader() error: {0}'.format(str(e)))
+            msg = 'async_upgrader() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def upgrade(self):
         try:
@@ -1742,7 +2101,11 @@ class Api:
 
             self.on_closed()
         except Exception as e:
-            logger.error('upgrade() error: {0}'.format(str(e)))
+            msg = 'upgrade() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
 
 if __name__ == '__main__':
