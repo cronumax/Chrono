@@ -58,7 +58,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '1.1.4'
+        self.version = '1.1.5'
         self.host = platform.node()
         self.host_os = platform.system()
         self.host_username = getpass.getuser()
@@ -2011,25 +2011,33 @@ class Api:
             logger.info(action)
 
             if action == 'Log out local session':
-                self.logout()
-                self.navigate_to_login()
-            elif action == 'Refresh session list':
                 self.window.evaluate_js(
-                    r"""
-                    var refreshSwitch = document.getElementById('refreshSessionListSwitch')
-                    refreshSwitch.textContent = 'Refresh'
-                    var refreshEvent = new Event('change')
-                    refreshSwitch.dispatchEvent(refreshEvent)
-                    """
-                )
-            elif action == 'Refresh dashboard':
-                self.window.evaluate_js(
-                    r"""
+                    r'''
                     var refreshSwitch = document.getElementById('refreshDashboardSwitch')
                     refreshSwitch.textContent = 'Refresh'
                     var refreshEvent = new Event('change')
                     refreshSwitch.dispatchEvent(refreshEvent)
-                    """
+                    '''
+                )
+                self.logout()
+                self.navigate_to_login()
+            elif action == 'Refresh session list':
+                self.window.evaluate_js(
+                    r'''
+                    var refreshSwitch = document.getElementById('refreshSessionListSwitch')
+                    refreshSwitch.textContent = 'Refresh'
+                    var refreshEvent = new Event('change')
+                    refreshSwitch.dispatchEvent(refreshEvent)
+                    '''
+                )
+            elif action == 'Refresh dashboard':
+                self.window.evaluate_js(
+                    r'''
+                    var refreshSwitch = document.getElementById('refreshDashboardSwitch')
+                    refreshSwitch.textContent = 'Refresh'
+                    var refreshEvent = new Event('change')
+                    refreshSwitch.dispatchEvent(refreshEvent)
+                    '''
                 )
         except Exception as e:
             msg = 'mq_handler() error: {0}'.format(str(e))

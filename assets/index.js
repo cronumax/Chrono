@@ -2,26 +2,7 @@ $(window).on('pywebviewready', function() {
   var trafficWarningMsg = 'Chrono is in action. To proceed, please turn off other process.'
 
   $('#refreshBtn').click(function() {
-    var msg = 'Refresh btn clicked'
-    var interval = 10
-
-    $('#scheduleBtn.scheduling').each(function() {
-      var processName = $(this).parent().parent().find('td:first').html()
-
-      if (processName) {
-        setTimeout(function() {
-          window.pywebview.api.cancel_scheduled_task(processName).then(res => {
-            if (!res['status']) {
-              simpleWarningPopUp(res['msg'])
-            }
-          })
-        }, interval)
-
-        interval += 10
-      }
-    })
-
-    refreshProcessList(msg)
+    refreshProcessList('Refresh btn clicked')
   })
 
   $('#sessionRefreshBtn').click(function() {
@@ -985,6 +966,7 @@ $(document).ready(function() {
   })
 
   $('#logoutBtn').click(function() {
+    refreshProcessList('Logout btn clicked')
     window.pywebview.api.logout().then(function() {
       window.pywebview.api.navigate_to_login()
     })
@@ -1076,6 +1058,24 @@ $(document).ready(function() {
 })
 
 function refreshProcessList(msg = null) {
+  var interval = 10
+
+  $('#scheduleBtn.scheduling').each(function() {
+    var processName = $(this).parent().parent().find('td:first').html()
+
+    if (processName) {
+      setTimeout(function() {
+        window.pywebview.api.cancel_scheduled_task(processName).then(res => {
+          if (!res['status']) {
+            simpleWarningPopUp(res['msg'])
+          }
+        })
+      }, interval)
+
+      interval += 10
+    }
+  })
+
   $.when(window.pywebview.api.load_process_list(msg)).then(processList => {
     $('#processList tbody').empty()
     $.each(processList, function(i, process) {
@@ -1098,6 +1098,7 @@ function refreshProcessList(msg = null) {
       $('#processList tbody').append(row)
     })
   })
+
   if ($('#processList th').hasClass('sorttable_sorted')) {
     $('#processList th.sorttable_sorted > span').remove()
     $('#processList th.sorttable_sorted').removeClass('sorttable_sorted')
