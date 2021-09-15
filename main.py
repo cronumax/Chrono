@@ -666,9 +666,6 @@ class Api:
                     filename_prefix = str(event['time']).replace('.', '_')
                     path_prefix = '{0}/img/{1}/{2}'.format(app_file_path,
                                                            self.current_user_email, filename_prefix)
-                    # Backward compatible
-                    old_img_path = '{0}/img/{1}/{2}.png'.format(
-                        app_file_path, self.current_user_email, filename_prefix)
 
                     paths = ['{0}_fine.png'.format(path_prefix), '{0}_medium.png'.format(
                         path_prefix), '{0}_crude.png'.format(path_prefix)]
@@ -710,28 +707,6 @@ class Api:
 
                             if found:
                                 break
-                        elif os.path.exists(old_img_path):
-                            # Backward compatible
-                            for confidence_level in self.confidence_levels:
-                                if not self.is_playing and not force:
-                                    break
-
-                                matched_instances = list(pag.locateAllOnScreen(
-                                    old_img_path, confidence=confidence_level))
-
-                                logger.info('Number of matched instances at confidence level {0} for {1}: {2}'.format(
-                                    str(confidence_level), old_img_path.split('/')[-1], str(len(matched_instances))))
-
-                                if len(matched_instances) == 1:
-                                    event['position'] = list(pag.center(matched_instances[0]))
-                                    logger.info('Pos by img: {0}'.format(event['position']))
-                                    found = True
-                                    event['accuracy'] = 2 + float(confidence_level)
-                                    break
-                                elif len(matched_instances) > 1:
-                                    break
-
-                            break
 
                     if not found:
                         event['accuracy'] = 0
@@ -1039,10 +1014,8 @@ class Api:
                     filename = str(e['time']).replace('.', '_')
                     path_prefix = '{0}/img/{1}/{2}'.format(app_file_path,
                                                            self.current_user_email, filename)
-                    # Backward compatible
                     paths = ['{0}_fine.png'.format(path_prefix), '{0}_medium.png'.format(
-                        path_prefix), '{0}_crude.png'.format(path_prefix), '{0}.png'.format(path_prefix)]
-                    # paths = ['{0}_fine.png'.format(path_prefix), '{0}_medium.png'.format(path_prefix), '{0}_crude.png'.format(path_prefix)]
+                        path_prefix), '{0}_crude.png'.format(path_prefix)]
 
                     for p in paths:
                         if pathlib.Path(p).exists():
@@ -1172,10 +1145,8 @@ class Api:
                         filename = str(e['time']).replace('.', '_')
                         img_path_prefix = '{0}/img/{1}/{2}'.format(app_file_path,
                                                                    self.current_user_email, filename)
-                        # Backward compatible
                         img_paths = ['{0}_fine.png'.format(img_path_prefix), '{0}_medium.png'.format(
-                            img_path_prefix), '{0}_crude.png'.format(img_path_prefix), '{0}.png'.format(img_path_prefix)]
-                        # paths = ['{0}_fine.png'.format(img_path_prefix), '{0}_medium.png'.format(img_path_prefix), '{0}_crude.png'.format(img_path_prefix)]
+                            img_path_prefix), '{0}_crude.png'.format(img_path_prefix)]
 
                         for i_p in img_paths:
                             if pathlib.Path(i_p).exists():
