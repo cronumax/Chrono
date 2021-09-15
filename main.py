@@ -29,10 +29,10 @@ from subprocess import run, DEVNULL
 import asyncio
 
 
-if platform.system() == 'Windows':
-    app_file_path = '/ProgramData/Chrono/{0}'.format(getpass.getuser())
+if platform.system() == 'Linux':
+    app_file_path = '/home/{0}/Chrono'.format(getpass.getuser())
 else:
-    app_file_path = '/usr/local/etc/{0}'.format(getpass.getuser())
+    app_file_path = '/Users/{0}/Chrono'.format(getpass.getuser())
 
 if not os.path.exists('{0}/logs'.format(app_file_path)):
     os.makedirs('{0}/logs'.format(app_file_path))
