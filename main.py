@@ -767,7 +767,7 @@ class Api:
                                     else:
                                         pos = event['position']
 
-                                    if raw_pos[0] in range(last_raw_pos[0] - 10, last_raw_pos[0] + 10) and raw_pos[1] in range(last_raw_pos[1] - 10, last_raw_pos[1] + 10):
+                                    if int(raw_pos[0]) in range(int(last_raw_pos[0]) - 10, int(last_raw_pos[0]) + 10) and int(raw_pos[1]) in range(int(last_raw_pos[1]) - 10, int(last_raw_pos[1]) + 10):
                                         logger.info(
                                             'Click on {0} with button {1}'.format(str(pos), btn))
 
