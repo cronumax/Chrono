@@ -30,9 +30,9 @@ import asyncio
 
 
 if platform.system() == 'Windows':
-    app_file_path = '/ProgramData/Chrono'
+    app_file_path = '/ProgramData/Chrono/{0}'.format(getpass.getuser())
 else:
-    app_file_path = '/usr/local/etc'
+    app_file_path = '/usr/local/etc/{0}'.format(getpass.getuser())
 
 if not os.path.exists('{0}/logs'.format(app_file_path)):
     os.makedirs('{0}/logs'.format(app_file_path))
