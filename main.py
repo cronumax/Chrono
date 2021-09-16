@@ -129,7 +129,8 @@ class Api:
         try:
             if platform.system() == 'Windows':
                 commands = [
-                    r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/Upgrader.exe -o C:\ProgramData\Chrono\Upgrader.exe'
+                    r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/Upgrader.exe -o C:\Users\{0}\Chrono\Upgrader.exe'.format(
+                        self.host_username)
                 ]
             elif platform.system() == 'Darwin':
                 commands = [
