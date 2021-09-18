@@ -27,6 +27,8 @@ import geocoder
 import pika
 from subprocess import run, DEVNULL
 import asyncio
+import mss
+import mss.tools
 
 
 if platform.system() == 'Linux':
@@ -58,7 +60,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '1.1.6'
+        self.version = '1.1.7'
         self.host = platform.node()
         self.host_os = platform.system()
         self.host_username = getpass.getuser()
@@ -699,16 +701,17 @@ class Api:
                                     str(confidence_level), filename, str(len(matched_instances))))
 
                                 if len(matched_instances) == 1:
+                                    event['accuracy'] = float(confidence_level)
                                     event['position'] = list(pag.center(matched_instances[0]))
                                     logger.info('Pos by img: {0}'.format(event['position']))
                                     found = True
 
                                     if 'fine' in filename:
-                                        event['accuracy'] = 2 + float(confidence_level)
+                                        event['scope'] = 1
                                     elif 'medium' in filename:
-                                        event['accuracy'] = 1 + float(confidence_level)
+                                        event['scope'] = 2
                                     elif 'crude' in filename:
-                                        event['accuracy'] = float(confidence_level)
+                                        event['scope'] = 3
 
                                     break
                                 elif len(matched_instances) > 1:
@@ -718,6 +721,7 @@ class Api:
                                 break
 
                     if not found:
+                        event['scope'] = 0
                         event['accuracy'] = 0
 
                     if self.touch_mode and event['event_name'] == 'TouchEvent':
@@ -725,7 +729,7 @@ class Api:
 
                         if event['event_type'] == 'up':
                             if 'last_pos' in locals():
-                                if event['accuracy'] <= last_accuracy:
+                                if event['scope'] < last_scope or event['scope'] == last_scope and event['accuracy'] <= last_accuracy:
                                     pos = last_pos
                                 else:
                                     pos = event['position']
@@ -739,6 +743,7 @@ class Api:
                                     button=btn, x=pos[0], y=pos[1])
                         else:
                             last_pos = event['position']
+                            last_scope = event['scope']
                             last_accuracy = event['accuracy']
                     elif not self.touch_mode:
                         if event['event_name'] == 'ClickEvent':
@@ -746,7 +751,7 @@ class Api:
 
                             if event['event_type'] == 'up':
                                 if 'last_pos' in locals():
-                                    if event['accuracy'] <= last_accuracy:
+                                    if event['scope'] < last_scope or event['scope'] == last_scope and event['accuracy'] <= last_accuracy:
                                         pos = last_pos
                                     else:
                                         pos = event['position']
@@ -768,6 +773,7 @@ class Api:
                             else:
                                 last_pos = event['position']
                                 last_raw_pos = raw_pos
+                                last_scope = event['scope']
                                 last_accuracy = event['accuracy']
                         elif event['event_name'] == 'WheelEvent':
                             logger.info('Scroll {0} at {1}'.format(
@@ -1006,7 +1012,13 @@ class Api:
                                                                     position[1] - 30, 60, 60), (position[0] - 45, position[1] - 45, 90, 90)]
 
             for i in range(3):
-                pag.screenshot(paths[i], areas[i])
+                with mss.mss() as sct:
+                    region = {'top': areas[i][1], 'left': areas[i][0],
+                              'width': areas[i][2], 'height': areas[i][3]}
+
+                    img = sct.grab(region)
+
+                    mss.tools.to_png(img.rgb, img.size, output=paths[i])
 
             logger.info('Regional screenshots at {0} saved'.format(filename_prefix))
         except Exception as e:
