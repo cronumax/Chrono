@@ -683,9 +683,17 @@ class Api:
                                 if not self.is_playing and not force:
                                     break
 
+                                if self.host_os == 'Darwin':
+                                    cwd = os.getcwd()
+                                    os.chdir('{0}/img/{1}'.format(app_file_path,
+                                             self.current_user_email))
+
                                 matched_instances = list(pag.locateAllOnScreen(
                                     img_path, confidence=confidence_level))
                                 filename = img_path.split('/')[-1]
+
+                                if self.host_os == 'Darwin':
+                                    os.chdir(cwd)
 
                                 logger.info('Number of matched instances at confidence level {0} for {1}: {2}'.format(
                                     str(confidence_level), filename, str(len(matched_instances))))
