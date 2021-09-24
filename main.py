@@ -63,7 +63,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '1.1.8'
+        self.version = '1.1.9'
         self.host = platform.node()
         self.host_os = platform.system()
         self.host_username = getpass.getuser()
@@ -1798,8 +1798,10 @@ class Api:
             month = date_time.split(' ')[0].split('-')[1].lstrip('0')
             day_of_wk = day_of_wk.lower()
             day = date_time.split(' ')[0].split('-')[-1].lstrip('0')
-            hour = date_time.split(' ')[1].split(':')[0].lstrip('0')
-            minute = date_time.split(' ')[1].split(':')[1].lstrip('0')
+            raw_hr = date_time.split(' ')[1].split(':')[0]
+            hour = raw_hr.lstrip('0') if raw_hr != '00' else raw_hr
+            raw_min = date_time.split(' ')[1].split(':')[1]
+            minute = raw_min.lstrip('0') if raw_min != '00' else raw_min
             if end == 'occurrence' and end_occurrence:
                 end_occurrence = end_occurrence.replace(',', '')
 
