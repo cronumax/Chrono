@@ -1,5 +1,6 @@
 altgraph==0.17
 APScheduler==3.7.0
+cefpython3==66.1
 certifi==2020.12.5
 chardet==4.0.0
 click==8.0.1
@@ -18,11 +19,12 @@ pefile==2019.4.18
 pika==1.2.0
 Pillow==8.1.2
 plyer==2.0.0
+proxy-tools==0.1.0
 PyAutoGUI==0.9.52
 pycairo==1.20.0
 pycparser==2.20
 PyGetWindow==0.0.9
-pyinstaller==4.3
+pyinstaller==4.5.1
 pyinstaller-hooks-contrib==2021.1
 PyMsgBox==1.0.9
 pynput==1.6.8
@@ -33,7 +35,7 @@ python-dateutil==2.8.1
 pythonnet==2.5.2
 PyTweening==1.0.3
 pytz==2021.1
-pywebview==3.4
+pywebview==3.5
 pywin32-ctypes==0.2.0
 ratelim==0.1.6
 requests==2.25.1

@@ -29,12 +29,21 @@ from subprocess import run, DEVNULL
 import asyncio
 import mss
 import mss.tools
+from tempfile import gettempdir
 
 
 if platform.system() == 'Linux':
     app_file_path = '/home/{0}/Chrono'.format(getpass.getuser())
 else:
     app_file_path = '/Users/{0}/Chrono'.format(getpass.getuser())
+
+    if platform.system() == 'Windows':
+        from webview.platforms.cef import settings
+
+        settings.update({
+            'cache_path': gettempdir(),
+            'log_severity': 99
+        })
 
 if not os.path.exists('{0}/logs'.format(app_file_path)):
     os.makedirs('{0}/logs'.format(app_file_path))
@@ -2117,4 +2126,7 @@ if __name__ == '__main__':
     api = Api()
     api.window = webview.create_window('Chrono', 'assets/ac.html', js_api=api)
     api.window.closed += api.on_closed
-    webview.start(api.thread_handler)
+    if platform.system() == 'Windows':
+        webview.start(api.thread_handler, gui='cef')
+    else:
+        webview.start(api.thread_handler)
