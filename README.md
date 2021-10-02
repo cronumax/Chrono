@@ -66,7 +66,7 @@ pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import plye
 ### macOS
 
 ```bash
-pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import geocoder main.py -n Chrono -i media/automation.png -p venv/lib/python3.9/site-packages
+pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import geocoder main.py -n Chrono -i media/automation.png --copy-metadata pytz --copy-metadata six --copy-metadata tzlocal
 ```
 
 ### Windows
