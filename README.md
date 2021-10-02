@@ -73,7 +73,7 @@ pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import geoc
 
 ```bash
 # Chrono
-pyinstaller --onefile --windowed --add-data 'assets;assets' --hidden-import plyer.platforms.win.notification --hidden-import apscheduler --hidden-import geocoder main.py -n Chrono -i media/automation.ico
+pyinstaller --onefile --windowed --add-data 'assets;assets' --hidden-import plyer.platforms.win.notification --hidden-import apscheduler --hidden-import geocoder main.py -n Chrono -i media/automation.ico -p venv/Lib/site-packages
 
 # Upgrader
 pyinstaller --onefile upgrader.py -n Upgrader
