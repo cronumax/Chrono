@@ -60,7 +60,7 @@ pyinstaller Upgrader.spec
 ### Linux
 
 ```bash
-pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import plyer.platforms.linux.notification --hidden-import geocoder main.py -n Chrono -i media/automation.png -p venv/lib/python3.8/site-packages/:venv/lib64/python3.8/site-packages/
+pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import plyer.platforms.linux.notification --hidden-import geocoder main.py -n Chrono -i media/automation.png --copy-metadata pytz --copy-metadata six --copy-metadata tzlocal
 ```
 
 ### macOS
