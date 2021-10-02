@@ -18,11 +18,12 @@ opencv-python==4.5.3.56
 pika==1.2.0
 Pillow==8.2.0
 plyer==2.0.0
+proxy-tools==0.1.0
 PyAutoGUI==0.9.52
 pycairo==1.20.0
 PyGetWindow==0.0.9
 PyGObject==3.40.1
-pyinstaller==4.3
+pyinstaller==4.5.1
 pyinstaller-hooks-contrib==2021.1
 PyMsgBox==1.0.9
 pynput==1.6.8
@@ -39,7 +40,7 @@ python-xlib==0.30
 python3-xlib==0.15
 PyTweening==1.0.3
 pytz==2021.1
-pywebview==3.4
+pywebview==3.5
 ratelim==0.1.6
 requests==2.25.1
 rubicon-objc==0.4.0
