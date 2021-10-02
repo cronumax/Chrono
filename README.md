@@ -60,7 +60,7 @@ pyinstaller Upgrader.spec
 ### Linux
 
 ```bash
-pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import plyer.platforms.linux.notification --hidden-import geocoder main.py -n Chrono -i media/automation.png
+pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import plyer.platforms.linux.notification --hidden-import geocoder main.py -n Chrono -i media/automation.png -p venv/lib/python3.8/site-packages/:venv/lib64/python3.8/site-packages/
 ```
 
 ### macOS
@@ -86,3 +86,5 @@ pyinstaller --onefile upgrader.py -n Upgrader
 2.  In JS, if there are more than 1 pywebview.api calls, we need to use <b>setTimeout()</b> to spread out them chronologically
 
 3.  In macOS, need to open up certain privacy settings, e.g. Input Monitoring, to Chrono for it to work
+
+4.  In Ubuntu, running as admin is unnecessary & unavailable
