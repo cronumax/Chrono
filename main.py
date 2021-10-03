@@ -124,6 +124,7 @@ class Api:
                 self.ip = get('https://api.ipify.org').text
 
                 if app['ip'] != self.ip:
+                    app['ip'] = self.ip
                     self.register_or_update_app_info(app, 'update-app')
         except Exception as e:
             msg = 'get_public_ip() error: {0}', format(str(e))
@@ -146,6 +147,7 @@ class Api:
                                  for k in location_keys if k in geocoder.ip('me').json}
 
                 if app['location'] != self.location:
+                    app['location'] = self.location
                     self.register_or_update_app_info(app, 'update-app')
         except Exception as e:
             msg = 'get_location() error: {0}'.format(str(e))
@@ -191,6 +193,8 @@ class Api:
                 self.ip = get('https://api.ipify.org').text
                 self.location = {k: geocoder.ip('me').json[k]
                                  for k in location_keys if k in geocoder.ip('me').json}
+                app['ip'] = self.ip
+                app['location'] = self.location
 
                 self.register_or_update_app_info(app, 'register-app')
         except Exception as e:
@@ -259,8 +263,6 @@ class Api:
             app['host'] = self.host
             app['host_os'] = self.host_os
             app['host_username'] = self.host_username
-            app['ip'] = self.ip
-            app['location'] = self.location
             app['opened'] = True
 
             with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
