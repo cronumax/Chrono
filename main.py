@@ -76,10 +76,10 @@ class Api:
         self.host = platform.node()
         self.host_os = platform.system()
         self.host_username = getpass.getuser()
-        self.ip = get('https://api.ipify.org').text
-        location_keys = ['address', 'lat', 'lng', 'hostname', 'org']
-        self.location = {k: geocoder.ip('me').json[k]
-                         for k in location_keys if k in geocoder.ip('me').json}
+        thread = threading.Thread(target=self.get_public_ip)
+        thread.start()
+        thread = threading.Thread(target=self.get_location)
+        thread.start()
         self.window = None
         self.api_url = 'https://chrono.cronumax.com/'
         # self.api_url = 'http://localhost:8000/'
@@ -93,35 +93,8 @@ class Api:
         self.is_repeating = False
         self.schedule_repeat_msg = ''
         self.last_key = ''
-        if pathlib.Path('{0}/Chrono.json'.format(app_file_path)).exists():
-            with open('{0}/Chrono.json'.format(app_file_path)) as f:
-                app = json.load(f)
-
-            self.id = app['id']
-            if 'opened' in app and app['opened']:
-                if platform.system() == 'Darwin':
-                    title = 'Chrono'
-                    message = 'Chrono is already opened.'
-                    command = f'''
-                    osascript -e 'display notification "{message}" with title "{title}"'
-                    '''
-                    os.system(command)
-                else:
-                    notification.notify(title='Chrono', message='Chrono is already opened.')
-
-                self.opened = True
-            else:
-                app['opened'] = True
-
-            with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
-                json.dump(app, f)
-
-            if any(not k in app for k in ['version', 'host', 'host_os', 'host_username', 'ip', 'location']) or app['version'] != self.version or app['host'] != self.host or app['host_os'] != self.host_os or app['host_username'] != self.host_username or app['ip'] != self.ip or app['location'] != self.location:
-                self.register_or_update_app_info(app, 'update-app')
-        else:
-            app = {}
-            self.id = app['id'] = secrets.token_urlsafe()
-            self.register_or_update_app_info(app, 'register-app')
+        thread = threading.Thread(target=self.check_if_opened)
+        thread.start()
         self.sched = BackgroundScheduler()
         self.sched.add_listener(self.sched_listener,
                                 EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
@@ -129,7 +102,8 @@ class Api:
         thread = threading.Thread(target=self.consume_server_msg)
         thread.start()
         self.outbox = None
-        self.download_upgrader()
+        thread = threading.Thread(target=self.download_upgrader)
+        thread.start()
         self.confidence_levels = [1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5]
         '''
         Defaults
@@ -139,8 +113,97 @@ class Api:
         self.timezone = 'Asia/Hong_Kong'
         self.escape_key = Key.esc
 
+    def get_public_ip(self):
+        try:
+            logger.info('Get public IP')
+
+            if pathlib.Path('{0}/Chrono.json'.format(app_file_path)).exists():
+                with open('{0}/Chrono.json'.format(app_file_path)) as f:
+                    app = json.load(f)
+
+                self.ip = get('https://api.ipify.org').text
+
+                if app['ip'] != self.ip:
+                    self.register_or_update_app_info(app, 'update-app')
+        except Exception as e:
+            msg = 'get_public_ip() error: {0}', format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+    def get_location(self):
+        try:
+            logger.info('Get location')
+
+            if pathlib.Path('{0}/Chrono.json'.format(app_file_path)).exists():
+                with open('{0}/Chrono.json'.format(app_file_path)) as f:
+                    app = json.load(f)
+
+                location_keys = ['address', 'lat', 'lng', 'hostname', 'org']
+
+                self.location = {k: geocoder.ip('me').json[k]
+                                 for k in location_keys if k in geocoder.ip('me').json}
+
+                if app['location'] != self.location:
+                    self.register_or_update_app_info(app, 'update-app')
+        except Exception as e:
+            msg = 'get_location() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+    def check_if_opened(self):
+        try:
+            if pathlib.Path('{0}/Chrono.json'.format(app_file_path)).exists():
+                with open('{0}/Chrono.json'.format(app_file_path)) as f:
+                    app = json.load(f)
+
+                self.id = app['id']
+                if 'opened' in app and app['opened']:
+                    if platform.system() == 'Darwin':
+                        title = 'Chrono'
+                        message = 'Chrono is already opened.'
+                        command = f'''
+                        osascript -e 'display notification "{message}" with title "{title}"'
+                        '''
+                        os.system(command)
+                    else:
+                        notification.notify(title='Chrono', message='Chrono is already opened.')
+
+                    self.opened = True
+                else:
+                    app['opened'] = True
+
+                with open('{0}/Chrono.json'.format(app_file_path), 'w') as f:
+                    json.dump(app, f)
+
+                if any(not k in app for k in ['version', 'host', 'host_os', 'host_username', 'ip', 'location']) or app['version'] != self.version or app['host'] != self.host or app['host_os'] != self.host_os or app['host_username'] != self.host_username:
+                    self.register_or_update_app_info(app, 'update-app')
+            else:
+                logger.info('Register new app')
+
+                app = {}
+                location_keys = ['address', 'lat', 'lng', 'hostname', 'org']
+
+                self.id = app['id'] = secrets.token_urlsafe()
+                self.ip = get('https://api.ipify.org').text
+                self.location = {k: geocoder.ip('me').json[k]
+                                 for k in location_keys if k in geocoder.ip('me').json}
+
+                self.register_or_update_app_info(app, 'register-app')
+        except Exception as e:
+            msg = 'check_if_opened() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
     def download_upgrader(self):
         try:
+            logger.info('Download upgrader')
+
             if platform.system() == 'Windows':
                 commands = [
                     r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/Upgrader.exe -o C:\Users\{0}\Chrono\Upgrader.exe'.format(
@@ -158,7 +221,6 @@ class Api:
                 ]
 
             for c in commands:
-                logger.info(c)
                 if platform.system() == 'Windows':
                     run(c.split(), stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL, shell=True)
                 else:
@@ -2070,12 +2132,14 @@ class Api:
 
             self.send_exception_email(msg)
 
-    def check_if_opened(self):
+    def close_if_opened(self):
         try:
             if self.opened:
+                logger.info('Chrono is already opened, close this redundant instance')
+
                 self.on_closed()
         except Exception as e:
-            msg = 'check_if_opened() error: {0}'.format(str(e))
+            msg = 'close_if_opened() error: {0}'.format(str(e))
 
             logger.error(msg)
 
