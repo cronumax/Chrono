@@ -146,7 +146,7 @@ $(window).on('pywebviewready', function() {
       }).then(res => {
         if (res.isConfirmed) {
           // Disable scheduled run
-          window.pywebview.api.cancel_scheduled_task(processName, 'Schedule btn clicked').then(res => {
+          window.pywebview.api.cancel_scheduled_task(processName).then(res => {
             if (res['status']) {
               $(this).removeClass('scheduling')
             } else {
@@ -183,14 +183,7 @@ $(window).on('pywebviewready', function() {
         var datetime = $('#datetimepicker').val()
         if (res.isConfirmed) {
           window.pywebview.api.schedule(processName, datetime).then(res => {
-            if (res['status']) {
-              $(this).addClass('scheduling')
-              $.when(window.pywebview.api.is_schedule_on(processName)).done(function() {
-                $('td:contains(' + processName + ')').next().next().next().find('#scheduleBtn').removeClass('scheduling')
-              })
-            } else {
-              simpleWarningPopUp(res['msg'])
-            }
+            schedule_listener(res['status'], processName, res['msg'])
           })
         } else if (res.isDenied) {
           // Let user set predefined recurrence
@@ -236,14 +229,7 @@ $(window).on('pywebviewready', function() {
               var predefinedRecurrence = $('#predefinedRecurrence').val()
 
               window.pywebview.api.schedule(processName, datetime, predefinedRecurrence).then(res => {
-                if (res['status']) {
-                  $(this).addClass('scheduling')
-                  $.when(window.pywebview.api.is_schedule_on(processName)).done(function() {
-                    $('td:contains(' + processName + ')').next().next().next().find('#scheduleBtn').removeClass('scheduling')
-                  })
-                } else {
-                  simpleWarningPopUp(res['msg'])
-                }
+                schedule_listener(res['status'], processName, res['msg'])
               })
             } else if (res2.isDenied) {
               // Let user set custom recurrence
@@ -716,14 +702,7 @@ $(window).on('pywebviewready', function() {
                   var endOccurrence = $('#OccurrenceNum').val()
 
                   window.pywebview.api.schedule(processName, datetime, null, intervalNum, intervalUnit, wkSettings, moSettings, dOWON, end, endDate, endOccurrence).then(res => {
-                    if (res['status']) {
-                      $(this).addClass('scheduling')
-                      $.when(window.pywebview.api.is_schedule_on(processName)).done(function() {
-                        $('td:contains(' + processName + ')').next().next().next().find('#scheduleBtn').removeClass('scheduling')
-                      })
-                    } else {
-                      simpleWarningPopUp(res['msg'])
-                    }
+                    schedule_listener(res['status'], processName, res['msg'])
                   })
                 }
               })
@@ -1262,4 +1241,20 @@ function simpleWarningPopUp(msg) {
     icon: 'warning',
     confirmButtonText: 'Ok'
   })
+}
+
+function schedule_listener(status, processName, msg) {
+  if (status) {
+    var scheduleBtn = $('td').filter(function() {
+      return $(this).text() === processName
+    }).next().next().next().find('#scheduleBtn')
+
+    scheduleBtn.addClass('scheduling')
+
+    $.when(window.pywebview.api.is_schedule_on(processName)).done(function() {
+      scheduleBtn.removeClass('scheduling')
+    })
+  } else {
+    simpleWarningPopUp(msg)
+  }
 }

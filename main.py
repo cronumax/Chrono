@@ -72,7 +72,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '1.2.1'
+        self.version = '1.2.2'
         self.host = platform.node()
         self.host_os = platform.system()
         self.host_username = getpass.getuser()
@@ -2017,17 +2017,14 @@ class Api:
 
             return {'status': False, 'msg': msg}
 
-    def cancel_scheduled_task(self, process_name, msg=None):
+    def cancel_scheduled_task(self, process_name):
         try:
-            if msg:
-                logger.info(msg)
-
             try:
                 self.sched.remove_job(process_name)
             except:
                 self.stop_repeat()
 
-            msg = 'Scheduled task cancelled'
+            msg = 'Scheduled run of {0} cancelled'.format(process_name)
 
             logger.info(msg)
 
@@ -2066,7 +2063,7 @@ class Api:
                 sleep(1)
                 job = self.sched.get_job(process_name)
 
-            logger.info('Revert schedule btn to normal')
+            logger.info('Revert {0} schedule btn to normal'.format(process_name))
         except Exception as e:
             msg = 'is_schedule_on() error: {0}'.format(str(e))
 
