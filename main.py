@@ -30,6 +30,8 @@ import asyncio
 import mss
 import mss.tools
 from tempfile import gettempdir
+from PIL import Image
+from imagehash import average_hash
 
 
 if platform.system() == 'Linux':
@@ -72,7 +74,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '1.2.2'
+        self.version = '1.2.3'
         self.host = platform.node()
         self.host_os = platform.system()
         self.host_username = getpass.getuser()
@@ -748,6 +750,7 @@ class Api:
 
                     paths = ['{0}_fine.png'.format(path_prefix), '{0}_medium.png'.format(
                         path_prefix), '{0}_crude.png'.format(path_prefix)]
+                    event['fine_img_path'] = paths[0]
 
                     raw_pos = event['position']
                     found = False  # Init
@@ -764,7 +767,7 @@ class Api:
                                 if self.host_os == 'Darwin':
                                     cwd = os.getcwd()
                                     os.chdir('{0}/img/{1}'.format(app_file_path,
-                                             self.current_user_email))
+                                                                  self.current_user_email))
 
                                 matched_instances = list(pag.locateAllOnScreen(
                                     img_path, confidence=confidence_level))
@@ -840,17 +843,42 @@ class Api:
 
                                         pag.mouseUp(button=btn, x=pos[0], y=pos[1])
                                     else:
-                                        logger.info('Drag from {0} to {1} with button {2}'.format(
-                                            str(pos), str(raw_pos), btn))
+                                        if self.host_os == 'Darwin':
+                                            cwd = os.getcwd()
+                                            os.chdir('{0}/img/{1}'.format(app_file_path,
+                                                                          self.current_user_email))
 
-                                        pag.moveTo(pos[0], pos[1])
+                                        last_fine_img_hash = average_hash(
+                                            Image.open(last_fine_img_path))
+                                        fine_img_hash = average_hash(
+                                            Image.open(event['fine_img_path']))
 
-                                        pag.dragTo(raw_pos[0], raw_pos[1], 1, button=btn)
+                                        if self.host_os == 'Darwin':
+                                            os.chdir(cwd)
+
+                                        if last_fine_img_hash - fine_img_hash < 5:
+                                            logger.info('Similar fine imgs, drag from {0} to {1} with button {2}'.format(
+                                                str(pos), str(raw_pos), btn))
+
+                                            pag.moveTo(pos[0], pos[1])
+
+                                            pag.dragTo(raw_pos[0], raw_pos[1], 1, button=btn)
+                                        else:
+                                            fm_pos = last_pos
+                                            to_pos = event['position']
+
+                                            logger.info('Diff fine imgs, drag from {0} to {1} with button {2}'.format(
+                                                str(fm_pos), str(to_pos), btn))
+
+                                            pag.moveTo(fm_pos[0], fm_pos[1])
+
+                                            pag.dragTo(to_pos[0], to_pos[1], 1, button=btn)
                             else:
                                 last_pos = event['position']
                                 last_raw_pos = raw_pos
                                 last_scope = event['scope']
                                 last_accuracy = event['accuracy']
+                                last_fine_img_path = event['fine_img_path']
                         elif event['event_name'] == 'WheelEvent':
                             logger.info('Scroll {0} at {1}'.format(
                                 event['event_type'], str(event['position'])))
