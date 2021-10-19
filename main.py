@@ -2185,7 +2185,7 @@ class Api:
     def upgrade(self):
         try:
             if platform.system() == 'Windows':
-                commands = [r'start C:\ProgramData\Chrono\Upgrader.exe']
+                commands = [r'start C:\Users\{0}\Chrono\Upgrader.exe'.format(self.host_username)]
 
                 for c in commands:
                     logger.info(c)
