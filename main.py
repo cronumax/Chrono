@@ -30,7 +30,7 @@ import asyncio
 import mss
 import mss.tools
 from tempfile import gettempdir
-from PIL import Image
+from PIL import Image, ImageGrab
 from imagehash import average_hash
 
 
@@ -74,7 +74,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '1.2.3'
+        self.version = '1.2.4'
         self.host = platform.node()
         self.host_os = platform.system()
         self.host_username = getpass.getuser()
@@ -1116,13 +1116,19 @@ class Api:
                                                                     position[1] - 30, 60, 60), (position[0] - 45, position[1] - 45, 90, 90)]
 
             for i in range(3):
-                with mss.mss() as sct:
-                    region = {'top': areas[i][1], 'left': areas[i][0],
-                              'width': areas[i][2], 'height': areas[i][3]}
+                region = {'top': areas[i][1], 'left': areas[i][0],
+                          'width': areas[i][2], 'height': areas[i][3]}
 
-                    img = sct.grab(region)
+                if platform.system() == 'Linux':
+                    img = ImageGrab.grab(
+                        bbox=(region['left'], region['top'], region['left'] + region['width'], region['top'] + region['height']))
 
-                    mss.tools.to_png(img.rgb, img.size, output=paths[i])
+                    img.save(paths[i])
+                else:
+                    with mss.mss() as sct:
+                        img = sct.grab(region)
+
+                        mss.tools.to_png(img.rgb, img.size, output=paths[i])
 
             logger.info('Regional screenshots at {0} saved'.format(filename_prefix))
         except Exception as e:
