@@ -25,7 +25,7 @@ from dateutil.relativedelta import relativedelta
 import getpass
 import geocoder
 import pika
-from subprocess import run, DEVNULL
+from subprocess import run, DEVNULL, call
 import asyncio
 import mss
 import mss.tools
@@ -74,7 +74,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '1.2.4'
+        self.version = '1.2.5'
         self.host = platform.node()
         self.host_os = platform.system()
         self.host_username = getpass.getuser()
@@ -781,7 +781,13 @@ class Api:
 
                                 if len(matched_instances) == 1:
                                     event['accuracy'] = float(confidence_level)
-                                    event['position'] = list(pag.center(matched_instances[0]))
+                                    tmp_pos = list(pag.center(matched_instances[0]))
+
+                                    if platform.system() == 'Darwin' and call("system_profiler SPDisplaysDataType | grep -i 'retina'", shell=True) == 0:
+                                        event['position'] = [tmp_pos[0] / 2, tmp_pos[1] / 2]
+                                    else:
+                                        event['position'] = tmp_pos
+
                                     logger.info('Pos by img: {0}'.format(event['position']))
                                     found = True
 
