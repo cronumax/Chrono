@@ -886,7 +886,11 @@ $(window).on('pywebviewready', function() {
     window.pywebview.api.get_user_license().then(res => {
       if (res['status']) {
         $('#userLicenseTier').html(res['tier'])
-        $('#userLicenseExpiryDate').html(res['expiry_date'])
+        if (res['expiry_date'] == null) {
+          $('#userLicenseExpiryDateRow').hide()
+        } else {
+          $('#userLicenseExpiryDate').html(res['expiry_date'])
+        }
       }
     })
   }, 50)
