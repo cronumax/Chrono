@@ -106,7 +106,7 @@ class Api:
         self.outbox = None
         thread = threading.Thread(target=self.download_upgrader)
         thread.start()
-        self.confidence_levels = [1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5]
+        self.confidence_levels = [1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7]
         '''
         Defaults
         '''
@@ -748,7 +748,7 @@ class Api:
                     path_prefix = '{0}/img/{1}/{2}'.format(app_file_path,
                                                            self.current_user_email, filename_prefix)
 
-                    paths = ['{0}_fine.png'.format(path_prefix), '{0}_medium.png'.format(
+                    paths = ['{0}_fine.png'.format(
                         path_prefix), '{0}_crude.png'.format(path_prefix)]
                     event['fine_img_path'] = paths[0]
 
@@ -793,10 +793,8 @@ class Api:
 
                                     if 'fine' in filename:
                                         event['scope'] = 1
-                                    elif 'medium' in filename:
-                                        event['scope'] = 2
                                     elif 'crude' in filename:
-                                        event['scope'] = 3
+                                        event['scope'] = 2
 
                                     break
                                 elif len(matched_instances) > 1:
@@ -1116,12 +1114,11 @@ class Api:
             filename_prefix = str(time).replace('.', '_')
             path_prefix = '{0}/img/{1}/{2}'.format(app_file_path,
                                                    self.current_user_email, filename_prefix)
-            paths = ['{0}_fine.png'.format(path_prefix), '{0}_medium.png'.format(
-                path_prefix), '{0}_crude.png'.format(path_prefix)]
-            areas = [(position[0] - 15, position[1] - 15, 30, 30), (position[0] - 30,
-                                                                    position[1] - 30, 60, 60), (position[0] - 45, position[1] - 45, 90, 90)]
+            paths = ['{0}_fine.png'.format(path_prefix), '{0}_crude.png'.format(path_prefix)]
+            areas = [(position[0] - 15, position[1] - 15, 30, 30),
+                     (position[0] - 45, position[1] - 45, 90, 90)]
 
-            for i in range(3):
+            for i in range(2):
                 region = {'top': areas[i][1], 'left': areas[i][0],
                           'width': areas[i][2], 'height': areas[i][3]}
 
@@ -1151,7 +1148,7 @@ class Api:
                     filename = str(e['time']).replace('.', '_')
                     path_prefix = '{0}/img/{1}/{2}'.format(app_file_path,
                                                            self.current_user_email, filename)
-                    paths = ['{0}_fine.png'.format(path_prefix), '{0}_medium.png'.format(
+                    paths = ['{0}_fine.png'.format(
                         path_prefix), '{0}_crude.png'.format(path_prefix)]
 
                     for p in paths:
@@ -1282,7 +1279,7 @@ class Api:
                         filename = str(e['time']).replace('.', '_')
                         img_path_prefix = '{0}/img/{1}/{2}'.format(app_file_path,
                                                                    self.current_user_email, filename)
-                        img_paths = ['{0}_fine.png'.format(img_path_prefix), '{0}_medium.png'.format(
+                        img_paths = ['{0}_fine.png'.format(
                             img_path_prefix), '{0}_crude.png'.format(img_path_prefix)]
 
                         for i_p in img_paths:
