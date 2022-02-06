@@ -427,7 +427,7 @@ $(document).ready(function() {
 
   $('#registerLn').click(function() {
     $('#signInForm :input').val('')
-    $('#signInForm :input[type=checkbox]').prop('checked', false)
+    $('#keepMeIn').prop('checked', true)
   })
 
   $('#forgotPwSignInLn').click(function() {
@@ -440,7 +440,8 @@ $(document).ready(function() {
 
   $('#registerSignInLn').click(function() {
     $('#registerForm :input').val('')
-    $('#registerForm :input[type=checkbox]').prop('checked', false)
+    $('#agreePrivacynTerms').prop('checked', false)
+    $('#receiveCronumaxUpdates').prop('checked', true)
     $('#registerEmailVerifyLn').css('color', '#aaa')
     $('#registerEmailVerifyLn').html('Verify')
   })
