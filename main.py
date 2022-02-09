@@ -97,10 +97,15 @@ class Api:
         self.last_key = ''
         thread = threading.Thread(target=self.check_if_opened)
         thread.start()
-        self.sched = BackgroundScheduler()
+
+        job_defaults = {
+            'misfire_grace_time': 60 * 15
+        }
+        self.sched = BackgroundScheduler(job_defaults=job_defaults)
         self.sched.add_listener(self.sched_listener,
                                 EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
         self.sched.start()
+
         thread = threading.Thread(target=self.consume_server_msg)
         thread.start()
         self.outbox = None
@@ -1923,11 +1928,11 @@ class Api:
                 # Repeat on predefined recurrence
                 if predefined_recurrence == 'immediate':
                     self.sched.add_job(
-                        self.repeat, 'date', run_date=date_time, id=process_name, args=[process_name], name=msg)
+                        self.repeat, 'date', run_date=date_time, id=process_name, args=[process_name], name=msg, misfire_grace_time=0)
                     self.schedule_repeat_msg = msg
                 elif predefined_recurrence == 'every_min':
                     self.sched.add_job(
-                        self.play, 'interval', minutes=1, start_date=date_time, id=process_name, args=[process_name], name=msg)
+                        self.play, 'interval', minutes=1, start_date=date_time, id=process_name, args=[process_name], name=msg, misfire_grace_time=30)
                 elif predefined_recurrence == 'every_hr':
                     self.sched.add_job(
                         self.play, 'interval', hours=1, start_date=date_time, id=process_name, args=[process_name], name=msg)
@@ -1950,16 +1955,16 @@ class Api:
                 if interval_unit == 'min':
                     if end == 'date' and end_date:
                         self.sched.add_job(
-                            self.play, 'interval', minutes=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
+                            self.play, 'interval', minutes=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg, misfire_grace_time=30)
                     elif end == 'occurrence' and end_occurrence:
                         end_date = (date_time_dt +
                                     timedelta(minutes=(int(interval_num) * (int(end_occurrence) - 1)))).strftime('%Y-%m-%d %H:%M:%S')
 
                         self.sched.add_job(
-                            self.play, 'interval', minutes=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg)
+                            self.play, 'interval', minutes=int(interval_num), start_date=date_time, end_date=end_date, id=process_name, args=[process_name], name=msg, misfire_grace_time=30)
                     else:
                         self.sched.add_job(
-                            self.play, 'interval', minutes=int(interval_num), start_date=date_time, id=process_name, args=[process_name], name=msg)
+                            self.play, 'interval', minutes=int(interval_num), start_date=date_time, id=process_name, args=[process_name], name=msg, misfire_grace_time=30)
                 elif interval_unit == 'hr':
                     if end == 'date' and end_date:
                         self.sched.add_job(
