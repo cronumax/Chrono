@@ -1,6 +1,12 @@
-from time import sleep
+import logging
+import getpass
 from subprocess import run, DEVNULL
 
+
+logging.basicConfig(filename='/Users/{0}/Chrono/logs/Chrono.log'.format(getpass.getuser()),
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 commands = [
     'del Chrono.exe',
@@ -8,7 +14,6 @@ commands = [
     'start Chrono.exe'
 ]
 
-sleep(3)
-
 for c in commands:
+    logger.info(c)
     run(c.split(), stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL, shell=True)

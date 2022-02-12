@@ -64,7 +64,7 @@ log_formatter = logging.Formatter(
 log_handler.setFormatter(log_formatter)
 logger = logging.getLogger(__name__)
 logger.addHandler(log_handler)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 pag.FAILSAFE = False
 pag.PAUSE = 0
