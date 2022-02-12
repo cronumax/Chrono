@@ -2199,11 +2199,7 @@ class Api:
     def upgrade(self):
         try:
             if platform.system() == 'Windows':
-                commands = [r'start C:\Users\{0}\Chrono\Upgrader.exe'.format(self.host_username)]
-
-                for c in commands:
-                    logger.info(c)
-                    run(c.split(), stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL, shell=True)
+                cmd = r'start C:\Users\{0}\Chrono\Upgrader.exe'.format(self.host_username)
             else:
                 domain = 'https://cronumax-website.s3.ap-east-1.amazonaws.com'
 
@@ -2214,9 +2210,9 @@ class Api:
                 else:
                     cmd = 'bash {0}/upgrader_linux.sh {1}'.format(app_file_path, domain)
 
-                logger.info(cmd)
+            logger.info(cmd)
 
-                asyncio.run(self.async_upgrader(cmd))
+            asyncio.run(self.async_upgrader(cmd))
 
             self.on_closed()
         except Exception as e:
