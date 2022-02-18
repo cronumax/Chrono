@@ -32,6 +32,7 @@ import mss.tools
 from tempfile import gettempdir
 from PIL import Image, ImageGrab
 from imagehash import average_hash
+from decimal import Decimal
 
 
 if platform.system() == 'Linux':
@@ -736,7 +737,17 @@ class Api:
                 self.last_played_event = event
 
                 if last_time and not self.god_speed:
-                    sleep(event['time'] - last_time)
+                    interval = event['time'] - last_time
+                    integer_interval = int(interval // 1)
+                    decimal_interval = float(Decimal(str(interval)) % 1)
+
+                    for _ in range(integer_interval):
+                        if not self.is_playing and not force:
+                            break
+
+                        sleep(1)
+
+                    sleep(decimal_interval)
                 else:
                     sleep(0.05)
                 last_time = event['time']
