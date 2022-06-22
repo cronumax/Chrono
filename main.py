@@ -75,7 +75,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '1.2.7'
+        self.version = '1.2.8'
         self.host = platform.node()
         self.host_os = platform.system()
         self.host_username = getpass.getuser()
@@ -1939,7 +1939,7 @@ class Api:
                 # Repeat on predefined recurrence
                 if predefined_recurrence == 'immediate':
                     self.sched.add_job(
-                        self.repeat, 'date', run_date=date_time, id=process_name, args=[process_name], name=msg, misfire_grace_time=0)
+                        self.repeat, 'date', run_date=date_time, id=process_name, args=[process_name], name=msg, misfire_grace_time=None)
                     self.schedule_repeat_msg = msg
                 elif predefined_recurrence == 'every_min':
                     self.sched.add_job(
