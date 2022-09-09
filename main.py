@@ -75,7 +75,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '1.2.8'
+        self.version = '1.2.9'
         self.host = platform.node()
         self.host_os = platform.system()
         self.host_username = getpass.getuser()
@@ -609,7 +609,7 @@ class Api:
                 if res['status']:
                     logger.info(res['msg'])
 
-                    self.login(res['email'], new_pw)
+                    self.login(res['email'], new_pw, True)
                 else:
                     logger.error(res['msg'])
 
