@@ -2,21 +2,21 @@ $(window).on("pywebviewready", function() {
   var trafficWarningMsg =
     "Chrono is in action. To proceed, please turn off other process.";
 
-  $("#refreshBtn").click(function() {
-    refreshProcessList("Refresh btn clicked");
-  });
+  $('#refreshBtn').click(function() {
+    refreshProcessList('Refresh btn clicked')
+  })
 
-  $("#sessionRefreshBtn").click(function() {
-    var msg = "Session refresh btn clicked";
-    refreshSessionList(msg);
-  });
+  $('#sessionRefreshBtn').click(function() {
+    var msg = 'Session refresh btn clicked'
+    refreshSessionList(msg)
+  })
 
-  $("#recordBtn").click(function() {
-    var msg = "Record btn clicked";
-    if ($(this).hasClass("running")) {
-      window.pywebview.api.stop_record(msg);
-    } else if ($(".running").length > 0) {
-      simpleWarningPopUp(trafficWarningMsg);
+  $('#recordBtn').click(function() {
+    var msg = 'Record btn clicked'
+    if ($(this).hasClass('running')) {
+      window.pywebview.api.stop_record(msg)
+    } else if ($('.running').length > 0) {
+      simpleWarningPopUp(trafficWarningMsg)
     } else {
       $(this).addClass("running");
       $.when(window.pywebview.api.record(msg)).done(function() {
@@ -160,8 +160,8 @@ $(window).on("pywebviewready", function() {
         if (res.isConfirmed) {
           // Disable scheduled run
           window.pywebview.api.cancel_scheduled_task(processName).then(res => {
-            if (res["status"]) {
-              $(this).removeClass("scheduling");
+            if (res['status']) {
+              $(this).removeClass('scheduling')
             } else {
               simpleWarningPopUp(res["msg"]);
             }
@@ -199,8 +199,8 @@ $(window).on("pywebviewready", function() {
         var datetime = $("#datetimepicker").val();
         if (res.isConfirmed) {
           window.pywebview.api.schedule(processName, datetime).then(res => {
-            schedule_listener(res["status"], processName, res["msg"]);
-          });
+            schedule_listener(res['status'], processName, res['msg'])
+          })
         } else if (res.isDenied) {
           // Let user set predefined recurrence
           Swal.fire({
@@ -250,11 +250,9 @@ $(window).on("pywebviewready", function() {
             if (res2.isConfirmed) {
               var predefinedRecurrence = $("#predefinedRecurrence").val();
 
-              window.pywebview.api
-                .schedule(processName, datetime, predefinedRecurrence)
-                .then(res => {
-                  schedule_listener(res["status"], processName, res["msg"]);
-                });
+              window.pywebview.api.schedule(processName, datetime, predefinedRecurrence).then(res => {
+                schedule_listener(res['status'], processName, res['msg'])
+              })
             } else if (res2.isDenied) {
               // Let user set custom recurrence
               var wkSettings = [];
@@ -909,31 +907,17 @@ $(window).on("pywebviewready", function() {
                   var endDate = $("#datepicker").val();
                   var endOccurrence = $("#OccurrenceNum").val();
 
-                  window.pywebview.api
-                    .schedule(
-                      processName,
-                      datetime,
-                      null,
-                      intervalNum,
-                      intervalUnit,
-                      wkSettings,
-                      moSettings,
-                      dOWON,
-                      end,
-                      endDate,
-                      endOccurrence
-                    )
-                    .then(res => {
-                      schedule_listener(res["status"], processName, res["msg"]);
-                    });
+                  window.pywebview.api.schedule(processName, datetime, null, intervalNum, intervalUnit, wkSettings, moSettings, dOWON, end, endDate, endOccurrence).then(res => {
+                    schedule_listener(res['status'], processName, res['msg'])
+                  })
                 }
-              });
+              })
             }
-          });
+          })
         }
-      });
+      })
     }
-  });
+  })
 
   $("#processList tbody").on("click", "#renameBtn", function() {
     if (
@@ -1153,16 +1137,16 @@ $(window).on("pywebviewready", function() {
 
   setTimeout(function() {
     window.pywebview.api.get_user_license().then(res => {
-      if (res["status"]) {
-        $("#userLicenseTier").html(res["tier"]);
-        if (res["expiry_date"] == null) {
-          $("#userLicenseExpiryDateRow").hide();
+      if (res['status']) {
+        $('#userLicenseTier').html(res['tier'])
+        if (res['expiry_date'] == null) {
+          $('#userLicenseExpiryDateRow').hide()
         } else {
-          $("#userLicenseExpiryDate").html(res["expiry_date"]);
+          $('#userLicenseExpiryDate').html(res['expiry_date'])
         }
       }
-    });
-  }, 50);
+    })
+  }, 50)
 
   setTimeout(function() {
     window.pywebview.api.get_app_info().then(res => {
@@ -1223,8 +1207,8 @@ $(document).ready(function() {
     }
   });
 
-  $("#logoutBtn").click(function() {
-    refreshProcessList("Logout btn clicked");
+  $('#logoutBtn').click(function() {
+    refreshProcessList('Logout btn clicked')
     window.pywebview.api.logout().then(function() {
       window.pywebview.api.navigate_to_login();
     });
@@ -1324,27 +1308,23 @@ $(document).ready(function() {
 });
 
 function refreshProcessList(msg = null) {
-  var interval = 10;
+  var interval = 10
 
-  $("#scheduleBtn.scheduling").each(function() {
-    var processName = $(this)
-      .parent()
-      .parent()
-      .find("td:first")
-      .html();
+  $('#scheduleBtn.scheduling').each(function() {
+    var processName = $(this).parent().parent().find('td:first').html()
 
     if (processName) {
       setTimeout(function() {
         window.pywebview.api.cancel_scheduled_task(processName).then(res => {
-          if (!res["status"]) {
-            simpleWarningPopUp(res["msg"]);
+          if (!res['status']) {
+            simpleWarningPopUp(res['msg'])
           }
-        });
-      }, interval);
+        })
+      }, interval)
 
-      interval += 10;
+      interval += 10
     }
-  });
+  })
 
   $.when(window.pywebview.api.load_process_list(msg)).then(processList => {
     $("#processList tbody").empty();
@@ -1362,22 +1342,19 @@ function refreshProcessList(msg = null) {
         } else {
           row += "<td>" + data + "</td>";
         }
-      });
-      row +=
-        "<td><button id='scheduleBtn' class='btn'><i class='far fa-clock fa-lg'></i></button><button id='renameBtn' class='btn'><i class='far fa-edit fa-lg'></i></button><button id='delBtn' class='btn'><i class='far fa-trash-alt fa-lg'></i></button></td>";
-      row += "</tr>";
-      $("#processList tbody").append(row);
-    });
-  });
+      })
+      row += "<td><button id='scheduleBtn' class='btn'><i class='far fa-clock fa-lg'></i></button><button id='renameBtn' class='btn'><i class='far fa-edit fa-lg'></i></button><button id='delBtn' class='btn'><i class='far fa-trash-alt fa-lg'></i></button></td>"
+      row += '</tr>'
+      $('#processList tbody').append(row)
+    })
+  })
 
-  if ($("#processList th").hasClass("sorttable_sorted")) {
-    $("#processList th.sorttable_sorted > span").remove();
-    $("#processList th.sorttable_sorted").removeClass("sorttable_sorted");
-  } else if ($("#processList th").hasClass("sorttable_sorted_reverse")) {
-    $("#processList th.sorttable_sorted_reverse > span").remove();
-    $("#processList th.sorttable_sorted_reverse").removeClass(
-      "sorttable_sorted_reverse"
-    );
+  if ($('#processList th').hasClass('sorttable_sorted')) {
+    $('#processList th.sorttable_sorted > span').remove()
+    $('#processList th.sorttable_sorted').removeClass('sorttable_sorted')
+  } else if ($('#processList th').hasClass('sorttable_sorted_reverse')) {
+    $('#processList th.sorttable_sorted_reverse > span').remove()
+    $('#processList th.sorttable_sorted_reverse').removeClass('sorttable_sorted_reverse')
   }
 }
 
@@ -1560,29 +1537,24 @@ function simpleWarningPopUp(msg) {
   Swal.fire({
     title: "Warning",
     html: msg,
-    icon: "warning",
-    confirmButtonText: "Ok"
-  });
+    icon: 'warning',
+    confirmButtonText: 'Ok'
+  })
 }
 
 function schedule_listener(status, processName, msg) {
   if (status) {
-    var scheduleBtn = $("td")
-      .filter(function() {
-        return $(this).text() === processName;
-      })
-      .next()
-      .next()
-      .next()
-      .find("#scheduleBtn");
+    var scheduleBtn = $('td').filter(function() {
+      return $(this).text() === processName
+    }).next().next().next().find('#scheduleBtn')
 
-    scheduleBtn.addClass("scheduling");
+    scheduleBtn.addClass('scheduling')
 
     $.when(window.pywebview.api.is_schedule_on(processName)).done(function() {
-      scheduleBtn.removeClass("scheduling");
-    });
+      scheduleBtn.removeClass('scheduling')
+    })
   } else {
-    simpleWarningPopUp(msg);
+    simpleWarningPopUp(msg)
   }
 }
 

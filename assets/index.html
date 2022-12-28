@@ -29,7 +29,6 @@
     <div class="tab-pane fade active show" id="dashboard">
       <div id="ctrlPanel">
         <h1>Dashboard</h1>
-
         <button id='refreshBtn' class='btn'><i class='fa fa-redo fa-lg'></i></button>
         <button id='recordBtn' class='btn'><i class='fa fa-video fa-lg'></i></button>
         <button id='playBtn' class='btn'><i class='fa fa-play fa-lg'></i></button>
@@ -61,6 +60,7 @@
       <h1 id='userName'></h1>
       <span id='userEmail'></span>
       <span id='userLicenseTier'></span>
+      <div class='style-row' id='userLicenseExpiryDateRow'>
       <div class='style-row' id='userLicenseExpiryDateRow'>
         <span class='label'>License Expiry Date</span>
         <span id='userLicenseExpiryDate'></span>
@@ -130,6 +130,7 @@
           <input type="checkbox" id='touchModeBtn'>
           <span class="slider round"></span>
         </label>
+        <p class="desc-text">Record touch inputs from touch screen to be automated.</p>
         <p class="desc-text">Record touch inputs from touch screen for automation.</p>
       </div>
       <div class='style-row'>
@@ -289,6 +290,20 @@
         <a class="modalActionBtn" onclick="showModal3()" style="float: left;">PREVIOUS</a>
         <a class="modalActionBtn" onclick="closeModal()" style="float: right">DONE</a>
       </div>
+    </div>
+  </div>
+
+  <div id="tutorialModal3" class="modal">
+    <div class="modal-content">
+      <div>
+        <a class="skipModal" onclick="closeModal()" style="float: right;">&times;</a>
+      </div>
+      <h3>Title 3</h3>
+      <p>Page 3</p>
+      <div>
+        <a class="modalActionBtn" onclick="showModal2()" style="float: left;">PREVIOUS</a>
+        <a class="modalActionBtn" onclick="closeModal()" style="float: right">DONE</a>
+      </div> -->
     </div>
   </div>
 
