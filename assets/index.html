@@ -153,14 +153,17 @@
         <p class="desc-text">Set the key to finish a recording or interrupt a replay.</p>
       </div>
       <div class='style-row' style="display: flex; justify-content: center;">
+      <div class='style-row' style="display: flex; justify-content: center;">
         <button class='openModalBtn' onclick="showModal1()">Show tutorial</button>
       </div>
     </div>
   </div>
 
   <!-- Modal content -->
+  <!-- Modal content -->
   <div id="tutorialModal1" class="modal">
     <div class="modal-content">
+      <div class="modalPageHeader">
       <div class="modalPageHeader">
         <a class="skipModal" onclick="closeModal()" style="float: right;">&times;</a>
       </div>
@@ -185,6 +188,27 @@
         <p>The details of each pages will be explained in the next pages.</p>
       </div>
       <div class="modalPageFooter">
+      <div class="modalPageBody">
+        <h3 class="modalPageTitle">Welcome to Chrono!</h3>
+        <p>In this tutorial, we will be explaining the functions of each pages that Chrono has!</p>
+        <p>There are three main pages:</p>
+        <ul>
+          <li>
+            <p><i class='fa fa-tachometer-alt fa-lg'></i>   Dashboard</p>
+            <p>Where you will find your process list that you recorded.</p>
+          </li>
+          <li>
+            <p><i class='fa fa-user-circle fa-lg'></i>   Profile</p>
+            <p>Find more details about your Chrono account.</p>
+          </li>
+          <li>
+            <p><i class='fa fa-tools fa-lg'></i>   Settings</p>
+            <p>Set various features that Chrono has.</p>
+          </li>
+        </ul>
+        <p>The details of each pages will be explained in the next pages.</p>
+      </div>
+      <div class="modalPageFooter">
         <a class="modalActionBtn" onclick="showModal2()" style="float: right">NEXT</a>
       </div>
     </div>
@@ -192,6 +216,7 @@
 
   <div id="tutorialModal2" class="modal">
     <div class="modal-content">
+      <div class="modalPageHeader">
       <div class="modalPageHeader">
         <a class="skipModal" onclick="closeModal()" style="float: right;">&times;</a>
       </div>
@@ -213,6 +238,30 @@
           </li>
           <li>
             <p><i class='fa fa-forward fa-lg'></i> Repeat</p>
+            <p>The same as play but will go to the next round even after the recorded process is finished.</p>
+            <p>Can be interruped by pressing escape button.</p>
+          </li>
+        </ul>
+      </div>
+      <div class="modalPageFooter">
+      <div class="modalPageBody">
+        <h3 class="modalPageTitle"><i class='fa fa-tachometer-alt fa-lg'></i>   Dashboard</h3>
+        <p>Where you will find your process list that you recorded. You can also do:</p>
+        <ul>
+          <li>
+            <p><i class='fa fa-redo fa-lg'></i>   Refresh</p>
+            <p>Reset all set schedule from the processes in the process list.</p>
+          </li>
+          <li>
+            <p><i class='fa fa-video fa-lg'></i>   Record</p>
+            <p>Start recording your action for the process to be automated.</p>
+          </li>
+          <li>
+            <p><i class='fa fa-play fa-lg'></i>   Play</p>
+            <p>Play the selected process.</p>
+          </li>
+          <li>
+            <p><i class='fa fa-forward fa-lg'></i>   Repeat</p>
             <p>The same as play but will go to the next round even after the recorded process is finished.</p>
             <p>Can be interruped by pressing escape button.</p>
           </li>
@@ -295,15 +344,63 @@
 
   <div id="tutorialModal3" class="modal">
     <div class="modal-content">
-      <div>
+      <div class="modalPageHeader">
         <a class="skipModal" onclick="closeModal()" style="float: right;">&times;</a>
       </div>
-      <h3>Title 3</h3>
-      <p>Page 3</p>
-      <div>
+      <div class="modalPageBody">
+        <h3 class="modalPageTitle"><i class='fa fa-user-circle fa-lg'></i>   Profile</h3>
+        <p>Find more details about your Chrono account, which are:</p>
+        <ul>
+          <li><p>Username</p></li>
+          <li><p>Registered email</p></li>
+          <li>
+            <p>Licence Tier</p>
+            <p>   *If you are a premium tier, you can see your tier expiry date and Chrono's server timezone.</p>
+          </li>
+          <li><p>Login sessions</p></li>
+        </ul>
+        <br />
+        <h4 class="modalPageTitle">Changing Password</h4>
+        You can also change your password in this page by clicking "Change password" button at the bottom of the list.
+      </div>
+      <div class="modalPageFooter">
         <a class="modalActionBtn" onclick="showModal2()" style="float: left;">PREVIOUS</a>
+        <a class="modalActionBtn" onclick="showModal4()" style="float: right">NEXT</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="tutorialModal4" class="modal">
+    <div class="modal-content">
+      <div class="modalPageHeader">
+        <a class="skipModal" onclick="closeModal()" style="float: right;">&times;</a>
+      </div>
+      <div class="modalPageBody">
+        <h3 class="modalPageTitle"><i class='fa fa-tools fa-lg'></i>   Settings</h3>
+        <p>Set various features that Chrono has:</p>
+        <ul>
+          <li>
+            <p>Touch Mode</p>
+            <p>Record touch inputs from touch screen to be automated.</p>
+          </li>
+          <li>
+            <p>Speed Mode</p>
+            <p>Cut intervals between action to the minimum to speed up executions.</p>
+          </li>
+          <li>
+            <p>Timezone</p>
+            <p>Set the timezone to be shown in the process list.</p>
+          </li>
+          <li>
+            <p>Escape Key</p>
+            <p>Set a key to interrupt or finish the replay.</p>
+          </li>
+        </ul>
+      </div>
+      <div class="modalPageFooter">
+        <a class="modalActionBtn" onclick="showModal3()" style="float: left;">PREVIOUS</a>
         <a class="modalActionBtn" onclick="closeModal()" style="float: right">DONE</a>
-      </div> -->
+      </div>
     </div>
   </div>
 
