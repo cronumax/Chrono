@@ -6,7 +6,7 @@ html {
   margin-right: 9px;
 }
 
-.btn>i:active {
+.btn > i:active {
   color: #df2176;
 }
 
@@ -14,7 +14,10 @@ html {
   box-shadow: unset;
 }
 
-#refreshBtn, #recordBtn, #playBtn, #repeatBtn {
+#refreshBtn,
+#recordBtn,
+#playBtn,
+#repeatBtn {
   position: absolute;
   margin-top: 14px;
 }
@@ -35,7 +38,8 @@ html {
   right: 0;
 }
 
-#logoutAllOthersBtn, #sessionRefreshBtn {
+#logoutAllOthersBtn,
+#sessionRefreshBtn {
   position: absolute;
   padding-top: 0;
   padding-bottom: 0;
@@ -73,11 +77,13 @@ html {
   }
 }
 
-.running, .scheduling {
+.running,
+.scheduling {
   animation: glowing 1s infinite;
 }
 
-#ctrlPanel, #sessionCtrlPanel {
+#ctrlPanel,
+#sessionCtrlPanel {
   display: flex;
   position: relative;
 }
@@ -125,7 +131,7 @@ h1 {
 #supportLn {
   position: absolute;
   right: 5rem;
-  margin-top: .4rem;
+  margin-top: 0.4rem;
   text-decoration: none;
 }
 
@@ -137,30 +143,37 @@ h1 {
   color: #fff;
 }
 
-#sessionCtrlPanel>h6 {
+#sessionCtrlPanel > h6 {
   margin-left: auto;
   margin-right: auto;
 }
 
-#profileChangePwLn, #resetPwWithOldPwProfileLn, #sessionCtrlPanel>h6 {
+#profileChangePwLn,
+#resetPwWithOldPwProfileLn,
+#sessionCtrlPanel > h6 {
   color: #aaa;
 }
 
-#profileChangePwLn:active, #resetPwWithOldPwProfileLn:active {
+#profileChangePwLn:active,
+#resetPwWithOldPwProfileLn:active {
   color: #df2176;
 }
 
-#profileChangePwLn:hover, #resetPwWithOldPwProfileLn:hover {
+#profileChangePwLn:hover,
+#resetPwWithOldPwProfileLn:hover {
   color: #df2176;
 }
 
-a, #userEmail, #userLicenseTier {
+a,
+#userEmail,
+#userLicenseTier {
   text-align: center;
 }
 
-#userEmail, #userLicenseTier {
+#userEmail,
+#userLicenseTier {
   display: block;
-  padding: .5rem 2rem;
+  padding: 0.5rem 2rem;
 }
 
 .card {
@@ -173,7 +186,8 @@ a, #userEmail, #userLicenseTier {
   margin: 0;
 }
 
-#pswd_info ul, #pswd_info li {
+#pswd_info ul,
+#pswd_info li {
   margin: 0;
   padding: 0;
   list-style-type: none;
@@ -181,7 +195,7 @@ a, #userEmail, #userLicenseTier {
 
 #pswd_info {
   padding: 1rem;
-  font-size: .9rem;
+  font-size: 0.9rem;
   border-radius: 1rem;
   border: 1px solid #666;
 }
@@ -216,7 +230,8 @@ a, #userEmail, #userLicenseTier {
   content: "\f00c\a0";
 }
 
-.form-control, .form-control:focus {
+.form-control,
+.form-control:focus {
   margin: 1rem 0;
   color: #eee;
   background-color: #222;
@@ -226,11 +241,12 @@ a, #userEmail, #userLicenseTier {
   margin: 2rem 9rem;
 }
 
-.style-row>span {
+.style-row > span {
   vertical-align: middle;
 }
 
-#userLicenseExpiryDate, #appVer {
+#userLicenseExpiryDate,
+#appVer {
   float: right;
 }
 
@@ -260,8 +276,8 @@ a, #userEmail, #userLicenseTier {
   right: 0;
   bottom: 0;
   background-color: #333;
-  -webkit-transition: .4s;
-  transition: .4s;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
 }
 
 .slider:before {
@@ -272,15 +288,15 @@ a, #userEmail, #userLicenseTier {
   left: 4px;
   bottom: 3px;
   background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
 }
 
-input:checked+.slider {
+input:checked + .slider {
   background-color: #df2176;
 }
 
-input:checked+.slider:before {
+input:checked + .slider:before {
   -webkit-transform: translateX(31px);
   -ms-transform: translateX(31px);
   transform: translateX(31px);
@@ -304,7 +320,8 @@ hr {
   width: 70%;
 }
 
-.form-select, #escapeKey {
+.form-select,
+#escapeKey {
   float: right;
 }
 
@@ -318,12 +335,14 @@ hr {
   color: #fff;
 }
 
-.ui-widget-content [class="ui-state-default ui-state-hover"], .ui-widget-content [class="ui-state-default ui-state-focus"] {
+.ui-widget-content [class="ui-state-default ui-state-hover"],
+.ui-widget-content [class="ui-state-default ui-state-focus"] {
   background: none;
   border-color: #df2176;
 }
 
-.ui-widget-content .ui-state-highlight.ui-state-hover, .ui-widget-content .ui-state-highlight.ui-state-focus {
+.ui-widget-content .ui-state-highlight.ui-state-hover,
+.ui-widget-content .ui-state-highlight.ui-state-focus {
   border-color: #df2176;
 }
 
@@ -336,15 +355,24 @@ tbody {
   border-bottom: 2px solid #303030;
 }
 
-.bootstrap-datetimepicker-widget table td.day:not(.active):hover, .bootstrap-datetimepicker-widget table td.hour:not(.active):hover, .bootstrap-datetimepicker-widget table td.minute:not(.active):hover {
+.bootstrap-datetimepicker-widget table td.day:not(.active):hover,
+.bootstrap-datetimepicker-widget table td.hour:not(.active):hover,
+.bootstrap-datetimepicker-widget table td.minute:not(.active):hover {
   background: none;
 }
 
-.bootstrap-datetimepicker-widget table td span:not(.active):hover, .bootstrap-datetimepicker-widget table thead tr:first-child th:not(.active):hover, .bootstrap-datetimepicker-widget table td i:not(.active):hover {
+.bootstrap-datetimepicker-widget table td span:not(.active):hover,
+.bootstrap-datetimepicker-widget
+  table
+  thead
+  tr:first-child
+  th:not(.active):hover,
+.bootstrap-datetimepicker-widget table td i:not(.active):hover {
   background: none;
 }
 
-.fa-chevron-up, .fa-chevron-down {
+.fa-chevron-up,
+.fa-chevron-down {
   color: #207bf9;
 }
 
@@ -357,7 +385,9 @@ tbody {
   font-size: 1.0625em;
 }
 
-.swal2-styled.swal2-confirm, .swal2-styled.swal2-deny, .swal2-styled.swal2-cancel {
+.swal2-styled.swal2-confirm,
+.swal2-styled.swal2-deny,
+.swal2-styled.swal2-cancel {
   box-shadow: none;
 }
 
@@ -375,15 +405,15 @@ tbody {
   color: #fff;
 }
 
-.moSettings>input {
+.moSettings > input {
   display: none;
 }
 
-.moSettings>input:nth-of-type(1):checked~label:last-of-type:before {
+.moSettings > input:nth-of-type(1):checked ~ label:last-of-type:before {
   transform: translateX(calc(0% + 0px));
 }
 
-.moSettings>input:nth-of-type(2):checked~label:last-of-type:before {
+.moSettings > input:nth-of-type(2):checked ~ label:last-of-type:before {
   transform: translateX(calc(100% + 0px));
 }
 
@@ -433,23 +463,112 @@ tbody {
   text-align: center;
 }
 
-.minute.disabled, .hour.disabled, .day.disabled, .month.disabled, .year.disabled, .decade.disabled {
+.minute.disabled,
+.hour.disabled,
+.day.disabled,
+.month.disabled,
+.year.disabled,
+.decade.disabled {
   text-decoration: line-through;
 }
 
-a, a:hover {
+a,
+a:hover {
   color: #df2176;
   text-decoration: none;
 }
 
-tr.table-dark.disabled>td, tr.table-dark.disabled i {
+tr.table-dark.disabled > td,
+tr.table-dark.disabled i {
   color: #666;
 }
 
-#processList>tbody>tr.selected, #processList>tbody>tr.selected:hover {
+#processList > tbody > tr.selected,
+#processList > tbody > tr.selected:hover {
   --bs-table-accent-bg: #444;
 }
 
-.table-hover>tbody>tr.table-dark:hover, .table-hover>tbody>tr.table-dark.disabled:active, .table-hover>tbody>tr.table-dark.disabled:hover {
+.table-hover > tbody > tr.table-dark:hover,
+.table-hover > tbody > tr.table-dark.disabled:active,
+.table-hover > tbody > tr.table-dark.disabled:hover {
   --bs-table-accent-bg: unset;
+}
+
+/* Setting's description text */
+.desc-text {
+  color: grey;
+}
+
+.openModalBtn {
+  width: 300px;
+  height: 40px;
+  border-radius: 18px;
+  background-color: #df2176;
+  border: none;
+  color: white;
+}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #222;
+  margin: auto;
+  padding: 40px;
+  border: 1px solid #666;
+  width: 40%;
+  height: 90%;
+  padding-bottom: 50px;
+}
+
+.modalPageHeader {
+  height: 10%;
+}
+
+.modalPageBody {
+  height: 75%;
+}
+
+.modalPageFooter {
+  height: 15%;
+}
+
+.skipModal {
+  color: #aaa;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.modalActionBtn {
+  margin-top: 10%;
+  color: #aaa;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.skipModal:hover,
+.skipModal:focus,
+.modalActionBtn:hover,
+.modalActionBtn:focus {
+  color: #df2176;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modalPageTitle {
+  font-weight: bold;
+  margin-bottom: 5%;
 }
