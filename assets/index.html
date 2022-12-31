@@ -14,25 +14,25 @@
 <body>
   <ul class="nav nav-tabs">
     <li class="nav-item">
-      <a class="nav-link active" data-toggle="tab" href="#dashboard"><i class='fa fa-tachometer-alt fa-lg'></i></a>
+      <a class="nav-link active" data-toggle="tab" href="#dashboard" title="Dashboard"><i class='fa fa-tachometer-alt fa-lg'></i></a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" data-toggle='tab' href='#profile'><i class='fa fa-user-circle fa-lg'></i></a>
+      <a class="nav-link" data-toggle='tab' href='#profile' title="Profile"><i class='fa fa-user-circle fa-lg'></i></a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" data-toggle='tab' href="#settings"><i class='fa fa-tools fa-lg'></i></a>
+      <a class="nav-link" data-toggle='tab' href="#settings" title="Settings"><i class='fa fa-tools fa-lg'></i></a>
     </li>
     <a id='supportLn' href="https://cronumax.com/contact" target="_blank"><span class='ferrari-red'>C</span><span class='white'>ronumax</span></a>
-    <button class='btn' id='logoutBtn'><i class='fa fa-sign-out-alt fa-lg'></i></button>
+    <button class='btn' id='logoutBtn' title="Log Out"><i class='fa fa-sign-out-alt fa-lg'></i></button>
   </ul>
   <div id="tabs" class="tab-content">
     <div class="tab-pane fade active show" id="dashboard">
       <div id="ctrlPanel">
         <h1>Dashboard</h1>
-        <button id='refreshBtn' class='btn'><i class='fa fa-redo fa-lg'></i></button>
-        <button id='recordBtn' class='btn'><i class='fa fa-video fa-lg'></i></button>
-        <button id='playBtn' class='btn'><i class='fa fa-play fa-lg'></i></button>
-        <button id='repeatBtn' class='btn'><i class='fa fa-forward fa-lg'></i></button>
+        <button id='refreshBtn' class='btn' title="Refresh"><i class='fa fa-redo fa-lg'></i></button>
+        <button id='recordBtn' class='btn' title="Record"><i class='fa fa-video fa-lg'></i></button>
+        <button id='playBtn' class='btn' title="Play"><i class='fa fa-play fa-lg'></i></button>
+        <button id='repeatBtn' class='btn' title="Repeat"><i class='fa fa-forward fa-lg'></i></button>
       </div>
 
       <table id='processList' class="table table-hover sortable">
@@ -67,8 +67,8 @@
       <hr class='page-divider'>
       <div id="sessionCtrlPanel">
         <h6>Login Sessions on Other Devices</h6>
-        <button id='sessionRefreshBtn' class='btn'><i class='fa fa-redo fa-lg'></i></button>
-        <button id='logoutAllOthersBtn' class='btn'><i class='fa fa-times-circle fa-lg'></i></button>
+        <button id='sessionRefreshBtn' class='btn' title="Refresh"><i class='fa fa-redo fa-lg'></i></button>
+        <button id='logoutAllOthersBtn' class='btn' title="Log Out All Sessions"><i class='fa fa-times-circle fa-lg'></i></button>
       </div>
 
       <table id='sessionList' class="table table-hover">
