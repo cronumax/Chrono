@@ -235,6 +235,7 @@ $(document).ready(function() {
         }).then(() => {
           $('#registerForm :input').val('')
           $('#registerForm :input[type=checkbox]').prop('checked', false)
+          sessionStorage.setItem('newUser', true);
           window.pywebview.api.navigate_to_dashboard()
         })
       } else {

@@ -1640,3 +1640,10 @@ window.onclick = function(event) {
     modal4.style.display = "none";
   }
 };
+
+window.onload = () => {
+  if (sessionStorage.getItem('newUser')) {
+    showModal1();
+    sessionStorage.removeItem('newUser');
+  }
+};
