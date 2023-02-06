@@ -33,6 +33,7 @@ from tempfile import gettempdir
 from PIL import Image, ImageGrab
 from imagehash import average_hash
 from decimal import Decimal
+from playsound import playsound
 
 
 if platform.system() == 'Linux':
@@ -716,8 +717,10 @@ class Api:
                     osascript -e 'display notification "{message}" with title "{title}"'
                     '''
                     os.system(command)
+                    playsound('assets/sound/replay_finish.mp3')
                 else:
                     notification.notify(title='Chrono', message='Replay finished.')
+                    playsound('assets/sound/replay_finish.mp3')
                 self.is_playing = False
         except Exception as e:
             msg = 'play() error: {0}'.format(str(e))
