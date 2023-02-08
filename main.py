@@ -119,6 +119,7 @@ class Api:
         '''
         self.touch_mode = False
         self.god_speed = False
+        self.notif_sound = False
         self.timezone = 'Asia/Hong_Kong'
         self.escape_key = Key.esc
 
@@ -526,6 +527,8 @@ class Api:
                     self.touch_mode = user_settings[field]
                 elif field == 'god_speed':
                     self.god_speed = user_settings[field]
+                elif field == 'notif_sound':
+                    self.notif_sound = user_settings[field]
                 elif field == 'timezone':
                     self.timezone = user_settings[field]
                 elif field == 'escape_key':
@@ -540,6 +543,8 @@ class Api:
                     self.update_settings_file(field, self.touch_mode)
                 elif field == 'god_speed':
                     self.update_settings_file(field, self.god_speed)
+                elif field == 'notif_sound':
+                    self.update_settings_file(field, self.notif_sound)
                 elif field == 'timezone':
                     self.update_settings_file(field, self.timezone)
                 elif field == 'escape_key':
@@ -572,10 +577,11 @@ class Api:
 
                 self.load_settings(user_settings, 'touch_mode')
                 self.load_settings(user_settings, 'god_speed')
+                self.load_settings(user_settings, 'notif_sound')
                 self.load_settings(user_settings, 'timezone')
                 self.load_settings(user_settings, 'escape_key')
             else:
-                user_settings = {'touch_mode': self.touch_mode, 'god_speed': self.god_speed,
+                user_settings = {'touch_mode': self.touch_mode, 'god_speed': self.god_speed, 'notif_sound': self.notif_sound,
                                  'timezone': self.timezone, 'escape_key': self.escape_key.name}
 
                 with open(user_settings_path, 'w') as f:
@@ -717,10 +723,12 @@ class Api:
                     osascript -e 'display notification "{message}" with title "{title}"'
                     '''
                     os.system(command)
-                    playsound('assets/sound/replay_finish.mp3')
+                    if self.notif_sound:
+                        playsound('assets/sound/replay_finish.mp3')
                 else:
                     notification.notify(title='Chrono', message='Replay finished.')
-                    playsound('assets/sound/replay_finish.mp3')
+                    if self.notif_sound:
+                        playsound('assets/sound/replay_finish.mp3')
                 self.is_playing = False
         except Exception as e:
             msg = 'play() error: {0}'.format(str(e))
@@ -1515,6 +1523,23 @@ class Api:
 
             return {'status': False, 'msg': msg}
 
+    def get_notif_sound(self):
+        try:
+            msg = 'Notification Sound {0}'.format(
+                'on' if self.notif_sound else 'off')
+
+            logger.info(msg)
+
+            return {'status': True, 'msg': msg, 'notif_sound': self.notif_sound}
+        except Exception as e:
+            msg = 'get_notif_sound() error: {0}'.formst(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
+
     def update_settings_file(self, key, value):
         try:
             logger.info('Update {0} to {1} in user settings file'.format(key, value))
@@ -1605,6 +1630,42 @@ class Api:
             return {'status': True, 'msg': msg}
         except Exception as e:
             msg = 'disable_god_speed() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
+
+    def enable_notif_sound(self):
+        try:
+            self.notif_sound = True
+            self.update_settings_file('notif_sound', True)
+            msg = 'Notification sound enabled'
+
+            logger.info(msg)
+
+            return {'status': True, 'msg': msg}
+        except Exception as e:
+            msg = 'enable_notif_sound() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+            return {'status': False, 'msg': msg}
+
+    def disable_notif_sound(self):
+        try:
+            self.notif_sound = False
+            self.update_settings_file('notif_sound', False)
+            msg = 'Notificaiton sound disabled'
+
+            logger.info(msg)
+
+            return {'status': True, 'msg': msg}
+        except Exception as e:
+            msg = 'disable_notif_sound() error: {0}'.format(str(e))
 
             logger.error(msg)
 

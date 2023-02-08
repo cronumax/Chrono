@@ -1101,6 +1101,36 @@ $(window).on("pywebviewready", function() {
     }
   });
 
+  $("#notifSoundBtn").change(function() {
+    if ($(this).is(":checked")) {
+      window.pywebview.api.enable_notif_sound().then(res => {
+        if (!res["status"]) {
+          Swal.fire({
+            title: "Warning",
+            html: res["msg"],
+            icon: "warning",
+            confirmButtonText: "Ok"
+          }).then(function() {
+            $(this).prop("checked", false);
+          });
+        }
+      });
+    } else {
+      window.pywebview.api.disable_notif_sound().then(res => {
+        if (!res["status"]) {
+          Swal.fire({
+            title: "Warning",
+            html: res["msg"],
+            icon: "warning",
+            confirmButtonText: "Ok"
+          }).then(function() {
+            $(this).prop("checked", true);
+          });
+        }
+      });
+    }
+  });
+
   $("#refreshDashboardSwitch").on("change", function() {
     if ($(this).text().length != 0) {
       refreshProcessList();
@@ -1134,6 +1164,16 @@ $(window).on("pywebviewready", function() {
       }
     });
   }, 20);
+
+  setTimeout(function() {
+    window.pywebview.api.get_notif_sound().then(res => {
+      if (res["status"]) {
+        $("#notifSoundBtn").prop("checked", res["notif_sound"]);
+      } else {
+        simpleWarningPopUp(res["msg"]);
+      }
+    });
+  }, 25);
 
   setTimeout(function() {
     window.pywebview.api.get_user_name().then(res => {
