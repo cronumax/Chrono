@@ -97,6 +97,7 @@ class Api:
         self.is_repeating = False
         self.schedule_repeat_msg = ''
         self.last_key = ''
+        self.new_installation = False
         thread = threading.Thread(target=self.check_if_opened)
         thread.start()
 
@@ -199,6 +200,7 @@ class Api:
                 app = {}
                 location_keys = ['address', 'lat', 'lng', 'hostname', 'org']
 
+                self.new_installation = True
                 self.id = app['id'] = secrets.token_urlsafe()
                 self.ip = get('https://api.ipify.org').text
                 self.location = {k: geocoder.ip('me').json[k]
@@ -248,7 +250,7 @@ class Api:
 
     def check_if_kept_signed_in(self):
         try:
-            if not self.opened:
+            if not self.opened and pathlib.Path('{0}/Chrono.json'.format(app_file_path)).exists():
                 with open('{0}/Chrono.json'.format(app_file_path)) as f:
                     app = json.load(f)
 
@@ -1386,7 +1388,7 @@ class Api:
 
                 for p in process_list:
                     if p['name'] in local_process_names:
-                    #p['date'] == datetime.fromtimestamp(pathlib.Path('{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, p['name'])).stat().st_mtime, timezone(self.timezone)):
+                        # p['date'] == datetime.fromtimestamp(pathlib.Path('{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, p['name'])).stat().st_mtime, timezone(self.timezone)):
                         p['local'] = True
                     else:
                         p['local'] = False
@@ -1428,7 +1430,7 @@ class Api:
 
                     p['location'] = 'Local'
                 else:
-                    if p['location'] == (self.host + " - " + self.host_os + " - " +  self.host_username):
+                    if p['location'] == (self.host + " - " + self.host_os + " - " + self.host_username):
                         p['location'] = 'Local [Missing detail file]'
                         missing_process_list.append(p)
                     else:
@@ -1481,7 +1483,7 @@ class Api:
             logger.info('Check app version')
 
             return post(self.api_url + 'check-app-version',
-                        {'id': self.id, 'app_version': self.version}).json()
+                        {'id': self.id, 'app_version': self.version, 'new_installation': self.new_installation}).json()
         except Exception as e:
             msg = 'check_app_version() error: {0}'.format(str(e))
 
