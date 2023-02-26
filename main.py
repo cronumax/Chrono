@@ -1435,7 +1435,7 @@ class Api:
                     p['location'] = 'Local'
                 else:
                     if p['location'] == (self.host + " - " + self.host_os + " - " +  self.host_username):
-                        p['location'] = 'Local [Missing Detail FIle]'
+                        p['location'] = 'Local [Missing Detail File]'
                         missing_process_list.append(p)
                     else:
                         remote_process_list.append(p)
