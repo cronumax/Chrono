@@ -955,31 +955,38 @@ $(window).on("pywebviewready", function() {
   });
 
   $("#processList tbody").on("click", "#delBtn", function() {
-    Swal.fire({
-      title:
-        "Remove process " +
-        $(this)
-          .parent()
-          .parent()
-          .find("td:first")
-          .html() +
-        "?",
-      html: "You will not be able to revert this.",
-      icon: "warning",
-      confirmButtonText: "Confirm",
-      showCancelButton: true,
-      allowOutsideClick: () => !Swal.isLoading()
-    }).then(res => {
-      if (res.isConfirmed) {
-        delProcess(
+    if (	
+      $(this)	
+        .parent()	
+        .parent()	
+        .hasClass("localProcess")	
+    ) {
+      Swal.fire({
+        title:
+          "Remove process " +
           $(this)
             .parent()
             .parent()
             .find("td:first")
-            .html()
-        );
-      }
-    });
+            .html() +
+          "?",
+        html: "You will not be able to revert this.",
+        icon: "warning",
+        confirmButtonText: "Confirm",
+        showCancelButton: true,
+        allowOutsideClick: () => !Swal.isLoading()
+      }).then(res => {
+        if (res.isConfirmed) {
+          delProcess(
+            $(this)
+              .parent()
+              .parent()
+              .find("td:first")
+              .html()
+          );
+        }
+      });
+    }
   });
 
   $("#sessionList tbody").on("click", "#logoutSpecificBtn", function() {
@@ -1382,10 +1389,13 @@ function refreshProcessList(msg = null) {
     $("#processList tbody").empty();
     $.each(processList, function(i, process) {
       var row = "<tr class='table-dark";
-      if (process.local) {
-        row += "'>";
+      if (!process.local) {
+        row += " disabled";
+      }
+      if (process.local || (process.location == 'Local [Missing detail file]')) {
+        row += " localProcess'>";
       } else {
-        row += " disabled'>";
+        row += "'>";
       }
       delete process.local;
       $.each(process, function(j, data) {
@@ -1396,8 +1406,13 @@ function refreshProcessList(msg = null) {
         }
       });
       row +=
-        "<td><button id='scheduleBtn' class='btn'><i class='far fa-clock fa-lg'></i></button><button id='renameBtn' class='btn'><i class='far fa-edit fa-lg'></i></button><button id='delBtn' class='btn'><i class='far fa-trash-alt fa-lg' style='color:white'></i></button></td>";
-      row += "</tr>";
+        "<td><button id='scheduleBtn' class='btn'><i class='far fa-clock fa-lg'></i></button><button id='renameBtn' class='btn'><i class='far fa-edit fa-lg'></i></button>";
+      if (process.location == 'Local [Missing detail file]') {
+        row += "<button id='delBtn' class='btn'><i class='far fa-trash-alt fa-lg' style='color:white'></i></button></td>";
+      } else {
+        row += "<button id='delBtn' class='btn'><i class='far fa-trash-alt fa-lg'></i></button></td>";
+      }
+        row += "</tr>";
       $("#processList tbody").append(row);
     });
   });
