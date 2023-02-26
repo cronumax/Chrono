@@ -1391,7 +1391,8 @@ class Api:
                 local_process_names = [n[:-5] for n in filenames]
 
                 for p in process_list:
-                    if p['name'] in local_process_names and p['date'] == datetime.fromtimestamp(pathlib.Path('{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, p['name'])).stat().st_mtime, timezone(self.timezone)):
+                    if p['name'] in local_process_names:
+                    #p['date'] == datetime.fromtimestamp(pathlib.Path('{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, p['name'])).stat().st_mtime, timezone(self.timezone)):
                         p['local'] = True
                     else:
                         p['local'] = False
@@ -1415,6 +1416,7 @@ class Api:
 
             # Reorder process list
             local_process_list = []
+            missing_process_list = []
             remote_process_list = []
             for p in process_list:
                 if p['local']:
@@ -1432,8 +1434,12 @@ class Api:
 
                     p['location'] = 'Local'
                 else:
-                    remote_process_list.append(p)
-            process_list = local_process_list + remote_process_list
+                    if p['location'] == (self.host + " - " + self.host_os + " - " +  self.host_username):
+                        p['location'] = 'Local [Missing Detail FIle]'
+                        missing_process_list.append(p)
+                    else:
+                        remote_process_list.append(p)
+            process_list = local_process_list + missing_process_list + remote_process_list
 
             logger.info('Process list: {0}'.format(str(process_list)))
 
