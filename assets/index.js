@@ -955,14 +955,6 @@ $(window).on("pywebviewready", function() {
   });
 
   $("#processList tbody").on("click", "#delBtn", function() {
-    if (
-      $(this)
-        .parent()
-        .parent()
-        .hasClass("disabled")
-    ) {
-      return;
-    }
     Swal.fire({
       title:
         "Remove process " +
@@ -1404,7 +1396,7 @@ function refreshProcessList(msg = null) {
         }
       });
       row +=
-        "<td><button id='scheduleBtn' class='btn'><i class='far fa-clock fa-lg'></i></button><button id='renameBtn' class='btn'><i class='far fa-edit fa-lg'></i></button><button id='delBtn' class='btn'><i class='far fa-trash-alt fa-lg'></i></button></td>";
+        "<td><button id='scheduleBtn' class='btn'><i class='far fa-clock fa-lg'></i></button><button id='renameBtn' class='btn'><i class='far fa-edit fa-lg'></i></button><button id='delBtn' class='btn'><i class='far fa-trash-alt fa-lg' style='color:white'></i></button></td>";
       row += "</tr>";
       $("#processList tbody").append(row);
     });
