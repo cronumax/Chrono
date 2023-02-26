@@ -1316,14 +1316,9 @@ class Api:
                     # Del process' JSON file
                     os.remove(path)
 
-                    logger.info(response['msg'])
+                logger.info(response['msg'])
 
-                    return response
-                else:
-                    logger.error('Process {0} does not exist locally for user {1}.'.format(
-                        process, self.current_user_email))
-
-                    return {'status': False, 'msg': 'Process {0} does not exist locally.'.format(process)}
+                return response
             else:
                 logger.error(response['msg'])
 
