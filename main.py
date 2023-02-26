@@ -1211,8 +1211,7 @@ class Api:
                 with open(path, 'w') as f:
                     json.dump(events, f)
 
-                date = timezone(self.timezone).localize(datetime.fromtimestamp(pathlib.Path(
-                    '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, process)).stat().st_mtime))
+                date = datetime.now(timezone(self.timezone))
 
                 response = post(self.api_url + 'upload-process-meta-data', {
                     'email': self.current_user_email, 'name': process, 'date': date.strftime('%Y-%m-%d %H:%M:%S.%f%z'), 'id': self.id, 'code': self.access_token['code']}).json()
