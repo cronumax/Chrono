@@ -721,12 +721,12 @@ class Api:
                     osascript -e 'display notification "{message}" with title "{title}"'
                     '''
                     os.system(command)
-                    if self.notif_sound:
-                        playsound('assets/sound/replay_finish.mp3')
                 else:
                     notification.notify(title='Chrono', message='Replay finished.')
-                    if self.notif_sound:
-                        playsound('assets/sound/replay_finish.mp3')
+
+                if self.notif_sound:
+                    playsound('assets/sound/replay_finish.mp3')
+
                 self.is_playing = False
         except Exception as e:
             msg = 'play() error: {0}'.format(str(e))
