@@ -2299,9 +2299,13 @@ class Api:
 if __name__ == '__main__':
     api = Api()
     api.window = webview.create_window('Chrono', 'assets/ac.html', js_api=api)
-    if platform.system() == 'Windows':
+
+    if platform.system() == 'Darwin':
+        api.window.events.closed += api.on_closed
+    else:
         api.window.closed += api.on_closed
+
+    if platform.system() == 'Windows':
         webview.start(api.thread_handler, gui='cef')
     else:
-        api.window.events.closed += api.on_closed
         webview.start(api.thread_handler)
