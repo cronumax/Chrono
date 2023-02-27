@@ -580,7 +580,7 @@ class Api:
                 self.load_settings(user_settings, 'escape_key')
             else:
                 user_settings = {'touch_mode': self.touch_mode, 'god_speed': self.god_speed, 'notif_sound': self.notif_sound,
-                                  'escape_key': self.escape_key.name}
+                                 'escape_key': self.escape_key.name}
 
                 with open(user_settings_path, 'w') as f:
                     json.dump(user_settings, f)
@@ -2299,7 +2299,7 @@ class Api:
 if __name__ == '__main__':
     api = Api()
     api.window = webview.create_window('Chrono', 'assets/ac.html', js_api=api)
-    api.window.closed += api.on_closed
+    api.window.events.closed += api.on_closed
     if platform.system() == 'Windows':
         webview.start(api.thread_handler, gui='cef')
     else:
