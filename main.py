@@ -113,7 +113,7 @@ class Api:
         thread = threading.Thread(target=self.consume_server_msg)
         thread.start()
         self.outbox = None
-        thread = threading.Thread(target=self.download_upgrader)
+        thread = threading.Thread(target=self.download_app_files)
         thread.start()
         self.confidence_levels = [1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7]
         '''
@@ -217,33 +217,36 @@ class Api:
 
             self.send_exception_email(msg)
 
-    def download_upgrader(self):
+    def download_app_files(self):
         try:
-            logger.info('Download upgrader')
+            if self.new_installation:
+                logger.info('Download app files for new new installation')
 
-            if platform.system() == 'Windows':
-                commands = [
-                    r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/Upgrader.exe -o C:\Users\{0}\Chrono\Upgrader.exe'.format(
-                        self.host_username)
-                ]
-            elif platform.system() == 'Darwin':
-                commands = [
-                    r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/upgrader.sh -o {0}/upgrader.sh'.format(
-                        app_file_path)
-                ]
-            else:
-                commands = [
-                    'wget -q https://cronumax-website.s3.ap-east-1.amazonaws.com/upgrader_linux.sh -O {0}/upgrader_linux.sh'.format(
-                        app_file_path)
-                ]
-
-            for c in commands:
                 if platform.system() == 'Windows':
-                    run(c.split(), stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL, shell=True)
+                    commands = [
+                        r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/Upgrader.exe -o C:\Users\{0}\Chrono\Upgrader.exe'.format(
+                            self.host_username), r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/replay_finish.mp3 -o C:\Users\{0}\Chrono\replay_finish.mp3'.format(self.host_username)
+                    ]
+                elif platform.system() == 'Darwin':
+                    commands = [
+                        r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/upgrader.sh -o {0}/upgrader.sh'.format(
+                            app_file_path), r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/replay_finish.mp3 -o {0}/replay_finish.mp3'.format(app_file_path)
+                    ]
                 else:
-                    run(c.split())
+                    commands = [
+                        'wget -q https://cronumax-website.s3.ap-east-1.amazonaws.com/upgrader_linux.sh -O {0}/upgrader_linux.sh'.format(
+                            app_file_path), r'curl https://cronumax-website.s3.ap-east-1.amazonaws.com/replay_finish.mp3 -o {0}/replay_finish.mp3'.format(app_file_path)
+                    ]
+
+                for c in commands:
+                    if platform.system() == 'Windows':
+                        run(c.split(), stdin=DEVNULL, stdout=DEVNULL, stderr=DEVNULL, shell=True)
+                    else:
+                        run(c.split())
+            else:
+                logger.info('Existing installation, skip app files download')
         except Exception as e:
-            msg = 'download_upgrader() error: {0}'.format(str(e))
+            msg = 'download_app_files() error: {0}'.format(str(e))
 
             logger.error(msg)
 
@@ -725,7 +728,11 @@ class Api:
                     notification.notify(title='Chrono', message='Replay finished.')
 
                 if self.notif_sound:
-                    playsound('assets/sound/replay_finish.mp3')
+                    if platform.system() == 'Windows':
+                        playsound(r'C:\Users\{0}\Chrono\replay_finish.mp3'.format(
+                            self.host_username))
+                    else:
+                        playsound('{0}/replay_finish.mp3'.format(app_file_path))
 
                 self.is_playing = False
         except Exception as e:
@@ -2300,12 +2307,9 @@ if __name__ == '__main__':
     api = Api()
     api.window = webview.create_window('Chrono', 'assets/ac.html', js_api=api)
 
-    if platform.system() == 'Darwin':
-        api.window.events.closed += api.on_closed
-    else:
-        api.window.closed += api.on_closed
-
     if platform.system() == 'Windows':
+        api.window.closed += api.on_closed
         webview.start(api.thread_handler, gui='cef')
     else:
+        api.window.events.closed += api.on_closed
         webview.start(api.thread_handler)
