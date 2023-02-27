@@ -3,6 +3,7 @@ import sys
 from requests import get, post
 import webview
 import logging
+import tzlocal
 from time import time, sleep
 import threading
 import secrets
@@ -121,7 +122,7 @@ class Api:
         self.touch_mode = False
         self.god_speed = False
         self.notif_sound = False
-        self.timezone = 'Asia/Hong_Kong'
+        self.timezone = tzlocal.get_localzone().zone
         self.escape_key = Key.esc
 
     def get_public_ip(self):
@@ -531,8 +532,6 @@ class Api:
                     self.god_speed = user_settings[field]
                 elif field == 'notif_sound':
                     self.notif_sound = user_settings[field]
-                elif field == 'timezone':
-                    self.timezone = user_settings[field]
                 elif field == 'escape_key':
                     try:
                         self.escape_key = Key[user_settings[field]]
@@ -547,8 +546,6 @@ class Api:
                     self.update_settings_file(field, self.god_speed)
                 elif field == 'notif_sound':
                     self.update_settings_file(field, self.notif_sound)
-                elif field == 'timezone':
-                    self.update_settings_file(field, self.timezone)
                 elif field == 'escape_key':
                     self.update_settings_file(field, self.escape_key.name)
         except Exception as e:
@@ -580,11 +577,10 @@ class Api:
                 self.load_settings(user_settings, 'touch_mode')
                 self.load_settings(user_settings, 'god_speed')
                 self.load_settings(user_settings, 'notif_sound')
-                self.load_settings(user_settings, 'timezone')
                 self.load_settings(user_settings, 'escape_key')
             else:
                 user_settings = {'touch_mode': self.touch_mode, 'god_speed': self.god_speed, 'notif_sound': self.notif_sound,
-                                 'timezone': self.timezone, 'escape_key': self.escape_key.name}
+                                  'escape_key': self.escape_key.name}
 
                 with open(user_settings_path, 'w') as f:
                     json.dump(user_settings, f)

@@ -1017,29 +1017,6 @@ $(window).on("pywebviewready", function() {
     });
   });
 
-  $("#timezoneSelection").change(function() {
-    var timezone = $(this)
-      .children("option:selected")
-      .text();
-
-    window.pywebview.api.set_timezone(timezone).then(res => {
-      if (!res["status"]) {
-        Swal.fire({
-          title: "Warning",
-          html: res["msg"],
-          icon: "warning",
-          confirmButtonText: "Ok"
-        }).then(function() {
-          window.pywebview.api.get_timezone().then(originalTimezone => {
-            $("#timezoneSelection")
-              .val(originalTimezone)
-              .attr("selected", "selected");
-          });
-        });
-      }
-    });
-  });
-
   $("#touchModeBtn").change(function() {
     if ($(this).is(":checked")) {
       window.pywebview.api.enable_touch_mode().then(res => {
@@ -1172,7 +1149,7 @@ $(window).on("pywebviewready", function() {
         simpleWarningPopUp(res["msg"]);
       }
     });
-  }, 25);
+  }, 30);
 
   setTimeout(function() {
     window.pywebview.api.get_user_name().then(res => {
@@ -1180,7 +1157,7 @@ $(window).on("pywebviewready", function() {
         $("#userName").html(res["user_name"]);
       }
     });
-  }, 30);
+  }, 40);
 
   setTimeout(function() {
     window.pywebview.api.get_user_email().then(res => {
@@ -1188,7 +1165,7 @@ $(window).on("pywebviewready", function() {
         $("#userEmail").html(res["user_email"]);
       }
     });
-  }, 40);
+  }, 50);
 
   setTimeout(function() {
     window.pywebview.api.get_user_license().then(res => {
@@ -1201,7 +1178,7 @@ $(window).on("pywebviewready", function() {
         }
       }
     });
-  }, 50);
+  }, 60);
 
   setTimeout(function() {
     window.pywebview.api.get_app_info().then(res => {
@@ -1209,31 +1186,13 @@ $(window).on("pywebviewready", function() {
         $("#appVer").html(res["version"]);
       }
     });
-  }, 60);
-
-  setTimeout(function() {
-    window.pywebview.api.get_timezone_list().then(timezoneList => {
-      $("#timezoneSelection").empty();
-      $.each(timezoneList, function(i, timezone) {
-        var row = "<option>" + timezone + "</option>";
-        $("#timezoneSelection").append(row);
-      });
-    });
   }, 70);
-
-  setTimeout(function() {
-    window.pywebview.api.get_timezone().then(timezone => {
-      $("#timezoneSelection")
-        .val(timezone)
-        .attr("selected", "selected");
-    });
-  }, 80);
 
   setTimeout(function() {
     window.pywebview.api.get_escape_key().then(key => {
       $("#escapeKey").text(key);
     });
-  }, 90);
+  }, 80);
 
   setTimeout(function() {
     window.pywebview.api.get_outbox().then(res => {
@@ -1241,11 +1200,11 @@ $(window).on("pywebviewready", function() {
         window.pywebview.api.send_email(res["type"], res["email"]);
       }
     });
-  }, 100);
+  }, 90);
 
   setTimeout(function() {
     refreshSessionList();
-  }, 110);
+  }, 100);
 
   refreshProcessList();
 });
