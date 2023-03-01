@@ -509,7 +509,7 @@ tr.table-dark.disabled i {
 }
 
 /* The Modal (background) */
-.modal {
+.modal, .processDetailModal {
   display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
   z-index: 1; /* Sit on top */
@@ -523,7 +523,7 @@ tr.table-dark.disabled i {
 }
 
 /* Modal Content */
-.modal-content {
+.modal-content, .processModalContent {
   background-color: #222;
   margin: auto;
   padding: 40px;
@@ -533,12 +533,21 @@ tr.table-dark.disabled i {
   padding-bottom: 50px;
 }
 
-.modalPageHeader {
+.processModalContent {
+  width: 50% !important;
+}
+
+.modalPageHeader, .processModalPageHeader {
   height: 10%;
 }
 
 .modalPageBody {
   height: 75%;
+  overflow: auto; /* Enable scroll if needed */
+}
+
+.processModalPageBody {
+  height: 90%;
   overflow: auto; /* Enable scroll if needed */
 }
 
@@ -584,3 +593,38 @@ tr.table-dark.disabled i {
     padding: 3px;
   }
 }
+
+/* Process detail modal */
+.processBox {
+  display: inline-block;
+  border: 1px solid white;
+  border-radius: 10px;
+  padding: 1% 4%;
+  text-align: center;
+}
+
+.eventTitle {
+  font-weight: bold;
+}
+
+.eventInfo {
+  font-size: 20px;
+}
+
+.fa-chevron-down {
+  color: white;
+  margin: 2%;
+}
+
+/*.bridgeBtn {
+  margin: 2%;
+}
+
+.bridgeBtn:hover .fa-chevron-down,
+.bridgeBtn .fa-plus {
+    display: none;
+}
+
+.bridgeBtn:hover .fa-plus {
+    display: inline;
+}*/

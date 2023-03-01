@@ -704,6 +704,20 @@ class Api:
 
             self.send_exception_email(msg)
 
+    def load_process_detail(self, process_name, msg=None):
+        try:
+            if msg:
+                logger.info(msg)
+            logger.info('Open process detail: ' + process_name)
+
+            return self.load(process_name)
+        except Exception as e:
+            msg = 'load_process_detail() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
     def play(self, process_name, msg=None):
         try:
             if msg:

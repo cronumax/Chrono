@@ -935,6 +935,23 @@ $(window).on("pywebviewready", function() {
     }
   });
 
+  $("#processList tbody").on("click", "#detailBtn", function() {
+    if (
+      $(this)
+        .parent()
+        .parent()
+        .hasClass("disabled")
+    ) {
+      return;
+    }
+    detailBtnClick(null,
+      $(this)
+        .parent()
+        .parent()
+        .find("td:first")
+        .html())
+  });
+
   $("#processList tbody").on("click", "#renameBtn", function() {
     if (
       $(this)
@@ -1365,7 +1382,7 @@ function refreshProcessList(msg = null) {
         }
       });
       row +=
-        "<td><button id='scheduleBtn' class='btn'><i class='far fa-clock fa-lg'></i></button><button id='renameBtn' class='btn'><i class='far fa-edit fa-lg'></i></button>";
+        "<td><button id='scheduleBtn' class='btn'><i class='far fa-clock fa-lg'></i></button><button id='detailBtn' class='btn'><i class='fa fa-list fa-lg'></i></button><button id='renameBtn' class='btn'><i class='far fa-edit fa-lg'></i></button>";
       if (process.location == 'Local [Missing detail file]') {
         row += "<button id='delBtn' class='btn'><i class='far fa-trash-alt fa-lg' style='color:white'></i></button></td>";
       } else {
@@ -1384,6 +1401,46 @@ function refreshProcessList(msg = null) {
     $("#processList th.sorttable_sorted_reverse").removeClass(
       "sorttable_sorted_reverse"
     );
+  }
+}
+
+function detailBtnClick(msg = null, processName) {
+  showProcessDetail();
+  if (processName) {
+    $("#processDetail .processModalPageTitle").html(`${processName} Detail`);
+    $.when(window.pywebview.api.load_process_detail(processName, msg)).then(processEvents => {
+      $("#processEvents").empty();
+      var counter = 1;
+      $.each(processEvents, function(i, event) {
+        var row = "<div class='processBox'>";
+        if (event["event_name"] == "ClickEvent") {
+          row += `
+            <h4 class="eventTitle">Click</h4>
+            <p class="eventInfo">${event['button']}</p>`;
+        }
+        else if (event["event_name"] == "KeyboardEvent") {
+          row += `
+            <h4 class="eventTitle">Type</h4>
+            <p class="eventInfo">${event['key']}</p>`;
+        }
+        else {
+          row += `
+            <h4 class="eventTitle">${event["event_name"]}</h4>`;
+        }
+        row += `</div>`;
+
+        if (counter != processEvents.length) {
+          row += `
+            <div><i class="fa fa-chevron-down fa-lg"></i></div>`;
+        }
+        $("#processEvents").append(row);
+        counter += 1;
+      });
+    });
+  }
+  else
+  {
+    $("#processEvents").append(`<h2>Cannot retrieve process detail.</h2>`);
   }
 }
 
@@ -1597,6 +1654,7 @@ var modal1 = document.getElementById("tutorialModal1");
 var modal2 = document.getElementById("tutorialModal2");
 var modal3 = document.getElementById("tutorialModal3");
 var modal4 = document.getElementById("tutorialModal4");
+var processDetail = document.getElementById("processDetail");
 
 function closeModal() {
   modal1.style.display = "none";
@@ -1633,17 +1691,28 @@ function showModal4() {
   modal4.style.display = "block";
 }
 
+function closeProcessDetail() {
+  processDetail.style.display = "none";
+}
+
+function showProcessDetail() {
+  processDetail.style.display = "block";
+}
+
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
   if (
     event.target == modal1 ||
     event.target == modal2 ||
-    event.target == modal3
+    event.target == modal3 ||
+    event.target == modal4 ||
+    event.target == processDetail
   ) {
     modal1.style.display = "none";
     modal2.style.display = "none";
     modal3.style.display = "none";
     modal4.style.display = "none";
+    processDetail.style.display = "none";
   }
 };
 
