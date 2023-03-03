@@ -944,12 +944,13 @@ $(window).on("pywebviewready", function() {
     ) {
       return;
     }
-    detailBtnClick(null,
-      $(this)
-        .parent()
-        .parent()
-        .find("td:first")
-        .html())
+    showProcessDetail();
+    refreshProcessDetail(null,
+    $(this)
+      .parent()
+      .parent()
+      .find("td:first")
+      .html())
   });
 
   $("#processList tbody").on("click", "#renameBtn", function() {
@@ -1404,46 +1405,6 @@ function refreshProcessList(msg = null) {
   }
 }
 
-function detailBtnClick(msg = null, processName) {
-  showProcessDetail();
-  if (processName) {
-    $("#processDetail .processModalPageTitle").html(`${processName} Detail`);
-    $.when(window.pywebview.api.load_process_detail(processName, msg)).then(processEvents => {
-      $("#processEvents").empty();
-      var counter = 1;
-      $.each(processEvents, function(i, event) {
-        var row = "<div class='processBox'>";
-        if (event["event_name"] == "ClickEvent") {
-          row += `
-            <h4 class="eventTitle">Click</h4>
-            <p class="eventInfo">${event['button']}</p>`;
-        }
-        else if (event["event_name"] == "KeyboardEvent") {
-          row += `
-            <h4 class="eventTitle">Type</h4>
-            <p class="eventInfo">${event['key']}</p>`;
-        }
-        else {
-          row += `
-            <h4 class="eventTitle">${event["event_name"]}</h4>`;
-        }
-        row += `</div>`;
-
-        if (counter != processEvents.length) {
-          row += `
-            <div><i class="fa fa-chevron-down fa-lg"></i></div>`;
-        }
-        $("#processEvents").append(row);
-        counter += 1;
-      });
-    });
-  }
-  else
-  {
-    $("#processEvents").append(`<h2>Cannot retrieve process detail.</h2>`);
-  }
-}
-
 function refreshSessionList(msg = null) {
   $.when(window.pywebview.api.load_session_list(msg)).then(sessionList => {
     $("#sessionList tbody").empty();
@@ -1649,12 +1610,11 @@ function schedule_listener(status, processName, msg) {
   }
 }
 
-// Get the modal
+// Modals functions
 var modal1 = document.getElementById("tutorialModal1");
 var modal2 = document.getElementById("tutorialModal2");
 var modal3 = document.getElementById("tutorialModal3");
 var modal4 = document.getElementById("tutorialModal4");
-var processDetail = document.getElementById("processDetail");
 
 function closeModal() {
   modal1.style.display = "none";
@@ -1691,6 +1651,9 @@ function showModal4() {
   modal4.style.display = "block";
 }
 
+// Process Detail JS
+var processDetail = document.getElementById("processDetail");
+
 function closeProcessDetail() {
   processDetail.style.display = "none";
 }
@@ -1698,6 +1661,48 @@ function closeProcessDetail() {
 function showProcessDetail() {
   processDetail.style.display = "block";
 }
+
+function refreshProcessDetail(msg = null, processName) {
+  if (processName) {
+    $("#processDetail .processModalPageTitle").html(`${processName} Detail`);
+    $.when(window.pywebview.api.load_process_detail(processName, msg)).then(processEvents => {
+      $("#processEvents").empty();
+      var counter = 1;
+      $.each(processEvents, function(i, event) {
+        var row = `<div class='processBox'>`;
+        $.each(event, function(i, step) {
+          if (i == "event_name") {
+            row += `
+              <h4 class="eventTitle">${step}</h4>
+              <p class="eventInfo">`;
+          }
+          else if (i != "time") {
+            row += `
+              ${i + ": " + step}<br />`;
+          }
+        });
+        row += `</p>
+          <button id='stepDelBtn' class='btn' onclick="deleteStepBtnClick(${event}, ${processName})"><i class='far fa-trash-alt fa-lg'></i></button>
+          </div>`;
+
+        if (counter != processEvents.length) {
+          row += `
+            <div><i class="fa fa-chevron-down fa-lg"></i></div>`;
+        }
+        $("#processEvents").append(row);
+        counter += 1
+      });
+    });
+  }
+  else
+  {
+    $("#processEvents").append(`<h2>Cannot retrieve process detail.</h2>`);
+  }
+}
+
+function deleteStepBtnClick(deletedEvent, processName) {
+  window.pywebview.api.del_step(deletedEvent, processName).then(refreshProcessDetail(null, processName));
+};
 
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {

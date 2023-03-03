@@ -609,6 +609,7 @@ tr.table-dark.disabled i {
 
 .eventInfo {
   font-size: 20px;
+  text-align: left;
 }
 
 .fa-chevron-down {
@@ -616,7 +617,25 @@ tr.table-dark.disabled i {
   margin: 2%;
 }
 
-/*.bridgeBtn {
+/* .processBox .overlayBtn {
+  opacity: 0;
+}
+
+.processBox:hover {
+  transition: .5s ease;
+  background-color: #ff2800;
+}
+
+.processBox:hover .eventTitle,
+.processBox:hover .eventInfo {
+  opacity: 0;
+}
+
+.processBox:hover .overlayBtn {
+  opacity: 1;
+}
+
+.bridgeBtn {
   margin: 2%;
 }
 
@@ -626,5 +645,6 @@ tr.table-dark.disabled i {
 }
 
 .bridgeBtn:hover .fa-plus {
-    display: inline;
+  transition: .5s ease;
+  display: inline;
 }*/
