@@ -1279,7 +1279,7 @@ class Api:
             
             new_events = []
             for step in events:
-                if str(step) != str(deleted_event.replace("\"", "'")):
+                if str(step).replace(" ", "") != str(deleted_event.replace("\"", "'")):
                     new_events.append(step)
                 else:
                     logger.info('Step {0} in process {1} for user {1} deleted'.format(

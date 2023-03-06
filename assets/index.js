@@ -1139,6 +1139,44 @@ $(window).on("pywebviewready", function() {
     }
   });
 
+  $("#processDetail").on("click", "#stepDelBtn", function() {
+    Swal.fire({
+      title:
+        "Remove step " +
+          $(this)
+            .parent()
+            .find(".eventTitle")
+            .html() +
+            " from " +
+            $(this)
+            .parent()
+            .parent()
+            .parent()
+            .find(".processModalPageTitle")
+            .html() +
+          "?",
+        html: "You will not be able to revert this.",
+        icon: "warning",
+        confirmButtonText: "Confirm",
+        showCancelButton: true,
+        allowOutsideClick: () => !Swal.isLoading()
+      }).then(res => {
+        if (res.isConfirmed) {
+          delStep(
+            $(this)
+            .parent()
+            .find("#stepInfo")
+            .html(),
+            $(this)
+              .parent()
+              .parent()
+              .parent()
+              .find(".processModalPageTitle")
+              .html())
+          }}
+      );
+  });
+
   setTimeout(function() {
     window.pywebview.api.get_touch_mode().then(res => {
       if (res["status"]) {
@@ -1664,7 +1702,7 @@ function showProcessDetail() {
 
 function refreshProcessDetail(msg = null, processName) {
   if (processName) {
-    $("#processDetail .processModalPageTitle").html(`${processName} Detail`);
+    $("#processDetail .processModalPageTitle").html(`${processName}`);
     $.when(window.pywebview.api.load_process_detail(processName, msg)).then(processEvents => {
       $("#processEvents").empty();
       var counter = 1;
@@ -1682,7 +1720,8 @@ function refreshProcessDetail(msg = null, processName) {
           }
         });
         row += `</p>
-          <button id='stepDelBtn' class='btn' onclick="deleteStepBtnClick(${event}, ${processName})"><i class='far fa-trash-alt fa-lg'></i></button>
+          <p id="stepInfo" hidden>${JSON.stringify(event)}</p>
+          <button id='stepDelBtn' class='btn'><i class='far fa-trash-alt fa-lg'></i></button>
           </div>`;
 
         if (counter != processEvents.length) {
@@ -1700,8 +1739,10 @@ function refreshProcessDetail(msg = null, processName) {
   }
 }
 
-function deleteStepBtnClick(deletedEvent, processName) {
-  window.pywebview.api.del_step(deletedEvent, processName).then(refreshProcessDetail(null, processName));
+function delStep(deletedEvent, processName) {
+  window.pywebview.api.del_step(deletedEvent, processName).then(res => {
+    refreshProcessDetail(null, processName)}
+  );
 };
 
 // When the user clicks anywhere outside of the modal, close it
