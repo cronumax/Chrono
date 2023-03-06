@@ -1298,6 +1298,39 @@ class Api:
 
             self.send_exception_email(msg)
 
+    def edit_step(self, changed_event, process_name, new_key):
+        try:
+            path = '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, process_name)
+
+            with open(path) as f:
+                events = json.load(f)
+
+            logger.info('Process {0} for user {1} loaded'.format(
+                process_name, events[0]['owner']))
+            
+            new_events = []
+            for step in events:
+                if str(step).replace(" ", "") != str(changed_event.replace("\"", "'")):
+                    new_events.append(step)
+                else:
+                    step['key'] = new_key
+                    new_events.append(step)
+                    logger.info('Step {0} in process {1} for user {1} has been edited'.format(
+                        step, process_name, events[0]['owner']))
+                    
+            with open(path, 'w') as f:
+                json.dump(new_events, f)
+                logger.info('Save new edited step of process {0} for user {1}'.format(
+                    process_name, events[0]['owner']))
+
+            return
+        except Exception as e:
+            msg = 'edit_step() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
     def rename_process(self, old_name, new_name):
         try:
             logger.info('User {0} proposed new name {1} for process {2}'.format(

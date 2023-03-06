@@ -1177,6 +1177,25 @@ $(window).on("pywebviewready", function() {
       );
   });
 
+  $("#processDetail").on("click", "#editBtn", function() {
+    promptForKeyboardEventKey(
+      $(this)
+        .parent()
+        .find("#stepInfo")
+        .html(),
+      $(this)
+        .parent()
+        .parent()
+        .parent()
+        .find(".processModalPageTitle")
+        .html(),
+      $(this)
+        .parent()
+        .find("#keyInfo")
+        .html()
+    );
+  });
+
   setTimeout(function() {
     window.pywebview.api.get_touch_mode().then(res => {
       if (res["status"]) {
@@ -1502,6 +1521,40 @@ async function promptForProcessName(rename = false, oldName = null) {
   }
 }
 
+async function promptForKeyboardEventKey(changedEvent, processName, oldKey = null) {
+  const result = await Swal.fire({
+    title: "New key input?",
+    icon: "question",
+    input: "text",
+    inputAttributes: {
+      autocapitalize: "off"
+    },
+    showCancelButton: true,
+    confirmButtonText: "Confirm",
+    allowOutsideClick: () => !Swal.isLoading(),
+    inputValidator: key => {
+      return new Promise(resolve => {
+        // Frontend validation
+        if (!key) {
+          resolve("Key input cannot be empty.");
+        } else if (key === oldKey) {
+          resolve("New key input cannot be the same as the old key.");
+        } else if (key.length > 1) {
+          resolve("New key input cannot be more than 1 character.");
+        } else {
+          resolve();
+        }
+      });
+    }
+  });
+
+  if (result.isConfirmed) {
+    window.pywebview.api.edit_step(changedEvent, processName, result.value).then(res => {
+      refreshProcessDetail(null, processName)
+    });
+  }
+}
+
 function backendValidation(type, res) {
   if (res.status) {
     if (type == "process") {
@@ -1720,8 +1773,13 @@ function refreshProcessDetail(msg = null, processName) {
           }
         });
         row += `</p>
-          <p id="stepInfo" hidden>${JSON.stringify(event)}</p>
-          <button id='stepDelBtn' class='btn'><i class='far fa-trash-alt fa-lg'></i></button>
+          <p id="stepInfo" hidden>${JSON.stringify(event)}</p>`;
+        if (event["event_name"] == "KeyboardEvent") {
+          row += `
+          <p id="keyInfo" hidden>${event["key"]}</p>
+          <button id='editBtn' class='btn'><i class='far fa-edit fa-lg'></i></button>`;
+        }
+        row += `<button id='stepDelBtn' class='btn'><i class='far fa-trash-alt fa-lg'></i></button>
           </div>`;
 
         if (counter != processEvents.length) {
