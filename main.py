@@ -1267,6 +1267,50 @@ class Api:
 
             self.send_exception_email(msg)
 
+    def add_step(self, previous_event, process_name):
+        try:
+            path = '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, process_name)
+
+            with open(path) as f:
+                old_events = json.load(f)
+
+            logger.info('Process {0} for user {1} loaded'.format(
+                process_name, old_events[0]['owner']))
+
+            new_events = sorted(self.kb_events + self.m_events,
+                            key=lambda i: i['time'])[:-2]
+
+            events = []
+            total_interval = -1
+            for old_step in old_events:
+                if str(old_step).replace(" ", "") != str(previous_event.replace("\"", "'")):
+                    if total_interval > -1:
+                        old_step['time'] += total_interval
+                    events.append(old_step)
+                else:
+                    events.append(old_step)
+                    total_interval = 0.5
+                    for i, new_step in enumerate(new_events):
+                        new_step['time'] = old_step['time'] + total_interval
+                        events.append(new_step)
+                        logger.info('Added step {0} to process {1} for user {1}'.format(
+                            new_step, process_name, events[0]['owner']))
+                        if i < (len(new_events) - 1):
+                            total_interval += total_interval + (new_events[i+1] - new_events[i])
+                    
+            with open(path, 'w') as f:
+                json.dump(events, f)
+                logger.info('Save added step of process {0} for user {1}'.format(
+                    process_name, events[0]['owner']))
+
+            return
+        except Exception as e:
+            msg = 'add_step() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
     def del_step(self, deleted_event, process_name):
         try:
             path = '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, process_name)

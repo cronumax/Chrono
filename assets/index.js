@@ -1139,7 +1139,64 @@ $(window).on("pywebviewready", function() {
     }
   });
 
+  $("#processDetail").on("click", "#bridgeBtn", function() {
+    var msg = "Add process btn clicked";
+    var previousEvent =
+      $(this)
+        .parent()
+        .parent()
+        .find('.processBox')
+        .find("#stepInfo")
+        .html();
+    var processName =           
+      $(this)
+        .parent()
+        .parent()
+        .parent()
+        .parent()
+        .find(".processModalPageTitle")
+        .html();
+    $.when(window.pywebview.api.record(msg)).done(function() {
+      Swal.fire({
+        title:
+          "Save added actions?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Save",
+        allowOutsideClick: () => !Swal.isLoading()
+      }).then(res => {
+        if (res.isConfirmed) {
+          window.pywebview.api.add_step(previousEvent, processName).then(res => {
+            refreshProcessDetail(null, processName)
+          });
+        }
+      });
+    });
+
+    Swal.fire({
+      title:
+        "Recording new actions",
+      html: "Please do the actions that you want to add into the existing process.",
+      icon: "info",
+      confirmButtonText: "Done recording",
+      showCancelButton: false,
+      allowOutsideClick: false
+    }).then(res => {
+      if (res.isConfirmed) {
+        window.pywebview.api.stop_record(msg);
+      }
+    });
+  });
+
   $("#processDetail").on("click", "#stepDelBtn", function() {
+    var processName =
+    $(this)
+      .parent()
+      .parent()
+      .parent()
+      .parent()
+      .find(".processModalPageTitle")
+      .html();
     Swal.fire({
       title:
         "Remove step " +
@@ -1148,13 +1205,8 @@ $(window).on("pywebviewready", function() {
             .find(".eventTitle")
             .html() +
             " from " +
-            $(this)
-            .parent()
-            .parent()
-            .parent()
-            .find(".processModalPageTitle")
-            .html() +
-          "?",
+            processName +
+            "?",
         html: "You will not be able to revert this.",
         icon: "warning",
         confirmButtonText: "Confirm",
@@ -1167,12 +1219,7 @@ $(window).on("pywebviewready", function() {
             .parent()
             .find("#stepInfo")
             .html(),
-            $(this)
-              .parent()
-              .parent()
-              .parent()
-              .find(".processModalPageTitle")
-              .html())
+            processName)
           }}
       );
   });
@@ -1184,6 +1231,7 @@ $(window).on("pywebviewready", function() {
         .find("#stepInfo")
         .html(),
       $(this)
+        .parent()
         .parent()
         .parent()
         .parent()
@@ -1760,7 +1808,7 @@ function refreshProcessDetail(msg = null, processName) {
       $("#processEvents").empty();
       var counter = 1;
       $.each(processEvents, function(i, event) {
-        var row = `<div class='processBox'>`;
+        var row = `<div><div class='processBox'>`;
         $.each(event, function(i, step) {
           if (i == "event_name") {
             row += `
@@ -1784,7 +1832,12 @@ function refreshProcessDetail(msg = null, processName) {
 
         if (counter != processEvents.length) {
           row += `
-            <div><i class="fa fa-chevron-down fa-lg"></i></div>`;
+            <div>
+              <button id='bridgeBtn' class='btn' title="Add process">
+                <i class="fa fa-chevron-down fa-lg"></i>
+                <i class="fa fa-plus fa-lg"></i>
+              </button>
+            </div></div>`;
         }
         $("#processEvents").append(row);
         counter += 1
@@ -1809,14 +1862,12 @@ window.onclick = function(event) {
     event.target == modal1 ||
     event.target == modal2 ||
     event.target == modal3 ||
-    event.target == modal4 ||
-    event.target == processDetail
+    event.target == modal4
   ) {
     modal1.style.display = "none";
     modal2.style.display = "none";
     modal3.style.display = "none";
     modal4.style.display = "none";
-    processDetail.style.display = "none";
   }
 };
 

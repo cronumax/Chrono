@@ -617,6 +617,20 @@ tr.table-dark.disabled i {
   margin: 2%;
 }
 
+#bridgeBtn {
+  margin: 2%;
+}
+
+#bridgeBtn:hover .fa-chevron-down,
+#bridgeBtn .fa-plus {
+  display: none;
+}
+
+#bridgeBtn:hover .fa-plus {
+  transition: .5s ease;
+  display: inline;
+}
+
 /* .processBox .overlayBtn {
   opacity: 0;
 }
@@ -635,16 +649,4 @@ tr.table-dark.disabled i {
   opacity: 1;
 }
 
-.bridgeBtn {
-  margin: 2%;
-}
-
-.bridgeBtn:hover .fa-chevron-down,
-.bridgeBtn .fa-plus {
-    display: none;
-}
-
-.bridgeBtn:hover .fa-plus {
-  transition: .5s ease;
-  display: inline;
-}*/
+*/
