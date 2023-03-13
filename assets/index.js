@@ -1488,11 +1488,11 @@ function refreshProcessList(msg = null) {
         }
       });
       row +=
-        "<td><button id='scheduleBtn' class='btn'><i class='far fa-clock fa-lg'></i></button><button id='detailBtn' class='btn'><i class='fa fa-list fa-lg'></i></button><button id='renameBtn' class='btn'><i class='far fa-edit fa-lg'></i></button>";
+        "<td><button id='scheduleBtn' class='btn' title='Schedule'><i class='far fa-clock fa-lg'></i></button><button id='detailBtn' class='btn' title='Detail'><i class='fa fa-list fa-lg'></i></button><button id='renameBtn' class='btn' title='Rename'><i class='far fa-edit fa-lg'></i></button>";
       if (process.location == 'Local [Missing detail file]') {
-        row += "<button id='delBtn' class='btn'><i class='far fa-trash-alt fa-lg' style='color:white'></i></button></td>";
+        row += "<button id='delBtn' class='btn' title='Delete'><i class='far fa-trash-alt fa-lg' style='color:white'></i></button></td>";
       } else {
-        row += "<button id='delBtn' class='btn'><i class='far fa-trash-alt fa-lg'></i></button></td>";
+        row += "<button id='delBtn' class='btn' title='Delete'><i class='far fa-trash-alt fa-lg'></i></button></td>";
       }
         row += "</tr>";
       $("#processList tbody").append(row);
@@ -1518,7 +1518,7 @@ function refreshSessionList(msg = null) {
       row += '<td style="display:none;">' + session.id + "</td>";
       row += "<td>" + session.location + "</td>";
       row +=
-        "<td><button id='logoutSpecificBtn' class='btn'><i class='far fa-times-circle fa-lg'></i></button></td>";
+        "<td><button id='logoutSpecificBtn' class='btn' title='Log Out'><i class='far fa-times-circle fa-lg'></i></button></td>";
       row += "</tr>";
       $("#sessionList tbody").append(row);
     });
@@ -1825,9 +1825,9 @@ function refreshProcessDetail(msg = null, processName) {
         if (event["event_name"] == "KeyboardEvent") {
           row += `
           <p id="keyInfo" hidden>${event["key"]}</p>
-          <button id='editBtn' class='btn'><i class='far fa-edit fa-lg'></i></button>`;
+          <button id='editBtn' class='btn' title='Edit'><i class='far fa-edit fa-lg'></i></button>`;
         }
-        row += `<button id='stepDelBtn' class='btn'><i class='far fa-trash-alt fa-lg'></i></button>
+        row += `<button id='stepDelBtn' class='btn' title='Delete'><i class='far fa-trash-alt fa-lg'></i></button>
           </div>`;
 
         if (counter != processEvents.length) {
