@@ -1294,14 +1294,14 @@ class Api:
                         new_step['time'] = old_step['time'] + total_interval
                         events.append(new_step)
                         logger.info('Added step {0} to process {1} for user {1}'.format(
-                            new_step, process_name, events[0]['owner']))
+                            new_step, process_name, old_events[0]['owner']))
                         if i < (len(new_events) - 1):
-                            total_interval += total_interval + (new_events[i+1] - new_events[i])
+                            total_interval += total_interval + (new_events[i+1]['time'] - new_events[i]['time'])
                     
             with open(path, 'w') as f:
                 json.dump(events, f)
                 logger.info('Save added step of process {0} for user {1}'.format(
-                    process_name, events[0]['owner']))
+                    process_name, old_events[0]['owner']))
 
             return
         except Exception as e:
