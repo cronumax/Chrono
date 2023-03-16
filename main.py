@@ -35,6 +35,8 @@ from PIL import Image, ImageGrab
 from imagehash import average_hash
 from decimal import Decimal
 from playsound import playsound
+import zipfile
+import shutil
 
 
 if platform.system() == 'Linux':
@@ -77,7 +79,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '1.3.3'
+        self.version = '1.3.4'
         self.host = platform.node()
         self.host_os = platform.system()
         self.host_username = getpass.getuser()
@@ -1457,6 +1459,111 @@ class Api:
             self.send_exception_email(msg)
 
             return {'status': False, 'msg': msg}
+
+    def export_process(self, process_name):
+        try:
+            path = '{0}/processes/{1}/'.format(app_file_path, self.current_user_email)
+            zip_path = '{0}/shareable/{1}/{2}'.format(app_file_path, self.current_user_email, process_name)
+
+            with open('{0}{1}.json'.format(path, process_name)) as f:
+                events = json.load(f)
+
+            shutil.make_archive(zip_path, format='zip', root_dir='process')
+
+            new_json = []
+            for i, step in enumerate(events):
+                if i != 0:
+                    new_json.append(step)
+
+            with zipfile.ZipFile('{0}.zip'.format(zip_path), 'w',
+                            compression=zipfile.ZIP_DEFLATED,
+                            compresslevel=9) as zf:
+                for step in new_json:
+                    if step['event_name'] != 'KeyboardEvent':
+                        filename_prefix = str(step['time']).replace('.', '_')
+                        path_prefix = '{0}/img/{1}/{2}'.format(app_file_path,
+                                                            self.current_user_email, filename_prefix)
+                        if (os.path.isfile('{0}_fine.png'.format(path_prefix))):
+                            zf.write('{0}_fine.png'.format(path_prefix), arcname='process/img/{0}_fine.png'.format(path_prefix))
+                        if (os.path.isfile('{0}_crude.png'.format(path_prefix))):
+                            zf.write('{0}_crude.png'.format(path_prefix), arcname='process/img/{0}_crude.png'.format(path_prefix))
+                
+                with open('{0}.json'.format(zip_path), 'w') as f:
+                    json.dump(new_json, f)
+
+                #with zf.open('process/json/{0}.json'.format(process_name), 'w') as f:
+                #    json.dump(new_json, f)
+                zf.write('{0}.json'.format(zip_path), arcname='process/json/{0}.json'.format(process_name))
+                os.remove('{0}.json'.format(zip_path))
+
+            logger.info('Exported process {0} for user {1}'.format(
+                process_name, events[0]['owner']))
+
+            return
+        except Exception as e:
+            os.remove('{0}.json'.format(zip_path))
+            os.remove('{0}.zip'.format(zip_path))
+
+            msg = 'export_process() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
+
+    def import_process(self, file_name):
+        try:
+            process_name = file_name[0:-4]
+            import_file = '{0}/{1}'.format(app_file_path, file_name)
+            json_path = '{0}/processes/{1}/'.format(app_file_path, self.current_user_email)
+            img_path = '{0}/img/{1}/'.format(app_file_path, self.current_user_email)
+
+            with zipfile.ZipFile(import_file) as zf:
+                with zf.open('process/json/{0}.json'.format(process_name)) as z, open('{0}{1}.json'.format(json_path, process_name), 'wb') as f:
+                    shutil.copyfileobj(z, f)
+                #zf.extract('process/json/{0}.json'.format(process_name), json_path)
+
+            with open('{0}{1}.json'.format(json_path, process_name)) as f:
+                events = json.load(f)
+            
+            modified_events = []
+            modified_events.append({'owner': self.current_user_email})
+            for step in events:
+                modified_events.append(step)
+
+            with open('{0}{1}.json'.format(json_path, process_name), 'w') as f:
+                json.dump(modified_events, f)
+
+            date = datetime.now(timezone(self.timezone))
+
+            response = post(self.api_url + 'upload-process-meta-data', {
+                'email': self.current_user_email, 'name': process_name, 'date': date.strftime('%Y-%m-%d %H:%M:%S.%f%z'), 'id': self.id, 'code': self.access_token['code']}).json()
+
+            if response['status']:
+                logger.info(response['log_msg'])
+
+                with zipfile.ZipFile(import_file) as zf:
+                    for img in zf.namelist():
+                        if img.endswith('.png'):
+                            with zf.open(img) as z, open('{0}{1}'.format(img_path, os.path.basename(img)), 'wb') as f:
+                                shutil.copyfileobj(z, f)
+                        #zf.extract(img, img_path)
+
+                os.remove(import_file)
+                logger.info('Imported process {0} for user {1}'.format(process_name, modified_events[0]['owner']))
+            else:
+                os.remove('{0}{1}.json'.format(json_path, process_name))
+
+                logger.error(response['msg'])
+
+            return response
+        except Exception as e:
+            os.remove('{0}{1}.json'.format(json_path, process_name))
+
+            msg = 'import_process() error: {0}'.format(str(e))
+
+            logger.error(msg)
+
+            self.send_exception_email(msg)
 
     def logout_remote_session(self, session):
         try:

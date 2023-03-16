@@ -11,6 +11,10 @@ $(window).on("pywebviewready", function() {
     refreshSessionList(msg);
   });
 
+  $("#importBtn").click(function() {
+    promptForFileImport();
+  });
+
   $("#recordBtn").click(function() {
     var msg = "Record btn clicked";
     if ($(this).hasClass("running")) {
@@ -972,6 +976,42 @@ $(window).on("pywebviewready", function() {
     );
   });
 
+  $("#processList tbody").on("click", "#shareBtn", function() {
+    if (
+      $(this)
+        .parent()
+        .parent()
+        .hasClass("disabled")
+    ) {
+      return;
+    }
+    Swal.fire({
+      title:
+        "Export process " +
+        $(this)
+          .parent()
+          .parent()
+          .find("td:first")
+          .html() +
+        " to share?",
+      html: "Once it is done, you should be able to find the ZIP file under Chrono/shareable.",
+      icon: "question",
+      confirmButtonText: "Export",
+      showCancelButton: true,
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then(res => {
+      if (res.isConfirmed) {
+        exportProcess(
+          $(this)
+            .parent()
+            .parent()
+            .find("td:first")
+            .html()
+        );
+      }
+    });
+  });
+
   $("#processList tbody").on("click", "#delBtn", function() {
     if (	
       $(this)	
@@ -1488,7 +1528,10 @@ function refreshProcessList(msg = null) {
         }
       });
       row +=
-        "<td><button id='scheduleBtn' class='btn' title='Schedule'><i class='far fa-clock fa-lg'></i></button><button id='detailBtn' class='btn' title='Detail'><i class='fa fa-list fa-lg'></i></button><button id='renameBtn' class='btn' title='Rename'><i class='far fa-edit fa-lg'></i></button>";
+        `<td><button id='scheduleBtn' class='btn' title='Schedule'><i class='far fa-clock fa-lg'></i></button>
+         <button id='detailBtn' class='btn' title='Detail'><i class='fa fa-list fa-lg'></i></button>
+         <button id='renameBtn' class='btn' title='Rename'><i class='far fa-edit fa-lg'></i></button>
+         <button id='shareBtn' class='btn' title='Share'><i class='fa fa-share-alt fa-lg'></i></button>`;
       if (process.location == 'Local [Missing detail file]') {
         row += "<button id='delBtn' class='btn' title='Delete'><i class='far fa-trash-alt fa-lg' style='color:white'></i></button></td>";
       } else {
@@ -1603,6 +1646,28 @@ async function promptForKeyboardEventKey(changedEvent, processName, oldKey = nul
   }
 }
 
+async function promptForFileImport() {
+  const {value: file} = await Swal.fire({
+    title: "Import process?",
+    html: "Make sure the shareable ZIP file is in your Chrono folder. Then, choose that ZIP file to import.",
+    icon: "question",
+    input: "file",
+    showCancelButton: true,
+    confirmButtonText: "Confirm",
+    allowOutsideClick: () => !Swal.isLoading(),
+    inputAttributes: {
+      'accept': '.zip, .rar, .7zip',
+      'required': 'true'
+    }
+  });
+
+  if (file) {
+    window.pywebview.api.import_process(file.name).then(res => {
+      backendValidation("process", res);
+    });
+  }
+}
+
 function backendValidation(type, res) {
   if (res.status) {
     if (type == "process") {
@@ -1621,6 +1686,10 @@ function backendValidation(type, res) {
       window.pywebview.api.remove_tmp_regional_screenshots();
     }
   }
+}
+
+function exportProcess(process) {
+  window.pywebview.api.export_process(process);
 }
 
 function delProcess(process) {
@@ -1806,7 +1875,7 @@ function refreshProcessDetail(msg = null, processName) {
     $("#processDetail .processModalPageTitle").html(`${processName}`);
     $.when(window.pywebview.api.load_process_detail(processName, msg)).then(processEvents => {
       $("#processEvents").empty();
-      var counter = 1;
+      var processCounter = 1;
       $.each(processEvents, function(i, event) {
         var row = `<div><div class='processBox'>`;
         $.each(event, function(i, step) {
@@ -1817,7 +1886,22 @@ function refreshProcessDetail(msg = null, processName) {
           }
           else if (i != "time") {
             row += `
-              ${i + ": " + step}<br />`;
+              ${(i.charAt(0).toUpperCase() + i.slice(1)).replace('_', " ")}: `;
+
+            if (!isNaN(parseFloat(step))) {
+              var positionCounter = 1;
+              step.forEach(element => {
+                row += `${Math.round(parseFloat(element))}`
+                if (positionCounter != step.length) {
+                  row += `, `;
+                }
+                positionCounter += 1
+              });
+              row += `<br />`;
+            }
+            else {
+              row += `${step}<br />`;
+            }
           }
         });
         row += `</p>
@@ -1830,7 +1914,7 @@ function refreshProcessDetail(msg = null, processName) {
         row += `<button id='stepDelBtn' class='btn' title='Delete'><i class='far fa-trash-alt fa-lg'></i></button>
           </div>`;
 
-        if (counter != processEvents.length) {
+        if (processCounter != processEvents.length) {
           row += `
             <div>
               <button id='bridgeBtn' class='btn' title="Add process">
@@ -1840,7 +1924,7 @@ function refreshProcessDetail(msg = null, processName) {
             </div></div>`;
         }
         $("#processEvents").append(row);
-        counter += 1
+        processCounter += 1
       });
     });
   }
@@ -1862,12 +1946,14 @@ window.onclick = function(event) {
     event.target == modal1 ||
     event.target == modal2 ||
     event.target == modal3 ||
-    event.target == modal4
+    event.target == modal4 ||
+    event.target == processDetail
   ) {
     modal1.style.display = "none";
     modal2.style.display = "none";
     modal3.style.display = "none";
     modal4.style.display = "none";
+    processDetail.style.display = "none";
   }
 };
 

@@ -15,6 +15,7 @@ html {
 }
 
 #refreshBtn,
+#importBtn,
 #recordBtn,
 #playBtn,
 #repeatBtn {
@@ -23,6 +24,10 @@ html {
 }
 
 #refreshBtn {
+  right: 16rem;
+}
+
+#importBtn {
   right: 12rem;
 }
 
