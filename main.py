@@ -567,6 +567,11 @@ class Api:
             if not os.path.exists(user_processes_path):
                 os.makedirs(user_processes_path)
 
+            # Create local directory for storing user's shareables' ZIP files
+            user_shareable_path = '{0}/shareable/{1}'.format(app_file_path, email)
+            if not os.path.exists(user_shareable_path):
+                os.makedirs(user_shareable_path)
+
             # Create local directory for storing user's processes' regional screenshots
             user_img_path = '{0}/img/{1}'.format(app_file_path, email)
             if not os.path.exists(user_img_path):
@@ -1462,10 +1467,10 @@ class Api:
 
     def export_process(self, process_name):
         try:
-            path = '{0}/processes/{1}/'.format(app_file_path, self.current_user_email)
+            process_path = '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, process_name)
             zip_path = '{0}/shareable/{1}/{2}'.format(app_file_path, self.current_user_email, process_name)
 
-            with open('{0}{1}.json'.format(path, process_name)) as f:
+            with open(process_path) as f:
                 events = json.load(f)
 
             shutil.make_archive(zip_path, format='zip', root_dir='process')
@@ -1475,9 +1480,7 @@ class Api:
                 if i != 0:
                     new_json.append(step)
 
-            with zipfile.ZipFile('{0}.zip'.format(zip_path), 'w',
-                            compression=zipfile.ZIP_DEFLATED,
-                            compresslevel=9) as zf:
+            with zipfile.ZipFile('{0}.zip'.format(zip_path), 'w') as zf:
                 for step in new_json:
                     if step['event_name'] != 'KeyboardEvent':
                         filename_prefix = str(step['time']).replace('.', '_')

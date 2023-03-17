@@ -994,7 +994,7 @@ $(window).on("pywebviewready", function() {
           .find("td:first")
           .html() +
         " to share?",
-      html: "Once it is done, you should be able to find the ZIP file under Chrono/shareable.",
+      html: "The exported process will be available in {home_directory}/Chrono/shareable/.",
       icon: "question",
       confirmButtonText: "Export",
       showCancelButton: true,
@@ -1663,7 +1663,7 @@ async function promptForKeyboardEventKey(changedEvent, processName, oldKey = nul
 async function promptForFileImport() {
   const {value: file} = await Swal.fire({
     title: "Import process?",
-    html: "Make sure the shareable ZIP file is in your Chrono folder. Then, choose that ZIP file to import.",
+    html: "Make sure the shareable ZIP file is in {home_directory}/Chrono/. Then, choose that ZIP file to import.",
     icon: "question",
     input: "file",
     showCancelButton: true,
