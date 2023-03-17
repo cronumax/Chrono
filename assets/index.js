@@ -1881,7 +1881,7 @@ function refreshProcessDetail(msg = null, processName) {
         $.each(event, function(i, step) {
           if (i == "event_name") {
             row += `
-              <h4 class="eventTitle">${step}</h4>
+              <h4 class="eventTitle">${step.substring(0, step.length - 5)} ${step.substring(step.length - 5)}</h4>
               <p class="eventInfo">`;
           }
           else if (i != "time") {
