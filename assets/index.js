@@ -1528,14 +1528,26 @@ function refreshProcessList(msg = null) {
         }
       });
       row +=
-        `<td><button id='scheduleBtn' class='btn' title='Schedule'><i class='far fa-clock fa-lg'></i></button>
-         <button id='detailBtn' class='btn' title='Detail'><i class='fa fa-list fa-lg'></i></button>
-         <button id='renameBtn' class='btn' title='Rename'><i class='far fa-edit fa-lg'></i></button>
-         <button id='shareBtn' class='btn' title='Share'><i class='fa fa-share-alt fa-lg'></i></button>`;
+        `<td><button id='scheduleBtn' class='btn'><i class='far fa-clock fa-lg'></i>
+           <span class="btnTooltip">Schedule</span>
+         </button>
+         <button id='detailBtn' class='btn'><i class='fa fa-list fa-lg'></i>
+          <span class="btnTooltip">Detail</span>
+         </button>
+         <button id='renameBtn' class='btn'><i class='far fa-edit fa-lg'></i>
+          <span class="btnTooltip">Rename</span>
+         </button>
+         <button id='shareBtn' class='btn'><i class='fa fa-share-alt fa-lg'></i>
+          <span class="btnTooltip">Share</span>
+         </button>`;
       if (process.location == 'Local [Missing detail file]') {
-        row += "<button id='delBtn' class='btn' title='Delete'><i class='far fa-trash-alt fa-lg' style='color:white'></i></button></td>";
+        row += `<button id='delBtn' class='btn'><i class='far fa-trash-alt fa-lg' style='color:white'></i>
+                  <span class="btnTooltip">Delete</span>
+                </button></td>`;
       } else {
-        row += "<button id='delBtn' class='btn' title='Delete'><i class='far fa-trash-alt fa-lg'></i></button></td>";
+        row += `<button id='delBtn' class='btn'><i class='far fa-trash-alt fa-lg'></i>
+                  <span class="btnTooltip">Delete</span>
+                </button></td>`;
       }
         row += "</tr>";
       $("#processList tbody").append(row);
@@ -1561,7 +1573,9 @@ function refreshSessionList(msg = null) {
       row += '<td style="display:none;">' + session.id + "</td>";
       row += "<td>" + session.location + "</td>";
       row +=
-        "<td><button id='logoutSpecificBtn' class='btn' title='Log Out'><i class='far fa-times-circle fa-lg'></i></button></td>";
+        `<td><button id='logoutSpecificBtn' class='btn'><i class='far fa-times-circle fa-lg'></i>
+          <span class="btnTooltip">Log Out</span>
+        </button></td>`;
       row += "</tr>";
       $("#sessionList tbody").append(row);
     });
@@ -1885,10 +1899,9 @@ function refreshProcessDetail(msg = null, processName) {
               <p class="eventInfo">`;
           }
           else if (i != "time") {
-            row += `
-              ${(i.charAt(0).toUpperCase() + i.slice(1)).replace('_', " ")}: `;
+            row += `${(i.charAt(0).toUpperCase() + i.slice(1)).replace('_', " ")}: `;
 
-            if (!isNaN(parseFloat(step))) {
+            if (!isNaN(parseFloat(step)) && i != 'key') {
               var positionCounter = 1;
               step.forEach(element => {
                 row += `${Math.round(parseFloat(element))}`
@@ -1909,17 +1922,22 @@ function refreshProcessDetail(msg = null, processName) {
         if (event["event_name"] == "KeyboardEvent") {
           row += `
           <p id="keyInfo" hidden>${event["key"]}</p>
-          <button id='editBtn' class='btn' title='Edit'><i class='far fa-edit fa-lg'></i></button>`;
+          <button id='editBtn' class='btn'><i class='far fa-edit fa-lg'></i>
+            <span class="btnTooltip">Edit</span>
+          </button>`;
         }
-        row += `<button id='stepDelBtn' class='btn' title='Delete'><i class='far fa-trash-alt fa-lg'></i></button>
+        row += `<button id='stepDelBtn' class='btn'><i class='far fa-trash-alt fa-lg'></i>
+              <span class="btnTooltip">Delete</span>
+            </button>
           </div>`;
 
         if (processCounter != processEvents.length) {
           row += `
             <div>
-              <button id='bridgeBtn' class='btn' title="Add process">
+              <button id='bridgeBtn' class='btn'>
                 <i class="fa fa-chevron-down fa-lg"></i>
                 <i class="fa fa-plus fa-lg"></i>
+                <span class="btnTooltip">Add process</span>
               </button>
             </div></div>`;
         }
@@ -1963,3 +1981,33 @@ window.onload = () => {
     sessionStorage.removeItem('newUser');
   }
 };
+
+var pressTimer;
+$('.btn').mouseup(function(){
+  clearTimeout(pressTimer);
+  // Clear timeout
+  this.children[1].style.visibility = "hidden";
+  return false;
+}).mousedown(function(){
+  // Set timeout
+  pressTimer = window.setTimeout(function() {
+    this.children[1].style.visibility = "visible";
+  },1000);
+  return false; 
+});
+
+
+var timeout;
+$('.btn').hover(
+  function() {
+      timeout = setTimeout(function(){
+          // do stuff on hover
+          this.children[1].style.visibility = "visible";
+      }, 2000); //2 seconds
+  },
+  function(){
+      clearTimeout(timeout); //cancel the timeout if they hover off
+      // do stuff when hover off
+      this.children[1].style.visibility = "hidden";
+  }
+);
