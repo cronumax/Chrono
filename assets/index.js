@@ -1986,12 +1986,13 @@ var pressTimer;
 $('.btn').mouseup(function(){
   clearTimeout(pressTimer);
   // Clear timeout
-  this.children[1].style.visibility = "hidden";
+  this.children[1].style.visibility = "hidden"
   return false;
 }).mousedown(function(){
   // Set timeout
+  var clicked_button = this
   pressTimer = window.setTimeout(function() {
-    this.children[1].style.visibility = "visible";
+    clicked_button.children[1].style.visibility = "visible"
   },1000);
   return false; 
 });
@@ -2000,14 +2001,15 @@ $('.btn').mouseup(function(){
 var timeout;
 $('.btn').hover(
   function() {
+      var clicked_button = this
       timeout = setTimeout(function(){
-          // do stuff on hover
-          this.children[1].style.visibility = "visible";
+        // do stuff on hover
+        clicked_button.children[1].style.visibility = "visible"
       }, 2000); //2 seconds
   },
   function(){
       clearTimeout(timeout); //cancel the timeout if they hover off
       // do stuff when hover off
-      this.children[1].style.visibility = "hidden";
+      this.children[1].style.visibility = "hidden"
   }
 );
