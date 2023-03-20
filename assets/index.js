@@ -992,7 +992,7 @@ $(window).on("pywebviewready", function() {
           .parent()
           .parent()
           .find("td:first")
-          .html(),
+          .html() + "?",
       html: "The exported process will be available in {home_directory}/Chrono/shareable/.",
       icon: "question",
       confirmButtonText: "Export",
@@ -1661,18 +1661,57 @@ async function promptForFileImport() {
   });
 
   if (file) {
-    window.pywebview.api.import_process(file.name).then(res => {
-      backendValidation("process", res);
+    const result = await Swal.fire({
+      title: "Name for the imported " + file.name.substring(0, file.name.length - 4) + " process?",
+      icon: "question",
+      input: "text",
+      inputAttributes: {
+        autocapitalize: "off"
+      },
+      showCancelButton: true,
+      confirmButtonText: "Confirm",
+      allowOutsideClick: () => !Swal.isLoading(),
+      inputValidator: name => {
+        return new Promise(resolve => {
+          // Frontend validation
+          if (!name) {
+            resolve("Process name cannot be empty.");
+          } else if (!/^\w+( \w+)*$/.test(name)) {
+            resolve(
+              "Process name can only contain alphanumeric (a-z, A-Z, 0-9) or underscore (_), and only one space between words."
+            );
+          } else {
+            resolve();
+          }
+        });
+      }
     });
+  
+    if (result.isConfirmed) {
+      window.pywebview.api.import_process(result.value, file.name.substring(0, file.name.length - 4)).then(res => {
+        backendValidation("importexport", res);
+      });
+    }
   }
 }
 
 function backendValidation(type, res) {
   if (res.status) {
-    if (type == "process") {
-      refreshProcessList();
-    } else {
-      refreshSessionList();
+    switch(type) {
+      case "process":
+        refreshProcessList();
+        break;
+      case "importexport":
+        refreshProcessList();
+        Swal.fire({
+          title: "Success",
+          html: res.msg,
+          icon: "success",
+          confirmButtonText: "Ok"
+        });
+        break;
+      default:
+        refreshSessionList();
     }
   } else {
     Swal.fire({
@@ -1688,7 +1727,9 @@ function backendValidation(type, res) {
 }
 
 function exportProcess(process) {
-  window.pywebview.api.export_process(process);
+  window.pywebview.api.export_process(process).then(res => {
+    backendValidation("importexport", res);
+  });
 }
 
 function delProcess(process) {

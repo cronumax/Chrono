@@ -1505,7 +1505,10 @@ class Api:
             logger.info('Exported process {0} for user {1}'.format(
                 process_name, events[0]['owner']))
 
-            return
+            return {
+                'status': True,
+                'msg': 'Exported {0} as a shareable ZIP file'.format(process_name)
+            }
         except Exception as e:
             if (os.path.isfile('{0}.json'.format(zip_path))):
                 os.remove('{0}.json'.format(zip_path))
@@ -1518,15 +1521,31 @@ class Api:
 
             self.send_exception_email(msg)
 
-    def import_process(self, file_name):
+            return {
+                'status': False,
+                'msg': 'Failed to export process:{0}'.format(str(e))
+            }
+
+    def import_process(self, process_name, import_name):
         try:
-            process_name = file_name[0:-4]
-            import_file = '{0}/{1}'.format(app_file_path, file_name)
+            import_file = '{0}/{1}.zip'.format(app_file_path, import_name)
             json_path = '{0}/processes/{1}/'.format(app_file_path, self.current_user_email)
             img_path = '{0}/img/{1}/'.format(app_file_path, self.current_user_email)
 
+            # Check local existence
+            new_path = '{0}/processes/{1}/{2}.json'.format(
+                app_file_path, self.current_user_email, process_name)
+            if pathlib.Path(new_path).exists():
+                logger.error('Process {0} for user {1} already exists locally.'.format(
+                    process_name, self.current_user_email))
+
+                return {
+                    'status': False,
+                    'msg': 'Process {0} already exists locally.'.format(process_name)
+                }
+
             with zipfile.ZipFile(import_file) as zf:
-                with zf.open('process/json/{0}.json'.format(process_name)) as z, open('{0}{1}.json'.format(json_path, process_name), 'wb') as f:
+                with zf.open('process/json/{0}.json'.format(import_name)) as z, open('{0}{1}.json'.format(json_path, process_name), 'wb') as f:
                     shutil.copyfileobj(z, f)
                 #zf.extract('process/json/{0}.json'.format(process_name), json_path)
 
@@ -1556,14 +1575,16 @@ class Api:
                                 shutil.copyfileobj(z, f)
                         #zf.extract(img, img_path)
 
-                os.remove(import_file)
-                logger.info('Imported process {0} for user {1}'.format(process_name, modified_events[0]['owner']))
+                logger.info('Imported process {0} as {1} for user {2}'.format(import_name, process_name, modified_events[0]['owner']))
             else:
                 os.remove('{0}{1}.json'.format(json_path, process_name))
 
                 logger.error(response['msg'])
 
-            return response
+            return {
+                'status': True,
+                'msg': 'Imported process {0} as {1}.'.format(import_name, process_name)
+            }
         except Exception as e:
             if (os.path.isfile('{0}{1}.json'.format(json_path, process_name))):
                 os.remove('{0}{1}.json'.format(json_path, process_name))
@@ -1573,6 +1594,11 @@ class Api:
             logger.error(msg)
 
             self.send_exception_email(msg)
+
+            return {
+                'status': False,
+                'msg': 'Failed to import process:{0}'.format(str(e))
+            }
 
     def logout_remote_session(self, session):
         try:
