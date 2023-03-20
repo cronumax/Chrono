@@ -992,7 +992,7 @@ $(window).on("pywebviewready", function() {
           .parent()
           .parent()
           .find("td:first")
-          .html(),
+          .html() + "?",
       html: "The exported process will be available in {home_directory}/Chrono/shareable/.",
       icon: "question",
       confirmButtonText: "Export",
