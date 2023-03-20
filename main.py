@@ -1473,7 +1473,7 @@ class Api:
             with open(process_path) as f:
                 events = json.load(f)
 
-            shutil.make_archive(zip_path, format='zip', root_dir='process')
+            shutil.make_archive(zip_path, format='zip')
 
             new_json = []
             for i, step in enumerate(events):
@@ -1487,9 +1487,9 @@ class Api:
                         path_prefix = '{0}/img/{1}/{2}'.format(app_file_path,
                                                             self.current_user_email, filename_prefix)
                         if (os.path.isfile('{0}_fine.png'.format(path_prefix))):
-                            zf.write('{0}_fine.png'.format(path_prefix), arcname='process/img/{0}_fine.png'.format(path_prefix))
+                            zf.write('{0}_fine.png'.format(path_prefix), arcname='process/img/{0}_fine.png'.format(filename_prefix))
                         if (os.path.isfile('{0}_crude.png'.format(path_prefix))):
-                            zf.write('{0}_crude.png'.format(path_prefix), arcname='process/img/{0}_crude.png'.format(path_prefix))
+                            zf.write('{0}_crude.png'.format(path_prefix), arcname='process/img/{0}_crude.png'.format(filename_prefix))
                 
                 with open('{0}.json'.format(zip_path), 'w') as f:
                     json.dump(new_json, f)
@@ -1504,8 +1504,10 @@ class Api:
 
             return
         except Exception as e:
-            os.remove('{0}.json'.format(zip_path))
-            os.remove('{0}.zip'.format(zip_path))
+            if (os.path.isfile('{0}.json'.format(zip_path))):
+                os.remove('{0}.json'.format(zip_path))
+            if (os.path.isfile('{0}.zip'.format(zip_path))):
+                os.remove('{0}.zip'.format(zip_path))
 
             msg = 'export_process() error: {0}'.format(str(e))
 
@@ -1560,7 +1562,8 @@ class Api:
 
             return response
         except Exception as e:
-            os.remove('{0}{1}.json'.format(json_path, process_name))
+            if (os.path.isfile('{0}{1}.json'.format(json_path, process_name))):
+                os.remove('{0}{1}.json'.format(json_path, process_name))
 
             msg = 'import_process() error: {0}'.format(str(e))
 
