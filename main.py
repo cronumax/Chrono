@@ -1473,7 +1473,10 @@ class Api:
             with open(process_path) as f:
                 events = json.load(f)
 
-            shutil.make_archive(zip_path, format='zip')
+            if platform.system() == 'Windows':
+                shutil.make_archive(zip_path, format='zip')
+            else:
+                shutil.make_archive(zip_path, format='zip', root_dir='process')
 
             new_json = []
             for i, step in enumerate(events):
