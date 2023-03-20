@@ -992,8 +992,7 @@ $(window).on("pywebviewready", function() {
           .parent()
           .parent()
           .find("td:first")
-          .html() +
-        " to share?",
+          .html(),
       html: "The exported process will be available in {home_directory}/Chrono/shareable/.",
       icon: "question",
       confirmButtonText: "Export",
@@ -1528,26 +1527,14 @@ function refreshProcessList(msg = null) {
         }
       });
       row +=
-        `<td><button id='scheduleBtn' class='btn'><i class='far fa-clock fa-lg'></i>
-           <span class="btnTooltip">Schedule</span>
-         </button>
-         <button id='detailBtn' class='btn'><i class='fa fa-list fa-lg'></i>
-          <span class="btnTooltip">Detail</span>
-         </button>
-         <button id='renameBtn' class='btn'><i class='far fa-edit fa-lg'></i>
-          <span class="btnTooltip">Rename</span>
-         </button>
-         <button id='shareBtn' class='btn'><i class='fa fa-share-alt fa-lg'></i>
-          <span class="btnTooltip">Share</span>
-         </button>`;
+        `<td><button id='scheduleBtn' class='btn'><i class='far fa-clock fa-lg'></i></button>
+         <button id='detailBtn' class='btn'><i class='fa fa-list fa-lg'></i></button>
+         <button id='renameBtn' class='btn'><i class='far fa-edit fa-lg'></i></button>
+         <button id='shareBtn' class='btn'><i class='fa fa-share-alt fa-lg'></i></button>`;
       if (process.location == 'Local [Missing detail file]') {
-        row += `<button id='delBtn' class='btn'><i class='far fa-trash-alt fa-lg' style='color:white'></i>
-                  <span class="btnTooltip">Delete</span>
-                </button></td>`;
+        row += `<button id='delBtn' class='btn'><i class='far fa-trash-alt fa-lg' style='color:white'></i></button></td>`;
       } else {
-        row += `<button id='delBtn' class='btn'><i class='far fa-trash-alt fa-lg'></i>
-                  <span class="btnTooltip">Delete</span>
-                </button></td>`;
+        row += `<button id='delBtn' class='btn'><i class='far fa-trash-alt fa-lg'></i></button></td>`;
       }
         row += "</tr>";
       $("#processList tbody").append(row);
@@ -1573,9 +1560,7 @@ function refreshSessionList(msg = null) {
       row += '<td style="display:none;">' + session.id + "</td>";
       row += "<td>" + session.location + "</td>";
       row +=
-        `<td><button id='logoutSpecificBtn' class='btn'><i class='far fa-times-circle fa-lg'></i>
-          <span class="btnTooltip">Log Out</span>
-        </button></td>`;
+        `<td><button id='logoutSpecificBtn' class='btn'><i class='far fa-times-circle fa-lg'></i></button></td>`;
       row += "</tr>";
       $("#sessionList tbody").append(row);
     });
@@ -1922,13 +1907,9 @@ function refreshProcessDetail(msg = null, processName) {
         if (event["event_name"] == "KeyboardEvent") {
           row += `
           <p id="keyInfo" hidden>${event["key"]}</p>
-          <button id='editBtn' class='btn'><i class='far fa-edit fa-lg'></i>
-            <span class="btnTooltip">Edit</span>
-          </button>`;
+          <button id='editBtn' class='btn'><i class='far fa-edit fa-lg'></i></button>`;
         }
-        row += `<button id='stepDelBtn' class='btn'><i class='far fa-trash-alt fa-lg'></i>
-              <span class="btnTooltip">Delete</span>
-            </button>
+        row += `<button id='stepDelBtn' class='btn'><i class='far fa-trash-alt fa-lg'></i></button>
           </div>`;
 
         if (processCounter != processEvents.length) {
@@ -1937,7 +1918,6 @@ function refreshProcessDetail(msg = null, processName) {
               <button id='bridgeBtn' class='btn'>
                 <i class="fa fa-chevron-down fa-lg"></i>
                 <i class="fa fa-plus fa-lg"></i>
-                <span class="btnTooltip">Add process</span>
               </button>
             </div></div>`;
         }
@@ -1981,35 +1961,3 @@ window.onload = () => {
     sessionStorage.removeItem('newUser');
   }
 };
-
-var pressTimer;
-$('.btn').mouseup(function(){
-  clearTimeout(pressTimer);
-  // Clear timeout
-  this.children[1].style.visibility = "hidden"
-  return false;
-}).mousedown(function(){
-  // Set timeout
-  var clicked_button = this
-  pressTimer = window.setTimeout(function() {
-    clicked_button.children[1].style.visibility = "visible"
-  },1000);
-  return false; 
-});
-
-
-var timeout;
-$('.btn').hover(
-  function() {
-      var clicked_button = this
-      timeout = setTimeout(function(){
-        // do stuff on hover
-        clicked_button.children[1].style.visibility = "visible"
-      }, 2000); //2 seconds
-  },
-  function(){
-      clearTimeout(timeout); //cancel the timeout if they hover off
-      // do stuff when hover off
-      this.children[1].style.visibility = "hidden"
-  }
-);
