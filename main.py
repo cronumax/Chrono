@@ -1532,6 +1532,10 @@ class Api:
             json_path = '{0}/processes/{1}/'.format(app_file_path, self.current_user_email)
             img_path = '{0}/img/{1}/'.format(app_file_path, self.current_user_email)
 
+            # Wait until imported file is copied to Downloads
+            while not (os.path.isfile(import_file)):
+                sleep(1)
+
             # Check local existence
             new_path = '{0}/processes/{1}/{2}.json'.format(
                 app_file_path, self.current_user_email, process_name)
@@ -1539,14 +1543,30 @@ class Api:
                 logger.error('Process {0} for user {1} already exists locally.'.format(
                     process_name, self.current_user_email))
 
+                os.remove(import_file)
                 return {
                     'status': False,
                     'msg': 'Process {0} already exists locally.'.format(process_name)
                 }
 
-            # Wait until imported file is copied to Downloads
-            while not (os.path.isfile(import_file)):
-                sleep(1)
+            # Check entire existence
+            res = post(
+                self.api_url + 'retrieve-process', {'email': self.current_user_email, 'id': self.id, 'code': self.access_token['code']}).json()
+
+            if res['status']:
+                logger.info(res['msg'])
+
+                duplicate_name = False
+                for p in res['process_list']:
+                    if p['name'] == process_name:
+                        duplicate_name = True
+                
+                if duplicate_name:
+                    os.remove(import_file)
+                    return {
+                        'status': False,
+                        'msg': 'Process {0} for user {1} already exists.'.format(process_name, self.current_user_email)
+                    }
 
             with zipfile.ZipFile(import_file) as zf:
                 with zf.open('process/json/{0}.json'.format(import_name)) as z, open('{0}{1}.json'.format(json_path, process_name), 'wb') as f:

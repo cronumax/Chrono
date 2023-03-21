@@ -1705,17 +1705,15 @@ async function promptForFileImport() {
 function backendValidation(type, res) {
   if (res.status) {
     switch(type) {
-      case "process":
-        refreshProcessList();
-        break;
       case "importexport":
-        refreshProcessList();
         Swal.fire({
           title: "Success",
           html: res.msg,
           icon: "success",
           confirmButtonText: "Ok"
         });
+      case "process":
+        refreshProcessList();
         break;
       default:
         refreshSessionList();
