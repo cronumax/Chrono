@@ -1276,7 +1276,8 @@ class Api:
 
     def add_step(self, previous_event, process_name):
         try:
-            path = '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, process_name)
+            path = '{0}/processes/{1}/{2}.json'.format(app_file_path,
+                                                       self.current_user_email, process_name)
 
             with open(path) as f:
                 old_events = json.load(f)
@@ -1285,7 +1286,7 @@ class Api:
                 process_name, old_events[0]['owner']))
 
             new_events = sorted(self.kb_events + self.m_events,
-                            key=lambda i: i['time'])[:-2]
+                                key=lambda i: i['time'])[:-2]
 
             events = []
             total_interval = -1
@@ -1303,8 +1304,9 @@ class Api:
                         logger.info('Added step {0} to process {1} for user {1}'.format(
                             new_step, process_name, old_events[0]['owner']))
                         if i < (len(new_events) - 1):
-                            total_interval += total_interval + (new_events[i+1]['time'] - new_events[i]['time'])
-                    
+                            total_interval += total_interval + \
+                                (new_events[i + 1]['time'] - new_events[i]['time'])
+
             with open(path, 'w') as f:
                 json.dump(events, f)
                 logger.info('Save added step of process {0} for user {1}'.format(
@@ -1320,14 +1322,15 @@ class Api:
 
     def del_step(self, deleted_event, process_name):
         try:
-            path = '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, process_name)
+            path = '{0}/processes/{1}/{2}.json'.format(app_file_path,
+                                                       self.current_user_email, process_name)
 
             with open(path) as f:
                 events = json.load(f)
 
             logger.info('Process {0} for user {1} loaded'.format(
                 process_name, events[0]['owner']))
-            
+
             new_events = []
             for step in events:
                 if str(step).replace(" ", "") != str(deleted_event.replace("\"", "'")):
@@ -1335,7 +1338,7 @@ class Api:
                 else:
                     logger.info('Step {0} in process {1} for user {1} deleted'.format(
                         step, process_name, events[0]['owner']))
-                    
+
             with open(path, 'w') as f:
                 json.dump(new_events, f)
                 logger.info('Save new steps of process {0} for user {1}'.format(
@@ -1351,14 +1354,15 @@ class Api:
 
     def edit_step(self, changed_event, process_name, new_key):
         try:
-            path = '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, process_name)
+            path = '{0}/processes/{1}/{2}.json'.format(app_file_path,
+                                                       self.current_user_email, process_name)
 
             with open(path) as f:
                 events = json.load(f)
 
             logger.info('Process {0} for user {1} loaded'.format(
                 process_name, events[0]['owner']))
-            
+
             new_events = []
             for step in events:
                 if str(step).replace(" ", "") != str(changed_event.replace("\"", "'")):
@@ -1368,7 +1372,7 @@ class Api:
                     new_events.append(step)
                     logger.info('Step {0} in process {1} for user {1} has been edited'.format(
                         step, process_name, events[0]['owner']))
-                    
+
             with open(path, 'w') as f:
                 json.dump(new_events, f)
                 logger.info('Save new edited step of process {0} for user {1}'.format(
@@ -1467,8 +1471,10 @@ class Api:
 
     def export_process(self, process_name):
         try:
-            process_path = '{0}/processes/{1}/{2}.json'.format(app_file_path, self.current_user_email, process_name)
-            zip_path = '{0}/shareable/{1}/{2}'.format(app_file_path, self.current_user_email, process_name)
+            process_path = '{0}/processes/{1}/{2}.json'.format(
+                app_file_path, self.current_user_email, process_name)
+            zip_path = '{0}/shareable/{1}/{2}'.format(app_file_path,
+                                                      self.current_user_email, process_name)
 
             with open(process_path) as f:
                 events = json.load(f)
@@ -1488,18 +1494,21 @@ class Api:
                     if step['event_name'] != 'KeyboardEvent':
                         filename_prefix = str(step['time']).replace('.', '_')
                         path_prefix = '{0}/img/{1}/{2}'.format(app_file_path,
-                                                            self.current_user_email, filename_prefix)
+                                                               self.current_user_email, filename_prefix)
                         if (os.path.isfile('{0}_fine.png'.format(path_prefix))):
-                            zf.write('{0}_fine.png'.format(path_prefix), arcname='process/img/{0}_fine.png'.format(filename_prefix))
+                            zf.write('{0}_fine.png'.format(path_prefix),
+                                     arcname='process/img/{0}_fine.png'.format(filename_prefix))
                         if (os.path.isfile('{0}_crude.png'.format(path_prefix))):
-                            zf.write('{0}_crude.png'.format(path_prefix), arcname='process/img/{0}_crude.png'.format(filename_prefix))
-                
+                            zf.write('{0}_crude.png'.format(path_prefix),
+                                     arcname='process/img/{0}_crude.png'.format(filename_prefix))
+
                 with open('{0}.json'.format(zip_path), 'w') as f:
                     json.dump(new_json, f)
 
-                #with zf.open('process/json/{0}.json'.format(process_name), 'w') as f:
+                # with zf.open('process/json/{0}.json'.format(process_name), 'w') as f:
                 #    json.dump(new_json, f)
-                zf.write('{0}.json'.format(zip_path), arcname='process/json/{0}.json'.format(process_name))
+                zf.write('{0}.json'.format(zip_path),
+                         arcname='process/json/{0}.json'.format(process_name))
                 os.remove('{0}.json'.format(zip_path))
 
             logger.info('Exported process {0} for user {1}'.format(
@@ -1526,15 +1535,19 @@ class Api:
                 'msg': 'Failed to export process {0}.'.format(process_name)
             }
 
-    def import_process(self, process_name, import_name):
+    def import_process(self, process_name, import_process):
         try:
-            import_file = '{0}/Downloads/imported_copy_{1}.zip'.format(app_file_path[0:-7], import_name)
+            # Save imported process data to a tmp file
+            with open('{0}/tmp_import_process.zip'.format(app_file_path), 'w') as f:
+                f.write(import_process)
+
+            import_file = '{0}/tmp_import_process.zip'.format(app_file_path)
             json_path = '{0}/processes/{1}/'.format(app_file_path, self.current_user_email)
             img_path = '{0}/img/{1}/'.format(app_file_path, self.current_user_email)
 
             # Wait until imported file is copied to Downloads
-            while not (os.path.isfile(import_file)):
-                sleep(1)
+            # while not (os.path.isfile(import_file)):
+            #     sleep(1)
 
             # Check local existence
             new_path = '{0}/processes/{1}/{2}.json'.format(
@@ -1560,7 +1573,7 @@ class Api:
                 for p in res['process_list']:
                     if p['name'] == process_name:
                         duplicate_name = True
-                
+
                 if duplicate_name:
                     os.remove(import_file)
                     return {
@@ -1575,7 +1588,7 @@ class Api:
 
             with open('{0}{1}.json'.format(json_path, process_name)) as f:
                 events = json.load(f)
-            
+
             modified_events = []
             modified_events.append({'owner': self.current_user_email})
             for step in events:
@@ -1599,7 +1612,8 @@ class Api:
                                 shutil.copyfileobj(z, f)
                         #zf.extract(img, img_path)
 
-                logger.info('Imported process {0} as {1} for user {2}'.format(import_name, process_name, modified_events[0]['owner']))
+                logger.info('Imported process {0} as {1} for user {2}'.format(
+                    import_name, process_name, modified_events[0]['owner']))
             else:
                 os.remove('{0}{1}.json'.format(json_path, process_name))
 

@@ -1012,11 +1012,11 @@ $(window).on("pywebviewready", function() {
   });
 
   $("#processList tbody").on("click", "#delBtn", function() {
-    if (	
-      $(this)	
-        .parent()	
-        .parent()	
-        .hasClass("localProcess")	
+    if (
+      $(this)
+        .parent()
+        .parent()
+        .hasClass("localProcess")
     ) {
       Swal.fire({
         title:
@@ -1187,7 +1187,7 @@ $(window).on("pywebviewready", function() {
         .find('.processBox')
         .find("#stepInfo")
         .html();
-    var processName =           
+    var processName =
       $(this)
         .parent()
         .parent()
@@ -1658,9 +1658,11 @@ async function promptForFileImport() {
       'accept': '.zip, .rar, .7zip',
       'required': 'true'
     }
-  });
+  })
 
   if (file) {
+    const reader = new FileReader()
+
     const result = await Swal.fire({
       title: "Name for the imported " + file.name.substring(0, file.name.length - 4) + " process?",
       icon: "question",
@@ -1685,19 +1687,16 @@ async function promptForFileImport() {
           }
         });
       }
-    });
-  
-    if (result.isConfirmed) {
-      var url = URL.createObjectURL(file);
-      var anchor = document.getElementById("importCopyDL");
-      anchor.href = url;
-      anchor.download = "imported_copy_" + file.name;
-      anchor.click();
-      URL.revokeObjectURL(url);
+    })
 
-      window.pywebview.api.import_process(result.value, file.name.substring(0, file.name.length - 4)).then(res => {
-        backendValidation("importexport", res);
-      });
+    if (result.isConfirmed) {
+      reader.onload = (e) => {
+        window.pywebview.api.import_process(result.value, e.target.result).then(res => {
+          backendValidation("importexport", res)
+        })
+      }
+      reader.readAsDataURL(file)
+
     }
   }
 }
