@@ -1648,7 +1648,7 @@ async function promptForKeyboardEventKey(changedEvent, processName, oldKey = nul
 async function promptForFileImport() {
   const {value: file} = await Swal.fire({
     title: "Import process?",
-    html: "Make sure the shareable ZIP file is in {home_directory}/Chrono/. Then, choose that ZIP file to import.",
+    html: "Choose the shareable Chrono process ZIP file to import.",
     icon: "question",
     input: "file",
     showCancelButton: true,
@@ -1688,6 +1688,13 @@ async function promptForFileImport() {
     });
   
     if (result.isConfirmed) {
+      var url = URL.createObjectURL(file);
+      var anchor = document.getElementById("importCopyDL");
+      anchor.href = url;
+      anchor.download = "imported_copy_" + file.name;
+      anchor.click();
+      URL.revokeObjectURL(url);
+
       window.pywebview.api.import_process(result.value, file.name.substring(0, file.name.length - 4)).then(res => {
         backendValidation("importexport", res);
       });

@@ -1523,12 +1523,12 @@ class Api:
 
             return {
                 'status': False,
-                'msg': 'Failed to export process:{0}'.format(str(e))
+                'msg': 'Failed to export process {0}.'.format(process_name)
             }
 
     def import_process(self, process_name, import_name):
         try:
-            import_file = '{0}/{1}.zip'.format(app_file_path, import_name)
+            import_file = '{0}/Downloads/imported_copy_{1}.zip'.format(app_file_path[0:-7], import_name)
             json_path = '{0}/processes/{1}/'.format(app_file_path, self.current_user_email)
             img_path = '{0}/img/{1}/'.format(app_file_path, self.current_user_email)
 
@@ -1543,6 +1543,10 @@ class Api:
                     'status': False,
                     'msg': 'Process {0} already exists locally.'.format(process_name)
                 }
+
+            # Wait until imported file is copied to Downloads
+            while not (os.path.isfile(import_file)):
+                sleep(1)
 
             with zipfile.ZipFile(import_file) as zf:
                 with zf.open('process/json/{0}.json'.format(import_name)) as z, open('{0}{1}.json'.format(json_path, process_name), 'wb') as f:
@@ -1581,11 +1585,14 @@ class Api:
 
                 logger.error(response['msg'])
 
+            os.remove(import_file)
             return {
                 'status': True,
                 'msg': 'Imported process {0} as {1}.'.format(import_name, process_name)
             }
         except Exception as e:
+            if (os.path.isfile(import_file)):
+                os.remove(import_file)
             if (os.path.isfile('{0}{1}.json'.format(json_path, process_name))):
                 os.remove('{0}{1}.json'.format(json_path, process_name))
 
@@ -1597,7 +1604,7 @@ class Api:
 
             return {
                 'status': False,
-                'msg': 'Failed to import process:{0}'.format(str(e))
+                'msg': 'Failed to import process {0} as {1}.'.format(import_name, process_name)
             }
 
     def logout_remote_session(self, session):
