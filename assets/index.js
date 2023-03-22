@@ -1690,9 +1690,9 @@ async function promptForFileImport() {
     })
 
     if (result.isConfirmed) {
-      reader.onload = (e) => {
+      reader.onload = e => {
         window.pywebview.api.import_process(result.value, file.name.substring(0, file.name.length - 4), e.target.result).then(res => {
-          backendValidation("importexport", res)
+          backendValidation("import_or_export", res)
         })
       }
       reader.readAsDataURL(file)
@@ -1704,7 +1704,7 @@ async function promptForFileImport() {
 function backendValidation(type, res) {
   if (res.status) {
     switch(type) {
-      case "importexport":
+      case "import_or_export":
         Swal.fire({
           title: "Success",
           html: res.msg,
@@ -1732,7 +1732,7 @@ function backendValidation(type, res) {
 
 function exportProcess(process) {
   window.pywebview.api.export_process(process).then(res => {
-    backendValidation("importexport", res);
+    backendValidation("import_or_export", res);
   });
 }
 
