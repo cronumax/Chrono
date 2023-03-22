@@ -132,9 +132,9 @@ $(window).on("pywebviewready", function() {
   $("#processList tbody").on("click", "#scheduleBtn", function() {
     if (
       $(this)
-        .parent()
-        .parent()
-        .hasClass("disabled")
+      .parent()
+      .parent()
+      .hasClass("disabled")
     ) {
       return;
     }
@@ -177,8 +177,7 @@ $(window).on("pywebviewready", function() {
       Swal.fire({
         title: "Schedule replay",
         icon: "question",
-        html:
-          "<p>Date & time</p><input id='datetimepicker' class='swal2-input'>",
+        html: "<p>Date & time</p><input id='datetimepicker' class='swal2-input'>",
         width: "42rem",
         didOpen: function() {
           $("#datetimepicker").datetimepicker({
@@ -210,8 +209,7 @@ $(window).on("pywebviewready", function() {
           Swal.fire({
             title: "Repeat",
             icon: "question",
-            html:
-              "<select id='predefinedRecurrence' data-placeholder='Repeat'></select>",
+            html: "<select id='predefinedRecurrence' data-placeholder='Repeat'></select>",
             didOpen: function() {
               var predefinedRecurrences = {
                 immediate: "Immediately",
@@ -266,8 +264,7 @@ $(window).on("pywebviewready", function() {
               Swal.fire({
                 title: "Custom",
                 icon: "question",
-                html:
-                  "<p>Every</p><select id='minIntervalNum' data-placeholder='Interval number'></select><select id='hrIntervalNum' data-placeholder='Interval number'></select><select id='dayIntervalNum' data-placeholder='Interval number'></select><select id='wkIntervalNum' data-placeholder='Interval number'></select><select id='moIntervalNum' data-placeholder='Interval number'></select><select id='yrIntervalNum' data-placeholder='Interval number'></select><select id='intervalUnit' data-placeholder='Interval unit'></select><select id='wkSettings' data-placeholder='Repeat on'></select><div class='moSettings'><input type='radio' name='moSetting' value='sameDayEachMo' id='sameDayEachMo' checked><label for='sameDayEachMo'>Same day each month</label><input type='radio' name='moSetting' value='sameDayOfWkEachMo' id='sameDayOfWkEachMo'><label for='sameDayOfWkEachMo'>Every </label></div><select id='end' data-placeholder='Ends'></select><input id='datepicker' class='swal2-input'><input id='OccurrenceNum' type='text' class='form-control'>",
+                html: "<p>Every</p><select id='minIntervalNum' data-placeholder='Interval number'></select><select id='hrIntervalNum' data-placeholder='Interval number'></select><select id='dayIntervalNum' data-placeholder='Interval number'></select><select id='wkIntervalNum' data-placeholder='Interval number'></select><select id='moIntervalNum' data-placeholder='Interval number'></select><select id='yrIntervalNum' data-placeholder='Interval number'></select><select id='intervalUnit' data-placeholder='Interval unit'></select><select id='wkSettings' data-placeholder='Repeat on'></select><div class='moSettings'><input type='radio' name='moSetting' value='sameDayEachMo' id='sameDayEachMo' checked><label for='sameDayEachMo'>Same day each month</label><input type='radio' name='moSetting' value='sameDayOfWkEachMo' id='sameDayOfWkEachMo'><label for='sameDayOfWkEachMo'>Every </label></div><select id='end' data-placeholder='Ends'></select><input id='datepicker' class='swal2-input'><input id='OccurrenceNum' type='text' class='form-control'>",
                 didOpen: function() {
                   var intervalUnits = {
                     min: "minute",
@@ -367,8 +364,8 @@ $(window).on("pywebviewready", function() {
                   $("#wkSettings option:first").attr("selected", true);
                   var d = $(
                     "#wkSettings option:eq(" +
-                      new Date().getDay().toString() +
-                      ")"
+                    new Date().getDay().toString() +
+                    ")"
                   ).text();
                   $("#end option:first").attr("selected", true);
 
@@ -559,19 +556,19 @@ $(window).on("pywebviewready", function() {
                     if (
                       $("#minIntervalNum").val() === "1" &&
                       $("#awselect_intervalUnit .current_value")
-                        .text()
-                        .slice(-1) === "s"
+                      .text()
+                      .slice(-1) === "s"
                     ) {
                       $("#awselect_intervalUnit .current_value").text(
                         $("#awselect_intervalUnit .current_value")
-                          .text()
-                          .slice(0, -1)
+                        .text()
+                        .slice(0, -1)
                       );
                     } else if (
                       $("#minIntervalNum").val() !== "1" &&
                       $("#awselect_intervalUnit .current_value")
-                        .text()
-                        .slice(-1) !== "s"
+                      .text()
+                      .slice(-1) !== "s"
                     ) {
                       $("#awselect_intervalUnit .current_value").text(
                         $("#awselect_intervalUnit .current_value").text() + "s"
@@ -582,19 +579,19 @@ $(window).on("pywebviewready", function() {
                     if (
                       $("#hrIntervalNum").val() === "1" &&
                       $("#awselect_intervalUnit .current_value")
-                        .text()
-                        .slice(-1) === "s"
+                      .text()
+                      .slice(-1) === "s"
                     ) {
                       $("#awselect_intervalUnit .current_value").text(
                         $("#awselect_intervalUnit .current_value")
-                          .text()
-                          .slice(0, -1)
+                        .text()
+                        .slice(0, -1)
                       );
                     } else if (
                       $("#hrIntervalNum").val() !== "1" &&
                       $("#awselect_intervalUnit .current_value")
-                        .text()
-                        .slice(-1) !== "s"
+                      .text()
+                      .slice(-1) !== "s"
                     ) {
                       $("#awselect_intervalUnit .current_value").text(
                         $("#awselect_intervalUnit .current_value").text() + "s"
@@ -605,19 +602,19 @@ $(window).on("pywebviewready", function() {
                     if (
                       $("#dayIntervalNum").val() === "1" &&
                       $("#awselect_intervalUnit .current_value")
-                        .text()
-                        .slice(-1) === "s"
+                      .text()
+                      .slice(-1) === "s"
                     ) {
                       $("#awselect_intervalUnit .current_value").text(
                         $("#awselect_intervalUnit .current_value")
-                          .text()
-                          .slice(0, -1)
+                        .text()
+                        .slice(0, -1)
                       );
                     } else if (
                       $("#dayIntervalNum").val() !== "1" &&
                       $("#awselect_intervalUnit .current_value")
-                        .text()
-                        .slice(-1) !== "s"
+                      .text()
+                      .slice(-1) !== "s"
                     ) {
                       $("#awselect_intervalUnit .current_value").text(
                         $("#awselect_intervalUnit .current_value").text() + "s"
@@ -628,19 +625,19 @@ $(window).on("pywebviewready", function() {
                     if (
                       $("#wkIntervalNum").val() === "1" &&
                       $("#awselect_intervalUnit .current_value")
-                        .text()
-                        .slice(-1) === "s"
+                      .text()
+                      .slice(-1) === "s"
                     ) {
                       $("#awselect_intervalUnit .current_value").text(
                         $("#awselect_intervalUnit .current_value")
-                          .text()
-                          .slice(0, -1)
+                        .text()
+                        .slice(0, -1)
                       );
                     } else if (
                       $("#wkIntervalNum").val() !== "1" &&
                       $("#awselect_intervalUnit .current_value")
-                        .text()
-                        .slice(-1) !== "s"
+                      .text()
+                      .slice(-1) !== "s"
                     ) {
                       $("#awselect_intervalUnit .current_value").text(
                         $("#awselect_intervalUnit .current_value").text() + "s"
@@ -651,19 +648,19 @@ $(window).on("pywebviewready", function() {
                     if (
                       $("#moIntervalNum").val() === "1" &&
                       $("#awselect_intervalUnit .current_value")
-                        .text()
-                        .slice(-1) === "s"
+                      .text()
+                      .slice(-1) === "s"
                     ) {
                       $("#awselect_intervalUnit .current_value").text(
                         $("#awselect_intervalUnit .current_value")
-                          .text()
-                          .slice(0, -1)
+                        .text()
+                        .slice(0, -1)
                       );
                     } else if (
                       $("#moIntervalNum").val() !== "1" &&
                       $("#awselect_intervalUnit .current_value")
-                        .text()
-                        .slice(-1) !== "s"
+                      .text()
+                      .slice(-1) !== "s"
                     ) {
                       $("#awselect_intervalUnit .current_value").text(
                         $("#awselect_intervalUnit .current_value").text() + "s"
@@ -674,19 +671,19 @@ $(window).on("pywebviewready", function() {
                     if (
                       $("#yrIntervalNum").val() === "1" &&
                       $("#awselect_intervalUnit .current_value")
-                        .text()
-                        .slice(-1) === "s"
+                      .text()
+                      .slice(-1) === "s"
                     ) {
                       $("#awselect_intervalUnit .current_value").text(
                         $("#awselect_intervalUnit .current_value")
-                          .text()
-                          .slice(0, -1)
+                        .text()
+                        .slice(0, -1)
                       );
                     } else if (
                       $("#yrIntervalNum").val() !== "1" &&
                       $("#awselect_intervalUnit .current_value")
-                        .text()
-                        .slice(-1) !== "s"
+                      .text()
+                      .slice(-1) !== "s"
                     ) {
                       $("#awselect_intervalUnit .current_value").text(
                         $("#awselect_intervalUnit .current_value").text() + "s"
@@ -759,8 +756,8 @@ $(window).on("pywebviewready", function() {
                   $("#wkSettings").change(function() {
                     var pressed = $(
                       '#awselect_wkSettings a:contains("' +
-                        $("#wkSettings option:selected").text() +
-                        '")'
+                      $("#wkSettings option:selected").text() +
+                      '")'
                     );
                     var lastSelected = $("#awselect_wkSettings a").filter(
                       function() {
@@ -788,7 +785,7 @@ $(window).on("pywebviewready", function() {
                       lastSelected.each(function() {
                         if (
                           $(this).not(':contains("' + pressed.text() + '")')
-                            .length > 0
+                          .length > 0
                         ) {
                           $("#awselect_wkSettings .current_value").text(
                             "On " + $(this).text()
@@ -802,12 +799,12 @@ $(window).on("pywebviewready", function() {
                         lastSelected.each(function() {
                           if (
                             $(this).not(':contains("' + pressed.text() + '")')
-                              .length > 0
+                            .length > 0
                           ) {
                             t.push(
                               $(this)
-                                .text()
-                                .substring(0, 3)
+                              .text()
+                              .substring(0, 3)
                             );
                           }
                         });
@@ -821,8 +818,8 @@ $(window).on("pywebviewready", function() {
                             if ($(this).text() === val) {
                               t.push(
                                 $(this)
-                                  .text()
-                                  .substring(0, 3)
+                                .text()
+                                .substring(0, 3)
                               );
                             }
                           });
@@ -942,15 +939,15 @@ $(window).on("pywebviewready", function() {
   $("#processList tbody").on("click", "#detailBtn", function() {
     if (
       $(this)
-        .parent()
-        .parent()
-        .hasClass("disabled")
+      .parent()
+      .parent()
+      .hasClass("disabled")
     ) {
       return;
     }
     showProcessDetail();
     refreshProcessDetail(null,
-    $(this)
+      $(this)
       .parent()
       .parent()
       .find("td:first")
@@ -960,39 +957,38 @@ $(window).on("pywebviewready", function() {
   $("#processList tbody").on("click", "#renameBtn", function() {
     if (
       $(this)
-        .parent()
-        .parent()
-        .hasClass("disabled")
+      .parent()
+      .parent()
+      .hasClass("disabled")
     ) {
       return;
     }
     promptForProcessName(
       true,
       $(this)
-        .parent()
-        .parent()
-        .find("td:first")
-        .html()
+      .parent()
+      .parent()
+      .find("td:first")
+      .html()
     );
   });
 
   $("#processList tbody").on("click", "#shareBtn", function() {
     if (
       $(this)
-        .parent()
-        .parent()
-        .hasClass("disabled")
+      .parent()
+      .parent()
+      .hasClass("disabled")
     ) {
       return;
     }
     Swal.fire({
-      title:
-        "Export process " +
+      title: "Export process " +
         $(this)
-          .parent()
-          .parent()
-          .find("td:first")
-          .html() + "?",
+        .parent()
+        .parent()
+        .find("td:first")
+        .html() + "?",
       html: "The exported process will be available in {home_directory}/Chrono/shareable/.",
       icon: "question",
       confirmButtonText: "Export",
@@ -1002,10 +998,10 @@ $(window).on("pywebviewready", function() {
       if (res.isConfirmed) {
         exportProcess(
           $(this)
-            .parent()
-            .parent()
-            .find("td:first")
-            .html()
+          .parent()
+          .parent()
+          .find("td:first")
+          .html()
         );
       }
     });
@@ -1014,18 +1010,17 @@ $(window).on("pywebviewready", function() {
   $("#processList tbody").on("click", "#delBtn", function() {
     if (
       $(this)
-        .parent()
-        .parent()
-        .hasClass("localProcess")
+      .parent()
+      .parent()
+      .hasClass("localProcess")
     ) {
       Swal.fire({
-        title:
-          "Remove process " +
+        title: "Remove process " +
           $(this)
-            .parent()
-            .parent()
-            .find("td:first")
-            .html() +
+          .parent()
+          .parent()
+          .find("td:first")
+          .html() +
           "?",
         html: "You will not be able to revert this.",
         icon: "warning",
@@ -1036,10 +1031,10 @@ $(window).on("pywebviewready", function() {
         if (res.isConfirmed) {
           delProcess(
             $(this)
-              .parent()
-              .parent()
-              .find("td:first")
-              .html()
+            .parent()
+            .parent()
+            .find("td:first")
+            .html()
           );
         }
       });
@@ -1048,13 +1043,12 @@ $(window).on("pywebviewready", function() {
 
   $("#sessionList tbody").on("click", "#logoutSpecificBtn", function() {
     Swal.fire({
-      title:
-        "Log out " +
+      title: "Log out " +
         $(this)
-          .parent()
-          .parent()
-          .find("td:eq(1)")
-          .html() +
+        .parent()
+        .parent()
+        .find("td:eq(1)")
+        .html() +
         "?",
       html: "You will not be able to revert this.",
       icon: "warning",
@@ -1065,10 +1059,10 @@ $(window).on("pywebviewready", function() {
       if (res.isConfirmed) {
         logoutRemoteSession(
           $(this)
-            .parent()
-            .parent()
-            .find("td:first")
-            .html()
+          .parent()
+          .parent()
+          .find("td:first")
+          .html()
         );
       }
     });
@@ -1182,23 +1176,22 @@ $(window).on("pywebviewready", function() {
     var msg = "Add process btn clicked";
     var previousEvent =
       $(this)
-        .parent()
-        .parent()
-        .find('.processBox')
-        .find("#stepInfo")
-        .html();
+      .parent()
+      .parent()
+      .find('.processBox')
+      .find("#stepInfo")
+      .html();
     var processName =
       $(this)
-        .parent()
-        .parent()
-        .parent()
-        .parent()
-        .find(".processModalPageTitle")
-        .html();
+      .parent()
+      .parent()
+      .parent()
+      .parent()
+      .find(".processModalPageTitle")
+      .html();
     $.when(window.pywebview.api.record(msg)).done(function() {
       Swal.fire({
-        title:
-          "Save added actions?",
+        title: "Save added actions?",
         icon: "question",
         showCancelButton: true,
         confirmButtonText: "Save",
@@ -1213,8 +1206,7 @@ $(window).on("pywebviewready", function() {
     });
 
     Swal.fire({
-      title:
-        "Recording new actions",
+      title: "Recording new actions",
       html: "Please do the actions that you want to add into the existing process.",
       icon: "info",
       confirmButtonText: "Done recording",
@@ -1229,7 +1221,7 @@ $(window).on("pywebviewready", function() {
 
   $("#processDetail").on("click", "#stepDelBtn", function() {
     var processName =
-    $(this)
+      $(this)
       .parent()
       .parent()
       .parent()
@@ -1237,49 +1229,48 @@ $(window).on("pywebviewready", function() {
       .find(".processModalPageTitle")
       .html();
     Swal.fire({
-      title:
-        "Remove step " +
+      title: "Remove step " +
+        $(this)
+        .parent()
+        .find(".eventTitle")
+        .html() +
+        " from " +
+        processName +
+        "?",
+      html: "You will not be able to revert this.",
+      icon: "warning",
+      confirmButtonText: "Confirm",
+      showCancelButton: true,
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then(res => {
+      if (res.isConfirmed) {
+        delStep(
           $(this)
-            .parent()
-            .find(".eventTitle")
-            .html() +
-            " from " +
-            processName +
-            "?",
-        html: "You will not be able to revert this.",
-        icon: "warning",
-        confirmButtonText: "Confirm",
-        showCancelButton: true,
-        allowOutsideClick: () => !Swal.isLoading()
-      }).then(res => {
-        if (res.isConfirmed) {
-          delStep(
-            $(this)
-            .parent()
-            .find("#stepInfo")
-            .html(),
-            processName)
-          }}
-      );
+          .parent()
+          .find("#stepInfo")
+          .html(),
+          processName)
+      }
+    });
   });
 
   $("#processDetail").on("click", "#editBtn", function() {
     promptForKeyboardEventKey(
       $(this)
-        .parent()
-        .find("#stepInfo")
-        .html(),
+      .parent()
+      .find("#stepInfo")
+      .html(),
       $(this)
-        .parent()
-        .parent()
-        .parent()
-        .parent()
-        .find(".processModalPageTitle")
-        .html(),
+      .parent()
+      .parent()
+      .parent()
+      .parent()
+      .find(".processModalPageTitle")
+      .html(),
       $(this)
-        .parent()
-        .find("#keyInfo")
-        .html()
+      .parent()
+      .find("#keyInfo")
+      .html()
     );
   });
 
@@ -1536,7 +1527,7 @@ function refreshProcessList(msg = null) {
       } else {
         row += `<button id='delBtn' class='btn'><i class='far fa-trash-alt fa-lg'></i></button></td>`;
       }
-        row += "</tr>";
+      row += "</tr>";
       $("#processList tbody").append(row);
     });
   });
@@ -1646,7 +1637,9 @@ async function promptForKeyboardEventKey(changedEvent, processName, oldKey = nul
 }
 
 async function promptForFileImport() {
-  const {value: file} = await Swal.fire({
+  const {
+    value: file
+  } = await Swal.fire({
     title: "Import process?",
     html: "Choose the shareable Chrono process ZIP file to import.",
     icon: "question",
@@ -1655,7 +1648,7 @@ async function promptForFileImport() {
     confirmButtonText: "Confirm",
     allowOutsideClick: () => !Swal.isLoading(),
     inputAttributes: {
-      'accept': '.zip, .rar, .7zip',
+      'accept': '.zip',
       'required': 'true'
     }
   })
@@ -1703,7 +1696,7 @@ async function promptForFileImport() {
 
 function backendValidation(type, res) {
   if (res.status) {
-    switch(type) {
+    switch (type) {
       case "import_or_export":
         Swal.fire({
           title: "Success",
@@ -1754,8 +1747,7 @@ function pwTip(id) {
     arrow: false,
     allowHTML: true,
     trigger: "manual",
-    content:
-      '<div id="pswd_info"><p>Password must meet the following requirements:</p><ul><li id="letter" class="invalid">At least <strong>one letter</strong></li><li id="capital" class="invalid">At least <strong>one capital letter</strong></li><li id="number" class="invalid">At least <strong>one number</strong></li><li id="length" class="invalid">Be at least <strong>8 characters</strong></li></ul></div>'
+    content: '<div id="pswd_info"><p>Password must meet the following requirements:</p><ul><li id="letter" class="invalid">At least <strong>one letter</strong></li><li id="capital" class="invalid">At least <strong>one capital letter</strong></li><li id="number" class="invalid">At least <strong>one number</strong></li><li id="length" class="invalid">Be at least <strong>8 characters</strong></li></ul></div>'
   });
 
   $(id)
@@ -1927,8 +1919,7 @@ function refreshProcessDetail(msg = null, processName) {
             row += `
               <h4 class="eventTitle">${step.substring(0, step.length - 5)} ${step.substring(step.length - 5)}</h4>
               <p class="eventInfo">`;
-          }
-          else if (i != "time") {
+          } else if (i != "time") {
             row += `${(i.charAt(0).toUpperCase() + i.slice(1)).replace('_', " ")}: `;
 
             if (!isNaN(parseFloat(step)) && i != 'key') {
@@ -1941,8 +1932,7 @@ function refreshProcessDetail(msg = null, processName) {
                 positionCounter += 1
               });
               row += `<br />`;
-            }
-            else {
+            } else {
               row += `${step}<br />`;
             }
           }
@@ -1970,17 +1960,15 @@ function refreshProcessDetail(msg = null, processName) {
         processCounter += 1
       });
     });
-  }
-  else
-  {
+  } else {
     $("#processEvents").append(`<h2>Cannot retrieve process detail.</h2>`);
   }
 }
 
 function delStep(deletedEvent, processName) {
   window.pywebview.api.del_step(deletedEvent, processName).then(res => {
-    refreshProcessDetail(null, processName)}
-  );
+    refreshProcessDetail(null, processName)
+  });
 };
 
 // When the user clicks anywhere outside of the modal, close it
