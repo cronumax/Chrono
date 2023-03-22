@@ -80,7 +80,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '1.3.5'
+        self.version = '1.3.6'
         self.host = platform.node()
         self.host_os = platform.system()
         self.host_username = getpass.getuser()
@@ -1479,8 +1479,6 @@ class Api:
 
             with open(process_path) as f:
                 events = json.load(f)
-
-            shutil.make_archive(zip_path, format='zip')
 
             new_json = []
             for i, step in enumerate(events):
