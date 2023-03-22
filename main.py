@@ -37,6 +37,7 @@ from decimal import Decimal
 from playsound import playsound
 import zipfile
 import shutil
+from base64 import b64decode
 
 
 if platform.system() == 'Linux':
@@ -1535,19 +1536,18 @@ class Api:
                 'msg': 'Failed to export process {0}.'.format(process_name)
             }
 
-    def import_process(self, process_name, import_process):
+    def import_process(self, process_name, import_name, import_uri):
         try:
+            head, data = import_uri.split(',')
+            decoded = b64decode(data)
+            
             # Save imported process data to a tmp file
-            with open('{0}/tmp_import_process.zip'.format(app_file_path), 'w') as f:
-                f.write(import_process)
+            with open('{0}/tmp_import_process.zip'.format(app_file_path), 'wb+') as f:
+                f.write(decoded)
 
             import_file = '{0}/tmp_import_process.zip'.format(app_file_path)
             json_path = '{0}/processes/{1}/'.format(app_file_path, self.current_user_email)
             img_path = '{0}/img/{1}/'.format(app_file_path, self.current_user_email)
-
-            # Wait until imported file is copied to Downloads
-            # while not (os.path.isfile(import_file)):
-            #     sleep(1)
 
             # Check local existence
             new_path = '{0}/processes/{1}/{2}.json'.format(

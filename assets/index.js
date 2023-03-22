@@ -1691,7 +1691,7 @@ async function promptForFileImport() {
 
     if (result.isConfirmed) {
       reader.onload = (e) => {
-        window.pywebview.api.import_process(result.value, e.target.result).then(res => {
+        window.pywebview.api.import_process(result.value, file.name.substring(0, file.name.length - 4), e.target.result).then(res => {
           backendValidation("importexport", res)
         })
       }
