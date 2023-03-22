@@ -80,7 +80,7 @@ class Api:
     def __init__(self):
         logger.info('Chrono started')
 
-        self.version = '1.3.4'
+        self.version = '1.3.5'
         self.host = platform.node()
         self.host_os = platform.system()
         self.host_username = getpass.getuser()
@@ -1540,7 +1540,7 @@ class Api:
         try:
             head, data = import_uri.split(',')
             decoded = b64decode(data)
-            
+
             # Save imported process data to a tmp file
             with open('{0}/tmp_import_process.zip'.format(app_file_path), 'wb+') as f:
                 f.write(decoded)
