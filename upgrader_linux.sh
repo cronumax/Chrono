@@ -1,11 +1,11 @@
 #!/bin/bash
 
-rm Chrono
+rm chrono
 
-wget -q $1/Chrono.tar.xz
+wget -q $1/chrono.tar.xz
 
-tar -xf Chrono.tar.xz
+tar -xf chrono.tar.xz
 
-rm Chrono.tar.xz
+rm chrono.tar.xz
 
-./Chrono
+./chrono
