@@ -47,28 +47,23 @@ pip install -r windows_requirements.txt
 
 ## Distribute
 
-### Universal
-
-```bash
-# Chrono for Linux
-pyinstaller chrono.spec
-
-# Chrono for macOS, Windows
-pyinstaller Chrono.spec
-
-# Upgrader for Windows
-pyinstaller Upgrader.spec
-```
-
 ### Linux
 
 ```bash
+pyinstaller chrono.spec
+
+# OR
+
 pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import plyer.platforms.linux.notification --hidden-import geocoder main.py -n chrono -i media/automation.png --copy-metadata pytz --copy-metadata six --copy-metadata tzlocal
 ```
 
 ### macOS
 
 ```bash
+pyinstaller Chrono.spec
+
+# OR
+
 pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import geocoder main.py -n Chrono -i media/automation.png --copy-metadata pytz --copy-metadata six --copy-metadata tzlocal
 ```
 
@@ -76,9 +71,17 @@ pyinstaller --onefile --windowed --add-data 'assets:assets' --hidden-import geoc
 
 ```bash
 # Chrono
+pyinstaller Chrono.spec
+
+# OR
+
 pyinstaller --onefile --windowed --add-data 'assets;assets' --hidden-import plyer.platforms.win.notification --hidden-import apscheduler --hidden-import geocoder main.py -n Chrono -i media/automation.ico --copy-metadata pytz --copy-metadata six --copy-metadata tzlocal
 
 # Upgrader
+pyinstaller Upgrader.spec
+
+# OR
+
 pyinstaller --onefile upgrader.py -n Upgrader
 ```
 
