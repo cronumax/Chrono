@@ -8,7 +8,7 @@ Cronumax dev team
 
 ## License
 
-Commercial
+GPL v3
 
 ## Dependencies
 
